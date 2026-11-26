@@ -16,14 +16,23 @@ async def _input_async(prompt=""):
     return str(await js.requestStdinLine(str(prompt)))
 
 
-def _input_blocking(prompt=""):
+def _input_via_service_worker(prompt=""):
+    sys.stdout.flush()
+    return str(js.readStdinLineSync(str(prompt)))
+
+
+def _input_via_jspi(prompt=""):
     return run_sync(_input_async(prompt))
 
 
 def _input_unsupported(prompt=""):
     raise RuntimeError(
-        "input() inside a function needs a newer browser; call input() outside functions"
+        "input() inside a function needs service workers, which this browser has disabled"
+        " (for example in a private window); call input() outside functions"
     )
+
+
+_BLOCKING_INPUTS = {"service-worker": _input_via_service_worker, "jspi": _input_via_jspi}
 
 
 class _AwaitTopLevelInput(ast.NodeTransformer):
@@ -57,19 +66,22 @@ def _error_message(error, filename):
     return f"{type(error).__name__} on line {line}: {message}"
 
 
-async def run_main(source, filename, blocking_input=None):
+async def run_main(source, filename, input_mode=None):
     """Runs `source` as `__main__` in a fresh namespace.
 
     Returns None on success (including `exit()`), else a one-line error message.
-    `blocking_input` defaults to whether the runtime can suspend on a promise (JSPI).
+    `input_mode` is how `input()` blocks: "service-worker" (stdinServiceWorker.js answers a
+    synchronous request), "jspi" (WebAssembly stack switching) or "none", when only module-level
+    `input()` works, rewritten into an await. Defaults to "jspi" where the runtime supports it.
     """
-    if blocking_input is None:
-        blocking_input = can_run_sync()
-    builtins.input = _input_blocking if blocking_input else _input_unsupported
+    if input_mode is None:
+        input_mode = "jspi" if can_run_sync() else "none"
+    blocking_input = _BLOCKING_INPUTS.get(input_mode)
+    builtins.input = blocking_input or _input_unsupported
     builtins.__tmc_input_async__ = _input_async
     try:
         tree = ast.parse(source, filename)
-        if not blocking_input:
+        if blocking_input is None:
             tree = ast.fix_missing_locations(_AwaitTopLevelInput().visit(tree))
         code = compile(tree, filename, "exec", flags=ast.PyCF_ALLOW_TOP_LEVEL_AWAIT)
         namespace = {"__name__": "__main__", "__file__": filename, "__builtins__": builtins}

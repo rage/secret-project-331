@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
+import { postStdinLine } from "@/util/stdinServiceWorker"
+
 import type { PythonWorker } from "./usePythonWorker"
 
 export type OutputSegment =
@@ -14,6 +16,8 @@ export function useRunOutput(pythonWorker: PythonWorker) {
   const [waitingForInput, setWaitingForInput] = useState(false)
   const [stdinPrompt, setStdinPrompt] = useState("")
   const workerRef = useRef<Worker | null>(null)
+  /** Set while a blocking input() waits on the stdin service worker for its line. */
+  const stdinRequestIdRef = useRef<string | null>(null)
   const latestRunRef = useRef(0)
   const runOutputBufferRef = useRef("")
   const flushTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -45,7 +49,13 @@ export function useRunOutput(pythonWorker: PythonWorker) {
     })
     setWaitingForInput(false)
     setStdinPrompt("")
-    workerRef.current?.postMessage({ type: "stdin_line", line })
+    const requestId = stdinRequestIdRef.current
+    stdinRequestIdRef.current = null
+    if (requestId === null) {
+      workerRef.current?.postMessage({ type: "stdin_line", line })
+    } else {
+      void postStdinLine(requestId, line)
+    }
   }, [])
 
   const clearFlushTimer = useCallback(() => {
@@ -65,6 +75,7 @@ export function useRunOutput(pythonWorker: PythonWorker) {
     setWaitingForInput(false)
     setStdinPrompt("")
     workerRef.current = null
+    stdinRequestIdRef.current = null
     // Python cannot be interrupted, so stopping costs the worker.
     pythonWorker.discard()
   }, [pythonWorker, clearFlushTimer])
@@ -150,6 +161,7 @@ export function useRunOutput(pythonWorker: PythonWorker) {
             break
           }
           case "stdin_request":
+            stdinRequestIdRef.current = typeof data.id === "string" ? data.id : null
             flushStdout()
             setSegments((prev) => [...prev, { type: "input", prompt: data.prompt ?? "", line: "" }])
             setStdinPrompt(data.prompt ?? "")

@@ -4,10 +4,35 @@
  *
  * The page passes the Pyodide directory as `?indexURL=`, so the version lives only in the page's
  * build. Posts `ready` or `load_error` once, then answers `run` and `test` messages one at a time.
+ *
+ * `input()` blocks on stdinServiceWorker.js when it controls this worker: a `stdin_request` then
+ * carries an `id`, and the page posts the line to the service worker. Otherwise the page posts it
+ * here as `stdin_line`.
  */
 const indexURL = new URL(self.location.href).searchParams.get("indexURL")
+const STDIN_URL = new URL("__stdin", self.location.href)
 
 let pendingStdinResolve = null
+
+/** Called from pythonRunner.py through the `js` module; blocks until the page answers. */
+self.readStdinLineSync = (prompt) => {
+  const id = crypto.randomUUID()
+  // oxlint-disable-next-line unicorn/require-post-message-target-origin -- a worker's postMessage has no targetOrigin
+  self.postMessage({ type: "stdin_request", prompt, id })
+  const url = new URL(STDIN_URL)
+  url.searchParams.set("id", id)
+  for (;;) {
+    const request = new XMLHttpRequest()
+    request.open("GET", url, false)
+    request.send()
+    if (request.status === 200) {
+      return request.responseText
+    }
+    if (request.status !== 204) {
+      throw new Error(`Reading input failed: ${request.status}`)
+    }
+  }
+}
 
 /** Called from pythonRunner.py through the `js` module. */
 self.requestStdinLine = (prompt) => {
@@ -16,6 +41,23 @@ self.requestStdinLine = (prompt) => {
   return new Promise((resolve) => {
     pendingStdinResolve = resolve
   })
+}
+
+/**
+ * Whether stdinServiceWorker.js intercepts this worker's requests. Probed with a synchronous XHR,
+ * like the reads, because Firefox sends a worker's fetch() past the service worker.
+ */
+function hasStdinServiceWorker() {
+  try {
+    const probe = new URL(STDIN_URL)
+    probe.searchParams.set("probe", "")
+    const request = new XMLHttpRequest()
+    request.open("GET", probe, false)
+    request.send()
+    return request.status === 200 && request.responseText === "ready"
+  } catch {
+    return false
+  }
 }
 
 async function load() {
@@ -51,13 +93,19 @@ function streamTo(type) {
   }
 }
 
+let hasServiceWorkerStdin = false
+
 async function run({ source, filename }) {
   const { pyodide, runner } = await loaded
+  // Probed per Run until it succeeds: Firefox lets the service worker see a worker's requests only
+  // once the worker's script has finished evaluating.
+  hasServiceWorkerStdin ||= hasStdinServiceWorker()
+  runner.set("input_mode", hasServiceWorkerStdin ? "service-worker" : null)
   pyodide.setStdout(streamTo("stdout"))
   pyodide.setStderr(streamTo("stderr"))
   runner.set("source", source)
   runner.set("filename", filename)
-  const error = await pyodide.runPythonAsync("await run_main(source, filename)", {
+  const error = await pyodide.runPythonAsync("await run_main(source, filename, input_mode)", {
     globals: runner,
   })
   // oxlint-disable-next-line unicorn/require-post-message-target-origin -- a worker's postMessage has no targetOrigin

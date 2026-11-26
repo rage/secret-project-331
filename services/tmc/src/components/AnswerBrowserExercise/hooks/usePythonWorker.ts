@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef } from "react"
 
 import { pythonWorkerUrl } from "@/util/pyodideConfig"
+import { stdinServiceWorker } from "@/util/stdinServiceWorker"
 
 interface LoadingWorker {
-  worker: Worker
   /** Settles once Pyodide has loaded in the worker, or failed to. */
   ready: Promise<Worker>
+  terminate: () => void
 }
 
-function startWorker(): LoadingWorker {
-  const worker = new Worker(pythonWorkerUrl(), { type: "module" })
-  const ready = new Promise<Worker>((resolve, reject) => {
+function whenLoaded(worker: Worker): Promise<Worker> {
+  return new Promise<Worker>((resolve, reject) => {
     const onMessage = (event: MessageEvent<{ type?: string; message?: string }>) => {
       if (event.data.type === "ready") {
         cleanup()
@@ -31,7 +31,27 @@ function startWorker(): LoadingWorker {
     worker.addEventListener("message", onMessage)
     worker.addEventListener("error", onError)
   })
-  return { worker, ready }
+}
+
+function startWorker(): LoadingWorker {
+  let worker: Worker | null = null
+  let terminated = false
+  // The worker must start after the stdin service worker controls the page, or it is not
+  // controlled and input() cannot block on it.
+  const ready = stdinServiceWorker().then(() => {
+    if (terminated) {
+      throw new Error("The Python worker was stopped while starting")
+    }
+    worker = new Worker(pythonWorkerUrl(), { type: "module" })
+    return whenLoaded(worker)
+  })
+  return {
+    ready,
+    terminate: () => {
+      terminated = true
+      worker?.terminate()
+    },
+  }
 }
 
 /**
@@ -45,7 +65,7 @@ export function usePythonWorker() {
   const currentRef = useRef<LoadingWorker | null>(null)
 
   const discard = useCallback(() => {
-    currentRef.current?.worker.terminate()
+    currentRef.current?.terminate()
     currentRef.current = null
   }, [])
 

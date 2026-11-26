@@ -27,32 +27,39 @@ beforeAll(async () => {
       prompts.push(prompt)
       return Promise.resolve("Ada")
     },
+    readStdinLineSync: (prompt: string) => {
+      prompts.push(prompt)
+      return "Ada"
+    },
   })
 }, 60_000)
 
+type InputMode = "service-worker" | "jspi" | "none"
+
 /** Runs `source` the way the worker's Run does; returns the error line, or null. */
-async function run(source: string, blockingInput: boolean): Promise<string | null> {
+async function run(source: string, inputMode: InputMode): Promise<string | null> {
   output = []
   prompts = []
   pyodide.setStdout({ batched: (line) => output.push(line) })
   const runner = pyodide.toPy({})
   pyodide.runPython(RUNNER, { globals: runner })
   runner.set("source", source)
-  runner.set("blocking", blockingInput)
+  runner.set("input_mode", inputMode)
   const error: unknown = await pyodide.runPythonAsync(
-    "await run_main(source, 'src/main.py', blocking)",
+    "await run_main(source, 'src/main.py', input_mode)",
     { globals: runner },
   )
   return (error as string | undefined) ?? null
 }
 
 describe("Run", () => {
-  describe.each([
-    { blockingInput: true, mode: "with blocking input" },
-    { blockingInput: false, mode: "without blocking input" },
-  ])("$mode", ({ blockingInput }) => {
+  describe.each<{ inputMode: InputMode }>([
+    { inputMode: "service-worker" },
+    { inputMode: "jspi" },
+    { inputMode: "none" },
+  ])("with input mode $inputMode", ({ inputMode }) => {
     it("reads module-level input() and shows the prompt", async () => {
-      expect(await run(SOLUTION, blockingInput)).toBeNull()
+      expect(await run(SOLUTION, inputMode)).toBeNull()
       expect(prompts).toEqual(["What is your name? "])
       expect(output).toEqual(["Hello Ada"])
     })
@@ -60,32 +67,41 @@ describe("Run", () => {
     it("runs as __main__ with real module globals", async () => {
       const source =
         "count = 0\ndef bump():\n    global count\n    count += 1\nbump()\nprint(count, __name__)\n"
-      expect(await run(source, blockingInput)).toBeNull()
+      expect(await run(source, inputMode)).toBeNull()
       expect(output).toEqual(["1 __main__"])
     })
 
     it("stops at exit() without reporting an error", async () => {
-      expect(await run('print("a")\nexit()\nprint("b")\n', blockingInput)).toBeNull()
+      expect(await run('print("a")\nexit()\nprint("b")\n', inputMode)).toBeNull()
       expect(output).toEqual(["a"])
     })
 
     it("reports the line of an error in the student's code", async () => {
-      expect(await run("def f():\n    return 1 / 0\n\nf()\n", blockingInput)).toBe(
+      expect(await run("def f():\n    return 1 / 0\n\nf()\n", inputMode)).toBe(
         "ZeroDivisionError on line 2: division by zero",
       )
     })
 
     it("does not leak the runner's imports into the student's namespace", async () => {
-      expect(await run("print(ast)\n", blockingInput)).toBe(
+      expect(await run("print(ast)\n", inputMode)).toBe(
         "NameError on line 1: name 'ast' is not defined",
       )
     })
   })
 
-  it("reads input() inside a function when input can block", async () => {
-    const source = 'def main():\n    print("Hi " + input())\n\nmain()\n'
-    expect(await run(source, true)).toBeNull()
-    expect(output).toEqual(["Hi Ada"])
+  it.each<InputMode>(["service-worker", "jspi"])(
+    "reads input() inside a function with input mode %s",
+    async (inputMode) => {
+      const source = 'def main():\n    print("Hi " + input("Name? "))\n\nmain()\n'
+      expect(await run(source, inputMode)).toBeNull()
+      expect(prompts).toEqual(["Name? "])
+      expect(output).toEqual(["Hi Ada"])
+    },
+  )
+
+  it("explains why input() inside a function fails when input cannot block", async () => {
+    const source = "def main():\n    input()\n\nmain()\n"
+    expect(await run(source, "none")).toMatch(/^RuntimeError on line 2: .*service workers/)
   })
 })
 

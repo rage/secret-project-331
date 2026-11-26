@@ -4,6 +4,12 @@ import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialAction
 
 test.use({
   storageState: "src/states/student1@example.com.json",
+  // Service workers need a secure context, which production's https gives. The full Chromium build
+  // honours this flag; the headless shell does not.
+  channel: "chromium",
+  launchOptions: {
+    args: ["--unsafely-treat-insecure-origin-as-secure=http://project-331.local"],
+  },
 })
 
 // Seeded by seed_tmc_browser_exercise.rs.
@@ -11,16 +17,30 @@ const EXERCISE_PAGE =
   "http://project-331.local/org/uh-mathstat/courses/tmc-browser-exercise/chapter-1/hello-name"
 const STUB = "# Write your solution here"
 const SOLUTION = 'name = input("What is your name? ")\nprint("Hello " + name)\n'
+// input() inside a function: blocks on the stdin service worker, not on an await.
+const FUNCTION_INPUT = 'ask = lambda: input("Who? ")\nprint("Hi " + ask())\n'
 
 function exerciseFrame(page: Page): FrameLocator {
   return page.frameLocator('iframe[title="Hello name"]')
 }
 
-/** Replaces the editor's contents; inserted as one edit so Monaco's auto-closing stays out of it. */
+/**
+ * Replaces the editor's contents. Inserted as one edit so Monaco's auto-closing stays out of it;
+ * Monaco still auto-indents, so `code` must not rely on indentation.
+ */
 async function replaceCode(page: Page, frame: FrameLocator, code: string) {
   await frame.locator(".monaco-editor .view-lines").click()
   await page.keyboard.press("ControlOrMeta+A")
   await page.keyboard.insertText(code)
+}
+
+/** Clicks Run and answers the program's one `input()` call. */
+async function runWithInput(frame: FrameLocator, line: string) {
+  await frame.getByRole("button", { name: "Run" }).click()
+  const input = frame.getByRole("textbox", { name: "Program input" })
+  await expect(input).toBeVisible({ timeout: 60_000 })
+  await input.fill(line)
+  await input.press("Enter")
 }
 
 test("a Python exercise is run, tested and submitted in the browser editor", async ({ page }) => {
@@ -44,12 +64,15 @@ test("a Python exercise is run, tested and submitted in the browser editor", asy
   })
 
   await test.step("Run reads input and prints", async () => {
-    await frame.getByRole("button", { name: "Run" }).click()
-    const input = frame.getByRole("textbox", { name: "Program input" })
-    await expect(input).toBeVisible({ timeout: 60_000 })
-    await input.fill("Ada")
-    await input.press("Enter")
+    await runWithInput(frame, "Ada")
     await expect(frame.getByText("Hello Ada")).toBeVisible()
+  })
+
+  await test.step("Run reads input() inside a function", async () => {
+    await replaceCode(page, frame, FUNCTION_INPUT)
+    await runWithInput(frame, "Grace")
+    await expect(frame.getByText("Hi Grace")).toBeVisible()
+    await replaceCode(page, frame, SOLUTION)
   })
 
   await test.step("Test runs the exercise's tests in the browser", async () => {

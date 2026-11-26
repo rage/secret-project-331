@@ -219,7 +219,8 @@ const ImageBlock: React.FC<
               className: css`
                 caption-side: bottom;
                 text-align: center;
-                font-size: 0.8125rem;
+                font-size: 0.875rem;
+                line-height: 1.4;
                 color: ${baseTheme.colors.gray[500]};
                 margin-top: 0.5rem;
                 margin-bottom: 0.8125rem;

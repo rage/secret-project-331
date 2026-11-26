@@ -48,7 +48,8 @@ const tiered = (
 })
 
 const TIERED_COMPLETIONS: MockMoocfiCompletionSeed[] = [
-  tiered(REGISTERING_ID, { tier: 2 }),
+  // Dated before the registered tier 3 completion, whose intermediate course it would repeat.
+  tiered(REGISTERING_ID, { tier: 2, completion_date: "2025-07-01T12:00:00Z" }),
   tiered(BEFORE_CUTOFF_ID, { tier: 3, completion_date: BEFORE_MOOCFI_CUTOFF }),
   tiered(NOT_ELIGIBLE_ID, { tier: 2, eligible_for_ects: false }),
   tiered(REGISTERED_ELSEWHERE_ID, {
@@ -62,7 +63,7 @@ const TIERED_COMPLETIONS: MockMoocfiCompletionSeed[] = [
     ],
   }),
   tiered(TIER_1_ID, { tier: 1 }),
-  // Dated before the registered tier 3 completion, which would otherwise make it a repeat.
+  // Dated before the registered tier 3 completion for the same reason.
   tiered(REMOVED_ID, { tier: 3, completion_date: "2025-06-01T12:00:00Z" }),
 ]
 

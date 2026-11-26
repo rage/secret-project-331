@@ -125,7 +125,7 @@ test("A completion from before the cutoff stays with mooc.fi and only the later 
   expect(details.moocfi_completion?.moocfi_completion_id).toBe(AFTER_CUTOFF_ID)
 })
 
-test("A later completion with the same grade and tier as a registered one is not registered again", async ({
+test("A later completion with the same grade as a registered one is not registered again, whatever its tier", async ({
   page,
   request,
   adminApi,
@@ -137,6 +137,7 @@ test("A later completion with the same grade and tier as a registered one is not
     completionOf(MOOCFI_COURSE, registeredId, {
       completion_date: BEFORE_MOOCFI_CUTOFF,
       grade: null,
+      tier: 1,
       registrations: REGISTERED_BY_PULL,
     }),
     // A pass in other words, so the same grade.
@@ -146,7 +147,7 @@ test("A later completion with the same grade and tier as a registered one is not
   await openRegistrationFromMoocfi(page, MOOCFI_COURSE, STUDENT)
   await expect(
     page.getByText(
-      "An earlier completion of this course with the same grade and level has already been registered",
+      "These credits were already registered from an earlier completion of this course with the same grade",
     ),
   ).toBeVisible()
   await expect(page.getByRole("button", { name: "Start" })).toHaveCount(0)
@@ -162,14 +163,13 @@ test("A later completion with the same grade and tier as a registered one is not
   expect(await ledgeredCompletionIds(adminApi, MOOCFI_TARGET_ID)).not.toContain(repeatId)
 })
 
-test("A different grade or tier, or an earlier completion not registered, leaves a later one registrable", async ({
+test("A different grade, or an earlier completion not registered, leaves a later one registrable", async ({
   page,
   request,
   adminApi,
 }) => {
   const lowerGradeId = completionId(3)
   const higherGradeId = completionId(4)
-  const otherTierId = completionId(5)
   const untieredId = completionId(6)
   const unregisteredId = completionId(7)
   const afterUnregisteredId = completionId(8)
@@ -181,11 +181,6 @@ test("A different grade or tier, or an earlier completion not registered, leaves
       registrations: REGISTERED_BY_PULL,
     }),
     completionOf(MOOCFI_GRADED_COURSE, higherGradeId, { grade: "5" }),
-    completionOf(MOOCFI_COURSE, otherTierId, {
-      completion_date: BEFORE_MOOCFI_CUTOFF,
-      tier: 1,
-      registrations: REGISTERED_BY_PULL,
-    }),
     completionOf(MOOCFI_COURSE, untieredId, {}),
     completionOf(MOOCFI_TIERED_COURSE, unregisteredId, {
       completion_date: BEFORE_MOOCFI_CUTOFF,

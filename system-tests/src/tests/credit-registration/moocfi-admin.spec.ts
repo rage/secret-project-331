@@ -60,11 +60,14 @@ const targetRows = (page: Page, name: string): Locator =>
     .getByRole("row")
     .filter({ hasText: `mooc.fi: ${name}` })
 
+/** Matched on the code alone: another row's code or its prerequisite can contain this one. */
 const courseCodeRow = (page: Page, name: string, courseCode: string): Locator =>
-  targetRows(page, name).filter({ hasText: courseCode })
+  targetRows(page, name).filter({ has: page.getByText(courseCode, { exact: true }) })
 
 const sisuCourseRows = (dialog: Locator): Locator =>
-  dialog.getByRole("group").filter({ has: dialog.getByRole("button", { name: "Remove course" }) })
+  dialog
+    .getByRole("group")
+    .filter({ has: dialog.page().getByRole("button", { name: "Remove course" }) })
 
 const fillSisuCourse = async (
   dialog: Locator,

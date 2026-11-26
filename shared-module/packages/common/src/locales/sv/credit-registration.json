@@ -1271,7 +1271,7 @@
   "credit-registration-moocfi-before-cutoff-heading": "Registrera i den äldre versionen av plattformen",
   "credit-registration-moocfi-certificate-failed": "Vi kunde inte öppna intygssidan. Försök igen.",
   "credit-registration-moocfi-choose-completion": "Du har flera prestationer i den här kursen. Välj den du vill följa.",
-  "credit-registration-moocfi-equivalent-registered": "En tidigare prestation av den här kursen med samma vitsord och nivå har redan registrerats, så vi registrerar inte den här igen. Du behöver inte göra något.",
+  "credit-registration-moocfi-equivalent-registered": "De här studiepoängen har redan registrerats från en tidigare prestation av den här kursen med samma vitsord, så vi registrerar dem inte igen. Du behöver inte göra något.",
   "credit-registration-moocfi-may-be-stale": "Vi kunde inte kontrollera den äldre versionen av plattformen just nu, så dina senaste prestationer kan saknas. Ladda om sidan och försök igen.",
   "credit-registration-moocfi-not-eligible": "Den här prestationen ger inga studiepoäng, så det finns inget att registrera.",
   "credit-registration-moocfi-not-eligible-heading": "Inga studiepoäng för den här prestationen",

@@ -1271,7 +1271,7 @@
   "credit-registration-moocfi-before-cutoff-heading": "Register on the older version of the platform",
   "credit-registration-moocfi-certificate-failed": "We could not open the certificate page. Try again.",
   "credit-registration-moocfi-choose-completion": "You have more than one completion of this course. Choose the one you want to follow.",
-  "credit-registration-moocfi-equivalent-registered": "An earlier completion of this course with the same grade and level has already been registered, so we do not register this one again. You do not need to do anything.",
+  "credit-registration-moocfi-equivalent-registered": "These credits were already registered from an earlier completion of this course with the same grade, so we do not register them again. You do not need to do anything.",
   "credit-registration-moocfi-may-be-stale": "We could not check the older version of the platform just now, so your latest completions may be missing. Reload the page to try again.",
   "credit-registration-moocfi-not-eligible": "This completion does not earn credits, so there is nothing to register.",
   "credit-registration-moocfi-not-eligible-heading": "No credits for this completion",

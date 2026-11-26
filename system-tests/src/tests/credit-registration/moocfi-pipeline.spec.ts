@@ -45,6 +45,7 @@ import {
   runMaterializeTick,
   runMoocfiReportTick,
   runPreconditionsTick,
+  runResolveEnrolmentsTick,
   runStudentNotificationsTick,
   runVerifyPollTick,
 } from "@/utils/suotarControl"
@@ -221,6 +222,8 @@ test("A mooc.fi completion is registered in Sisu and reported back to mooc.fi on
       const intermediate = await codeRegistrationId(adminApi, MOOCFI_TIER_2_CODE_ID)
       const advanced = await codeRegistrationId(adminApi, MOOCFI_TIER_3_CODE_ID)
       await runEnrolmentCheckNow(request, TIERED_SCOPE)
+      // The first lookup leaves the rows for Sisu to be asked about the older equivalent code.
+      await runResolveEnrolmentsTick(request, TIERED_SCOPE)
       await runImportSubmissionTick(request, TIERED_SCOPE)
       await waitForState(adminApi, intermediate, "awaiting_verification")
       // Held by its prerequisite after its enrolment was found.

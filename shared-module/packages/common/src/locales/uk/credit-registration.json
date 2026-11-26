@@ -1443,7 +1443,7 @@
   "credit-registration-moocfi-before-cutoff-heading": "Зареєструйте в старішій версії платформи",
   "credit-registration-moocfi-certificate-failed": "Не вдалося відкрити сторінку сертифіката. Спробуйте ще раз.",
   "credit-registration-moocfi-choose-completion": "У вас є кілька завершень цього курсу. Виберіть те, яке хочете переглянути.",
-  "credit-registration-moocfi-equivalent-registered": "Раніше завершення цього курсу з такою самою оцінкою і рівнем уже зареєстровано, тому це ми повторно не реєструємо. Вам нічого не потрібно робити.",
+  "credit-registration-moocfi-equivalent-registered": "Ці кредити вже зареєстровано за попереднім завершенням цього курсу з такою самою оцінкою, тому ми не реєструємо їх повторно. Вам нічого не потрібно робити.",
   "credit-registration-moocfi-may-be-stale": "Зараз не вдалося перевірити старішу версію платформи, тому ваших найновіших завершень може не бути. Перезавантажте сторінку, щоб спробувати ще раз.",
   "credit-registration-moocfi-not-eligible": "Це завершення не дає кредитів, тож реєструвати нічого.",
   "credit-registration-moocfi-not-eligible-heading": "Немає кредитів за це завершення",

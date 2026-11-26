@@ -163,6 +163,10 @@ fn push_exercises_scores_progress(
         CompletionMethod::ByRequirements | CompletionMethod::ByExam
     );
     let requires_exam = module_progress.completion_method == CompletionMethod::ByExam;
+    let exam_passed = module_progress.exam_passed;
+    let requires_questionnaire = module_progress.requires_ending_questionnaire;
+    let has_answered_questionnaire = module_progress.ending_questionnaire_answered;
+    let should_answer_now = module_progress.ready_to_answer_ending_questionnaire;
     let attempted_exercises = module_progress.attempted_exercises;
     let total_exercises = module_progress.total_exercises;
     let attempted_exercises_required = module_progress.attempted_exercises_required;
@@ -181,6 +185,9 @@ fn push_exercises_scores_progress(
             );
             if requires_exam {
                 res += " Passing an exam is required for completion.";
+                if exam_passed {
+                    res += " The user has passed the exam and meets the requirements for passing.";
+                }
             } else {
                 res += &format!(
                     " The user should look for information about completing the {course_or_module} in the course material or contact the teacher.\n"
@@ -209,6 +216,9 @@ fn push_exercises_scores_progress(
 
     if requires_exam {
         res += &format!(" To pass this {course_or_module}, it's required to complete an exam.");
+        if exam_passed {
+            res += " The user has passed the exam and meets this requirement."
+        }
     }
     match module_progress.completion_method {
         CompletionMethod::NotDecided => {
@@ -281,6 +291,16 @@ fn push_exercises_scores_progress(
                 " To {pass}, the user needs to gain {:.1} more points.",
                 pts_left
             )
+        }
+    }
+    if requires_questionnaire {
+        if has_answered_questionnaire {
+            res += " Completing the course requires a questionnaire. The user has already answered it, so they meet this requirement.";
+        } else {
+            res += " To complete this course, the user needs to answer a questionnaire after having completed enough exercises. It doesn't affect the grade and is brief. Answering it is a requirement for passing and completing the course.";
+            if should_answer_now {
+                res += " The user can answer the questionnaire now and should see a notification or button that will open the questionnaire.";
+            }
         }
     }
     res + "\n"
@@ -639,9 +659,12 @@ Instructions for describing the output: [instructions]Describe this information 
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
 
-        todo!();
+        let expected_output =
+"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to complete an exam. The user has passed the exam and meets this requirement. To be qualified to take the exam, it's required to attempt 10 exercises and gain 9 exercise points. The user has attempted 10 exercises. They meet the criteria to be qualified to take the exam if they have also received enough points. The user has gained 9.0 points. The user has gained enough points to be qualified to take the exam.\n[/output]
 
-        //assert_eq!(output, expected_output);
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.[/instructions]".to_string();
+
+        assert_eq!(output, expected_output);
     }
 
     #[test]
@@ -672,5 +695,101 @@ Instructions for describing the output: [instructions]Describe this information 
 Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.[/instructions]".to_string();
 
         assert_eq!(output, expected_output);
+    }
+
+    #[test]
+    fn test_course_progress_output_end_questionnaire_required() {
+        let progress = vec![UserCourseProgress {
+            course_module_id: Uuid::nil(),
+            course_module_name: "Example base module".to_string(),
+            course_module_order_number: 1,
+            score_given: 8.00006,
+            score_required: Some(9),
+            score_maximum: Some(10),
+            total_exercises: Some(10),
+            attempted_exercises: Some(10),
+            attempted_exercises_required: Some(10),
+            completion_method: CompletionMethod::ByRequirements,
+            exam_passed: false,
+            requires_ending_questionnaire: true,
+            ending_questionnaire_answered: false,
+            completion_attained: false,
+            ready_to_answer_ending_questionnaire: false,
+        }];
+        let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
+        let output = tool.get_tool_output();
+
+        let expected_output =
+"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to attempt 10 exercises and gain 9 exercise points. The user has attempted 10 exercises. They meet the criteria to pass this course if they have also received enough points. The user has gained 8.0 points. To pass this course, the user needs to gain 1.0 more points. To complete this course, the user needs to answer a questionnaire after having completed enough exercises. It doesn't affect the grade and is brief. Answering it is a requirement for passing and completing the course.\n[/output]
+
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.[/instructions]".to_string();
+
+        assert_eq!(output, expected_output);
+
+        //assert_eq!(output, expected_output);
+    }
+
+    #[test]
+    fn test_course_progress_output_end_questionnaire_required_and_ready() {
+        let progress = vec![UserCourseProgress {
+            course_module_id: Uuid::nil(),
+            course_module_name: "Example base module".to_string(),
+            course_module_order_number: 1,
+            score_given: 9.00006,
+            score_required: Some(9),
+            score_maximum: Some(10),
+            total_exercises: Some(10),
+            attempted_exercises: Some(10),
+            attempted_exercises_required: Some(10),
+            completion_method: CompletionMethod::ByRequirements,
+            exam_passed: false,
+            requires_ending_questionnaire: true,
+            ending_questionnaire_answered: false,
+            completion_attained: false,
+            ready_to_answer_ending_questionnaire: true,
+        }];
+        let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
+        let output = tool.get_tool_output();
+
+        let expected_output =
+"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to attempt 10 exercises and gain 9 exercise points. The user has attempted 10 exercises. They meet the criteria to pass this course if they have also received enough points. The user has gained 9.0 points. The user has gained enough points to pass this course. To complete this course, the user needs to answer a questionnaire after having completed enough exercises. It doesn't affect the grade and is brief. Answering it is a requirement for passing and completing the course. The user can answer the questionnaire now and should see a notification or button that will open the questionnaire.\n[/output]
+
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.[/instructions]".to_string();
+
+        assert_eq!(output, expected_output);
+
+        //assert_eq!(output, expected_output);
+    }
+
+    #[test]
+    fn test_course_progress_output_end_questionnaire_required_and_answered() {
+        let progress = vec![UserCourseProgress {
+            course_module_id: Uuid::nil(),
+            course_module_name: "Example base module".to_string(),
+            course_module_order_number: 1,
+            score_given: 9.00006,
+            score_required: Some(9),
+            score_maximum: Some(10),
+            total_exercises: Some(10),
+            attempted_exercises: Some(10),
+            attempted_exercises_required: Some(10),
+            completion_method: CompletionMethod::ByRequirements,
+            exam_passed: false,
+            requires_ending_questionnaire: true,
+            ending_questionnaire_answered: true,
+            completion_attained: false,
+            ready_to_answer_ending_questionnaire: true,
+        }];
+        let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
+        let output = tool.get_tool_output();
+
+        let expected_output =
+"Result: [output]The user is completing a course called Advanced Chatbot Course. Their progress on this course is the following: On this course, there are available a total of 10 exercises and 10 exercise points. To pass this course, it's required to attempt 10 exercises and gain 9 exercise points. The user has attempted 10 exercises. They meet the criteria to pass this course if they have also received enough points. The user has gained 9.0 points. The user has gained enough points to pass this course. Completing the course requires a questionnaire. The user has already answered it, so they meet this requirement.\n[/output]
+
+Instructions for describing the output: [instructions]Describe this information in a short, clear way with no or minimal bullet points. Only give information that is relevant to the user's question. Encourage the user to ask further questions if needed.[/instructions]".to_string();
+
+        assert_eq!(output, expected_output);
+
+        //assert_eq!(output, expected_output);
     }
 }

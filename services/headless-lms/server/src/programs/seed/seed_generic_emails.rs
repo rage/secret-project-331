@@ -259,6 +259,7 @@ pub async fn seed_generic_emails(
     seed_network_verification_template(&mut conn).await?;
     seed_account_linking_templates(&mut conn).await?;
     seed_credit_registration_status_templates(&mut conn).await?;
+    seed_teacher_newsletter_email(&mut conn).await?;
     seed_course_designer_weekly_digest_templates(&mut conn).await?;
 
     Ok(())
@@ -783,6 +784,30 @@ async fn seed_credit_registration_status_templates(
         .await?;
     }
 
+    Ok(())
+}
+
+pub async fn seed_teacher_newsletter_email(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
+    info!("inserting teacher newsletter email");
+
+    let english_subject = Some("Weekly update on your courses");
+    let english_body = json!([
+        {
+            "name": "moocfi/email-teacher-newsletter",
+            "isValid": true,
+            "clientId": "ac294325-1cb6-40b5-816e-4ac0e2e2b1f7",
+            "attributes": {},
+            "innerBlocks": []
+        },
+    ]);
+
+    let english_template = EmailTemplateNew {
+        template_type: EmailTemplateType::TeacherNewsletter,
+        language: Some("en".to_string()),
+        content: Some(english_body),
+        subject: english_subject.map(|s| s.to_string()),
+    };
+    insert_email_template(conn, None, english_template, english_subject).await?;
     Ok(())
 }
 

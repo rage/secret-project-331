@@ -19,6 +19,7 @@ import CourseObjectiveSection from "./CourseObjectiveSection"
 import CourseProgress from "./CourseProgress"
 import EmailCallout from "./EmailCallout"
 import EmailOneTimeCode from "./EmailOneTimeCode"
+import EmailTeacherNewsletter from "./EmailTeacherNewsletter"
 import Exercise from "./Exercise"
 import ExerciseSettings from "./Exercise/ExerciseSettings"
 import ExerciseSlide from "./Exercise/ExerciseSlide"
@@ -146,5 +147,6 @@ export const blockTypeMapForResearchConsentForm = [
 export const blockTypeMapForEmails = [
   ["moocfi/email-callout", EmailCallout],
   ["moocfi/email-one-time-code", EmailOneTimeCode],
+  ["moocfi/email-teacher-newsletter", EmailTeacherNewsletter],
   // oxlint-disable-next-line typescript/no-explicit-any
 ] as unknown as [string, BlockConfiguration<Record<string, any>>][]

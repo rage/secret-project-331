@@ -2,6 +2,7 @@ use std::{error::Error as StdError, time::Duration};
 
 use crate::config::program_config::ProgramConfig;
 use crate::prelude::*;
+use crate::programs::teacher_newsletter::newsletter_item::TeacherNewsletterItem;
 use crate::setup_tracing;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
@@ -13,11 +14,12 @@ use headless_lms_models::email_deliveries::{
 };
 use headless_lms_models::email_layouts::{self, EmailLayout, ResolvedLayout};
 use headless_lms_models::email_templates::EmailTemplateType;
+use headless_lms_models::teacher_newsletter::get_newsletter_items;
 use headless_lms_models::user_email_codes::UserEmailCodePurpose;
 use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
 use headless_lms_utils::backoff;
 use headless_lms_utils::email_processor::{
-    self, EmailGutenbergBlock, EmailRenderInput, RenderedEmail,
+    self, EmailGutenbergBlock, EmailRenderInput, RenderedEmail, TeacherNewsletterContent,
 };
 use lettre::transport::smtp::Error as SmtpError;
 use lettre::transport::smtp::authentication::Credentials;
@@ -209,14 +211,32 @@ pub async fn send_message(
         HashMap::new()
     };
 
-    let rendered = email_processor::render_email(EmailRenderInput {
-        layout_html: layout.html,
-        theme: layout.theme,
-        subject,
-        body: blocks,
-        language: email.language.as_deref().unwrap_or_default(),
-        replacements: &replacements,
-    });
+    let rendered = match email.template_type {
+        Some(EmailTemplateType::TeacherNewsletter) => {
+            let teacher_newsletter_email_content =
+                build_teacher_newsletter(&mut conn, email.user_id, email.id).await?;
+            email_processor::render_newsletter(
+                EmailRenderInput {
+                    layout_html: layout.html,
+                    theme: layout.theme,
+                    subject,
+                    body: blocks,
+                    language: email.language.as_deref().unwrap_or_default(),
+                    replacements: &replacements,
+                },
+                teacher_newsletter_email_content,
+            )
+        }
+        _ => email_processor::render_email(EmailRenderInput {
+            layout_html: layout.html,
+            theme: layout.theme,
+            subject,
+            body: blocks,
+            language: email.language.as_deref().unwrap_or_default(),
+            replacements: &replacements,
+        }),
+    };
+
     if !rendered.unfilled_placeholders.is_empty() {
         tracing::warn!(
             "Email {} has placeholders with no value, sent as typed: {:?}",
@@ -319,6 +339,10 @@ async fn template_replacements(
         return Ok(TemplateReplacements::Ready(replacements));
     }
 
+    if template_type == EmailTemplateType::TeacherNewsletter {
+        return Ok(TemplateReplacements::Ready(replacements));
+    }
+
     if template_type.uses_placeholder_bag() {
         return Ok(TemplateReplacements::Ready(placeholder_bag_replacements(
             placeholders,
@@ -362,6 +386,7 @@ async fn template_replacements(
         EmailTemplateType::VerifyNetwork => Some(UserEmailCodePurpose::NetworkVerification),
         // Handled above. Listed rather than caught by `_` so a new template type is a compile error.
         EmailTemplateType::Generic
+        | EmailTemplateType::TeacherNewsletter
         | EmailTemplateType::CreditRegistrationAccountLinking
         | EmailTemplateType::CreditRegistrationActionNeeded
         | EmailTemplateType::CreditRegistrationRegistered
@@ -404,6 +429,153 @@ fn placeholder_bag_replacements(
             Some((key.clone(), rendered))
         })
         .collect()
+}
+
+async fn build_teacher_newsletter(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    email_delivery_id: Uuid,
+) -> Result<TeacherNewsletterContent> {
+    let courses =
+        headless_lms_models::courses::all_courses_with_role_teacher_for_user(conn, user_id).await?;
+
+    if courses.is_empty() {
+        return Ok(TeacherNewsletterContent {
+            html: String::new(),
+            text: String::new(),
+        });
+    }
+
+    let course_ids: Vec<Uuid> = courses.iter().map(|course| course.id).collect();
+
+    let period =
+        headless_lms_models::teacher_newsletter::get_teacher_newsletter_period_by_email_delivery_id(
+            conn,
+            email_delivery_id,
+        )
+        .await?;
+
+    let period_start = period.period_start;
+    let period_end = period.period_end;
+
+    let newsletter_items =
+        get_newsletter_items(conn, &course_ids, period_start, period_end).await?;
+
+    let (html, text): (String, String) = newsletter_items
+        .iter()
+        .map(|i| {
+            let item = TeacherNewsletterItem {
+                base_url: BASE_URL.clone(),
+                course_id: i.course_id,
+                course_name: "GlobgloGabgalab".to_string(),
+                returned_exercises_count: i.returned_exercises_count,
+                completed_course_count: i.completed_course_count,
+                started_course_count: i.started_course_count,
+                flagged_cheaters_count_period: i.flagged_cheaters_count_period,
+                flagged_cheaters_count_total: i.flagged_cheaters_count_total,
+                unread_feedback_count_period: i64::from(i.unread_feedback_count_period),
+                unread_feedback_count_total: i64::from(i.unread_feedback_count_total),
+                proposal_count_period: i64::from(i.proposal_count_period),
+                proposal_count_total: i64::from(i.proposal_count_total),
+            };
+            (item.as_html(), item.as_text())
+        })
+        .unzip();
+
+    let unread_feedback_count: i64 = newsletter_items
+        .iter()
+        .map(|i| i.unread_feedback_count_total)
+        .sum();
+    let pending_proposals_count: i64 = newsletter_items
+        .iter()
+        .map(|i| i.proposal_count_total)
+        .sum();
+    let flagged_cheaters_count: i64 = newsletter_items
+        .iter()
+        .map(|i| i.flagged_cheaters_count_total)
+        .sum();
+
+    let summary_html = if unread_feedback_count == 0
+        && pending_proposals_count == 0
+        && flagged_cheaters_count == 0
+    {
+        String::new()
+    } else {
+        format!(
+            r#"
+            <table style="width: 100%;">
+                <tbody>
+                    <tr>
+                        <td style="border: none; background: #FAF6E3; border-left: 2px solid #E0C341;">
+                            <h2 style="margin-top: 0;">Items waiting for review: </h2>
+                            <ul>
+                            {}{}{}
+                            </ul>
+                            <p style="font-weight: bold; margin-bottom: 0;">See individual courses below for details</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        "#,
+            if unread_feedback_count > 0 {
+                format!("<li>{unread_feedback_count} unread feedback</li>")
+            } else {
+                String::new()
+            },
+            if pending_proposals_count > 0 {
+                format!("<li>{pending_proposals_count} pending proposals</li>")
+            } else {
+                String::new()
+            },
+            if flagged_cheaters_count > 0 {
+                format!("<li>{flagged_cheaters_count} flagged cheaters</li>")
+            } else {
+                String::new()
+            },
+        )
+    };
+
+    let summary_text = if unread_feedback_count == 0
+        && pending_proposals_count == 0
+        && flagged_cheaters_count == 0
+    {
+        String::new()
+    } else {
+        format!(
+            "Items waiting for review:\n{}{}{}\nSee individual courses below for details\n\n",
+            if unread_feedback_count > 0 {
+                format!("* {unread_feedback_count} unread feedback\n")
+            } else {
+                String::new()
+            },
+            if pending_proposals_count > 0 {
+                format!("* {pending_proposals_count} pending proposals\n")
+            } else {
+                String::new()
+            },
+            if flagged_cheaters_count > 0 {
+                format!("* {flagged_cheaters_count} flagged cheaters\n")
+            } else {
+                String::new()
+            },
+        )
+    };
+
+    let period_start_formatted = period_start.format("%Y-%m-%d");
+    let period_end_formatted = period_end.format("%Y-%m-%d");
+
+    Ok(TeacherNewsletterContent {
+        html: format!(
+            r#"<h2 style="text-align: center; font-size: 32px; font-style: italic;">Weekly update</h2>
+            <p style="text-align: center; margin-bottom: 32px; font-style: italic;">({period_start_formatted} to {period_end_formatted})<p>
+            {summary_html}
+            {html}
+            "#
+        ),
+        text: format!(
+            "Weekly update ({period_start_formatted} to {period_end_formatted})\n{summary_text}\n{text}"
+        ),
+    })
 }
 
 fn build_email_message(email: &Email, attempt: i32, rendered: RenderedEmail) -> Result<Message> {

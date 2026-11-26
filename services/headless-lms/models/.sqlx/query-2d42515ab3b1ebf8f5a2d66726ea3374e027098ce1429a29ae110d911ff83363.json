@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT tns.user_id\nFROM teacher_newsletter_subscriptions AS tns\n  JOIN users AS u ON u.id = tns.user_id\nWHERE tns.subscribed = 't'\n  AND tns.deleted_at IS NULL\n  AND u.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_subscriptions",
+            "name": "user_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "2d42515ab3b1ebf8f5a2d66726ea3374e027098ce1429a29ae110d911ff83363"
+}

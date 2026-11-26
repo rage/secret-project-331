@@ -1,0 +1,210 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM teacher_newsletter_items\nWHERE course_id = ANY($1)\n  AND period_start >= $2\n  AND period_end <= $3\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "period_start",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "period_start"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "period_end",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "period_end"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "returned_exercises_count",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "returned_exercises_count"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "completed_course_count",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "completed_course_count"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "started_course_count",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "started_course_count"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "flagged_cheaters_count_period",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "flagged_cheaters_count_period"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "flagged_cheaters_count_total",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "flagged_cheaters_count_total"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "unread_feedback_count_period",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "unread_feedback_count_period"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "unread_feedback_count_total",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "unread_feedback_count_total"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "proposal_count_period",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "proposal_count_period"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "proposal_count_total",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "proposal_count_total"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "5be2efbc6aae474c2ec99d890c2c2264081690acb7a503e85c37360e17c31901"
+}

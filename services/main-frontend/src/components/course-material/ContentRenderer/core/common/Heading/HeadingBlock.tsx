@@ -6,6 +6,7 @@ import type { DetailedHTMLProps, HTMLAttributes } from "react"
 import { useId } from "react"
 
 import type { HeadingAttributes } from "@/../types/GutenbergBlockAttributes"
+import { baseTheme } from "@/shared-module/common/styles"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
 import {
   HEADING_ANCHOR_ID_PART_LENGTH,
@@ -61,6 +62,12 @@ const HeadingBlock: React.FC<
           fitText && `font-size: clamp(1rem, 4vw, ${fontSize ? fontSizeMapper(fontSize) : "3rem"});`
         }
         ${!fitText && fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
+        /* Levels 5 and 6 read as small labels, so they don't look like a bold paragraph. */
+        ${
+          level >= 5 &&
+          !fontSize &&
+          `font-size: 0.9375rem; text-transform: uppercase; letter-spacing: 0.06em; color: ${baseTheme.colors.gray[500]};`
+        }
 
         &:hover .${HEADING_ANCHOR_LINK_CLASS}, &:focus-within .${HEADING_ANCHOR_LINK_CLASS} {
           opacity: 1;

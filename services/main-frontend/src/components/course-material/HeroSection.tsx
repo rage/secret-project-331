@@ -5,6 +5,7 @@ import styled from "@emotion/styled"
 import React, { useRef } from "react"
 
 import { useCornerTapFlip } from "@/hooks/course-material/useCornerTapFlip"
+import { useImageAspectRatio } from "@/hooks/course-material/useImageAspectRatio"
 import { respondToOrLarger } from "@/shared-module/common//styles/respond"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
@@ -29,6 +30,8 @@ const DEFAULT_MARGIN_MEDIUM_SCREEN = "0 0 0 45%"
 const DEFAULT_MARGIN_LARGE_SCREEN = "0 0 0 35%"
 
 const TITLE_CLASS = "hero-title"
+// About the height of a hero with a one-line title and the default padding.
+const DEFAULT_HERO_HEIGHT_REM = 31
 
 const TextBox = styled.div<TextBoxProps>`
   display: flex;
@@ -138,6 +141,17 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
     backgroundImageLarge,
     backgroundImageXLarge,
   })
+  const mediumImageRatio = useImageAspectRatio(backgroundImages.medium)
+  const largeImageRatio = useImageAspectRatio(backgroundImages.large)
+  const xlargeImageRatio = useImageAspectRatio(backgroundImages.xlarge)
+  // A centred image is scaled to fit the box, so a wide image in the default-height box leaves blank bands
+  // above and below it. The box shrinks to the image's height but never grows past the default height for a
+  // tall image, and the text still pushes it taller when it needs to.
+  const fitBoxToImage = (ratio: number | null) =>
+    direction === CENTER && ratio !== null
+      ? `display: flex; flex-direction: column; justify-content: center; box-sizing: border-box;
+         min-height: min(${100 / ratio}vw, ${DEFAULT_HERO_HEIGHT_REM}rem); padding-top: 3rem; padding-bottom: 3rem;`
+      : ""
 
   return (
     <div
@@ -155,6 +169,16 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         background-color: ${backgroundColor || baseTheme.colors.clear[100]};
         position: relative;
         touch-action: manipulation;
+
+        ${respondToOrLarger.md} {
+          ${fitBoxToImage(mediumImageRatio)}
+        }
+        ${respondToOrLarger.lg} {
+          ${fitBoxToImage(largeImageRatio)}
+        }
+        ${respondToOrLarger.xl} {
+          ${fitBoxToImage(xlargeImageRatio)}
+        }
 
         &::after {
           background-size: ${backgroundSizeRem ?? 26}rem;

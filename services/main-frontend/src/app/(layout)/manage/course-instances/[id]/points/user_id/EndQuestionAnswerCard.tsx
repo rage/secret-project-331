@@ -9,7 +9,7 @@ import type { CourseModuleEndingQuestionWithAnswer } from "@/generated/api/types
 import { baseTheme } from "@/shared-module/common/styles"
 
 const Divider = styled.hr`
-  margin: 0 1rem;
+  margin: 0;
   padding: 0;
   height: 0;
   border: 1px solid ${baseTheme.colors.clear[300]};

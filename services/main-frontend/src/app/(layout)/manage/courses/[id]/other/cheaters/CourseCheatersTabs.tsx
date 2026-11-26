@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
-import React, { useMemo } from "react"
+import React from "react"
 import { Label } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -68,10 +68,6 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
       },
     }),
   })
-
-  const endAnswers = useMemo(() => {
-    return endAnswersQuery.data?.map((x) => (x.user_id, x))
-  }, [endAnswersQuery])
 
   // Confirm and dismiss move the student to a different status. Refetch this list (the student
   // leaves it) and invalidate the flagged-count badge (course tabs) and overview review banner,
@@ -201,17 +197,20 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
             caption={listTitle}
             showCaption
             expandableRow={(row) => {
-              const userAnswers = endAnswers
+              const userAnswers = endAnswersQuery.data
                 ?.filter(
                   (x) => x.user_id === row.user_id && x.course_module_id === row.course_module_id,
                 )
                 .toSorted((x) => x.question_serial_number)
+              const moduleName =
+                courseStructureQuery.data?.modules.find((x) => x.id === row.course_module_id)
+                  ?.name ?? t("unknown-course")
               if (!userAnswers) {
                 return null
               }
               return (
                 <>
-                  <Label>{t("module-end-question-answers", row.course_id)}</Label>
+                  <Label>{t("module-end-question-answers", { moduleName })}</Label>
                   <EndQuestionAnswerCard endAnswers={userAnswers} />
                 </>
               )

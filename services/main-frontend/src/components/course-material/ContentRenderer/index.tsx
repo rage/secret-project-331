@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import { BreakFromCenteredDisabledContext } from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
 import { linkWithExtraIconClass } from "@/shared-module/common/styles/constants"
+import { BREAKPOINT_REMS } from "@/shared-module/common/styles/respond"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { Block } from "@/types/courseMaterialBlock"
@@ -332,6 +333,23 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
           text-decoration-thickness: 1.6px;
           /* Long Finnish compounds and URLs would otherwise run out of the column on phones. */
           overflow-wrap: break-word;
+
+          /* Narrow columns only: there long words leave ragged gaps. Follows the content language set on
+          #content, and only splits words of 10+ letters. */
+          @media (max-width: ${BREAKPOINT_REMS.sm}rem) {
+            p {
+              hyphens: auto;
+              hyphenate-limit-chars: 10 4 4;
+            }
+          }
+          h1,
+          h2,
+          h3,
+          h4,
+          h5,
+          h6 {
+            text-wrap: balance;
+          }
 
           a[data-button-variant] {
             max-width: 100%;

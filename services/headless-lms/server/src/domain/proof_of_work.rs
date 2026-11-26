@@ -36,6 +36,8 @@ pub enum ChallengePurpose {
 /// What a challenge is issued for.
 pub struct ChallengeContext {
     pub purpose: ChallengePurpose,
+    /// Multiplies the search space, and so the expected solving time. At least 1.
+    pub level: u32,
 }
 
 /// A fresh signed challenge for the form widget to solve.
@@ -46,11 +48,13 @@ pub async fn create_challenge(context: ChallengeContext) -> anyhow::Result<Chall
 
 fn create_challenge_blocking(context: &ChallengeContext) -> anyhow::Result<Challenge> {
     let config = server_runtime_config();
-    let counter_range = if config.test_mode {
+    let range = if config.test_mode {
         TEST_MODE_COUNTER_RANGE
     } else {
         COUNTER_RANGE
     };
+    let level = context.level.max(1);
+    let counter_range = range.start().saturating_mul(level)..=range.end().saturating_mul(level);
     let mut data = BTreeMap::new();
     data.insert(
         "purpose".to_string(),

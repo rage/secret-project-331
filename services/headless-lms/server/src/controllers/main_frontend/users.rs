@@ -1,11 +1,15 @@
+use crate::domain::account_form_checks;
+use crate::domain::form_volume;
 use crate::domain::mail_budget;
 use crate::domain::progress_by_platform::{self, OldVersionProgress, ProgressByPlatform};
 use crate::domain::proof_of_work::{self, ChallengePurpose};
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::domain::session_verification;
+use crate::domain::shared_limits;
 use crate::prelude::*;
 use anyhow::anyhow;
 use chrono::Duration;
+use headless_lms_models::account_form_decisions::AccountFormAction;
 use headless_lms_utils::{ip_to_country::IpToCountryMapper, services::tmc::TmcClient};
 use models::{
     course_instance_enrollments::CourseEnrollmentsInfo,
@@ -923,6 +927,8 @@ const RESET_MAIL_MIN_ACCOUNT_AGE_HOURS: i64 = 24;
 /// Mirrored as `RESET_EMAIL_RESEND_COOLDOWN_MS` in main-frontend `components/auth/passwordReset.ts`.
 const RESET_MAIL_MIN_INTERVAL_MINUTES: i64 = 5;
 const MAX_RESET_MAILS_PER_DAY: usize = 3;
+/// A link with less time left gets replaced instead of mailed again.
+const RESET_LINK_MIN_REMAINING_MINUTES: i64 = 30;
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 
@@ -931,9 +937,11 @@ pub struct EmailData {
     pub language: String,
     /// The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
     pub altcha: String,
+    /// The form's opaque report about the browser, for the account form log.
+    pub client_info: Option<String>,
 }
 
-#[instrument(skip(pool))]
+#[instrument(skip(request, pool, ip_to_country_mapper))]
 #[utoipa::path(
     post,
     path = "/request-password-reset",
@@ -941,18 +949,30 @@ pub struct EmailData {
     tag = "users",
     request_body = EmailData,
     responses(
-        (status = 200, description = "Reset password email accepted", body = bool)
+        (status = 200, description = "Reset password email accepted", body = bool),
+        (status = 429, description = "Too many attempts; see Retry-After")
     )
 )]
 pub async fn send_reset_password_email(
+    request: HttpRequest,
     pool: web::Data<PgPool>,
     payload: web::Json<EmailData>,
     tmc_client: web::Data<TmcClient>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
     proof_of_work::verify_and_spend(&mut conn, &payload.altcha, ChallengePurpose::PasswordReset)
         .await?;
+    shared_limits::check_and_count(
+        &mut conn,
+        &pool,
+        "password_reset",
+        session_verification::client_ip(&request),
+        &shared_limits::PASSWORD_RESET_NETWORK_LIMITS,
+    )
+    .await?;
+    form_volume::count(&mut conn, &pool, ChallengePurpose::PasswordReset).await?;
 
     let email = &payload.email.trim().to_lowercase();
     let language = &payload.language;
@@ -999,21 +1019,35 @@ pub async fn send_reset_password_email(
         }
     };
 
-    if let Some(user) = user {
+    let may_send_mail = account_form_checks::may_send_mail(
+        &mut conn,
+        &ip_to_country_mapper,
+        &account_form_checks::Submission {
+            action: AccountFormAction::PasswordReset,
+            request: &request,
+            client_report: payload.client_info.as_deref(),
+            email: Some(payload.email.trim()),
+            user_id: user.as_ref().map(|user| user.id),
+            profile: None,
+        },
+    )
+    .await;
+
+    if let Some(user) = user.filter(|_| may_send_mail) {
         let mut tx = conn.begin().await?;
         models::user_passwords::lock_password_reset_tokens_for_user(&mut tx, user.id).await?;
         let now = Utc::now();
-        let sent_today = models::user_passwords::get_password_reset_token_creation_times_since(
+        let sent_today = models::user_passwords::get_password_reset_mail_times_since(
             &mut tx,
             user.id,
             now - Duration::days(1),
         )
         .await?;
-        let sent_recently = sent_today.iter().any(|created_at| {
-            now - *created_at < Duration::minutes(RESET_MAIL_MIN_INTERVAL_MINUTES)
-        });
+        let sent_recently = sent_today
+            .iter()
+            .any(|mailed_at| now - *mailed_at < Duration::minutes(RESET_MAIL_MIN_INTERVAL_MINUTES));
         // Only accounts created here with a password count as new: a row imported from TMC by this
-        // handler has no password yet, and once it gets one through a reset, it already has a token.
+        // handler has no password yet, and once it gets one through a reset, it was mailed a link.
         let is_new_account = now - user.created_at
             < Duration::hours(RESET_MAIL_MIN_ACCOUNT_AGE_HOURS)
             && sent_today.is_empty()
@@ -1026,8 +1060,23 @@ pub async fn send_reset_password_email(
             && sent_today.len() < MAX_RESET_MAILS_PER_DAY
             && mail_budget::may_mail_user(&mut tx, user.id).await?
         {
-            models::user_passwords::insert_password_reset_token(&mut tx, user.id, Uuid::new_v4())
+            // Replacing a link still valid would break the one the owner may be about to use.
+            let live_link = models::user_passwords::get_unused_reset_password_token_with_user_id(
+                &mut tx, user.id,
+            )
+            .await?
+            .filter(|link| {
+                link.expires_at - now > Duration::minutes(RESET_LINK_MIN_REMAINING_MINUTES)
+            });
+            if live_link.is_none() {
+                models::user_passwords::insert_password_reset_token(
+                    &mut tx,
+                    user.id,
+                    Uuid::new_v4(),
+                )
                 .await?;
+            }
+            models::user_passwords::record_password_reset_mail(&mut tx, user.id).await?;
             models::email_deliveries::insert_email_delivery(&mut tx, user.id, reset_template.id)
                 .await?;
         }

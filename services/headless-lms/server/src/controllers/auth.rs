@@ -6,13 +6,14 @@ use crate::domain::exercise_services::token::delete_user_and_invalidate_cached_t
 use crate::{
     OAuthClient,
     domain::{
-        authentication,
+        account_form_checks, authentication,
         authorization::{ActionOnResource, is_permitted, skip_authorize},
         email_ownership_verification::{self, MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
-        mail_budget,
+        form_volume, mail_budget,
         proof_of_work::{self, ChallengeContext, ChallengePurpose},
         rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey},
         session_verification::{self, EmailCodeOutcome},
+        shared_limits, signup,
     },
     prelude::*,
 };
@@ -21,6 +22,7 @@ use actix_web::http::header::{CacheControl, CacheDirective};
 use anyhow::anyhow;
 use chrono::Duration;
 use headless_lms_models::ModelErrorType;
+use headless_lms_models::account_form_decisions::AccountFormAction;
 use headless_lms_models::{
     email_templates::EmailTemplateType,
     email_verification_tokens, user_email_codes,
@@ -31,7 +33,7 @@ use headless_lms_utils::{
     cache::Cache,
     ip_to_country::IpToCountryMapper,
     prelude::{UtilError, UtilErrorType},
-    services::tmc::{NewUserInfo, TmcAccountDeletion, TmcClient},
+    services::tmc::{NewUserInfo, TMC_UNREACHABLE_MESSAGE, TmcAccountDeletion, TmcClient},
 };
 use secrecy::{ExposeSecret, SecretString};
 use utoipa::{IntoParams, OpenApi, ToSchema};
@@ -113,6 +115,8 @@ pub struct CreateAccountDetails {
     pub email_communication_consent: bool,
     /// The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
     pub altcha: String,
+    /// The form's opaque report about the browser, for the account form log.
+    pub client_info: Option<String>,
 }
 
 /**
@@ -144,32 +148,48 @@ Content-Type: application/json
     request_body = CreateAccountDetails,
     responses(
         (status = 200, description = "Signup outcome", body = SignupResponse),
-        (status = 400, description = "Cannot sign up (e.g. already signed in or validation error)")
+        (status = 400, description = "Cannot sign up (e.g. already signed in or validation error)"),
+        (status = 429, description = "Too many attempts; see Retry-After")
     )
 )]
-#[instrument(skip(session, pool, payload, app_conf))]
+#[instrument(skip(request, session, pool, ip_to_country_mapper, payload, app_conf))]
+#[allow(clippy::too_many_arguments)]
 pub async fn signup(
+    request: HttpRequest,
     session: Session,
     payload: web::Json<CreateAccountDetails>,
     pool: web::Data<PgPool>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
     user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
     tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<HttpResponse> {
-    let user_details = payload.0;
+    let mut user_details = payload.0;
+    user_details.email = user_details.email.trim().to_string();
+    signup::validate_form(
+        &user_details.email,
+        &user_details.password,
+        &user_details.password_confirmation,
+    )?;
     let mut conn = pool.acquire().await?;
+    let client_ip = session_verification::client_ip(&request);
     proof_of_work::verify_and_spend(&mut conn, &user_details.altcha, ChallengePurpose::Signup)
         .await?;
+    shared_limits::check_and_count(
+        &mut conn,
+        &pool,
+        "signup",
+        client_ip,
+        &shared_limits::SIGNUP_NETWORK_LIMITS,
+    )
+    .await?;
+    form_volume::count(&mut conn, &pool, ChallengePurpose::Signup).await?;
 
-    if app_conf.test_mode {
-        return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
-    }
     if user.is_none() {
+        signup::check_may_reveal_existing_account(&mut conn, client_ip).await?;
         match models::users::get_by_email(&mut conn, &user_details.email).await {
             Ok(_) => {
-                let token = skip_authorize();
-                return token
-                    .authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists));
+                return email_already_exists(&mut conn, &pool, client_ip).await;
             }
             Err(error)
                 if matches!(
@@ -178,7 +198,32 @@ pub async fn signup(
                 ) => {}
             Err(error) => return Err(error.into()),
         }
+        let may_send_mail = account_form_checks::may_send_mail(
+            &mut conn,
+            &ip_to_country_mapper,
+            &account_form_checks::Submission {
+                action: AccountFormAction::Signup,
+                request: &request,
+                client_report: user_details.client_info.as_deref(),
+                email: Some(&user_details.email),
+                user_id: None,
+                profile: Some(account_form_checks::Profile {
+                    first_name: &user_details.first_name,
+                    last_name: &user_details.last_name,
+                    country: &user_details.country,
+                }),
+            },
+        )
+        .await;
+        if !may_send_mail {
+            return skip_authorize().authorized_ok(tmc_unreachable());
+        }
+    }
 
+    if app_conf.test_mode {
+        return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
+    }
+    if user.is_none() {
         let upstream_id = match tmc_client
             .post_new_user_to_tmc(
                 NewUserInfo {
@@ -199,10 +244,7 @@ pub async fn signup(
                 if matches!(error.error_type(), &UtilErrorType::TmcErrorResponse)
                     && is_duplicate_email_error_message(&error_message)
                 {
-                    let token = skip_authorize();
-                    return token.authorized_ok(
-                        HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists),
-                    );
+                    return email_already_exists(&mut conn, &pool, client_ip).await;
                 }
                 return match error.error_type() {
                     UtilErrorType::TmcErrorResponse => {
@@ -241,9 +283,7 @@ pub async fn signup(
                         if constraint == "users_email"
                 ) =>
             {
-                let token = skip_authorize();
-                return token
-                    .authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists));
+                return email_already_exists(&mut conn, &pool, client_ip).await;
             }
             // TMC synchronously posts the new user back to /api/v0/tmc-server/users/create
             // while post_new_user_to_tmc is still in flight, so that callback has usually
@@ -321,6 +361,22 @@ pub async fn signup(
     }
 }
 
+/// The answer to a signup that could not reach tmc.mooc.fi.
+fn tmc_unreachable() -> HttpResponse {
+    controller_err!(InternalServerError, TMC_UNREACHABLE_MESSAGE.to_string()).unreported_response()
+}
+
+/// Answers that the address has an account, counting the answer for
+/// [`signup::check_may_reveal_existing_account`].
+async fn email_already_exists(
+    conn: &mut PgConnection,
+    pool: &PgPool,
+    client_ip: Option<std::net::IpAddr>,
+) -> ControllerResult<HttpResponse> {
+    signup::count_revealed_existing_account(conn, pool, client_ip).await?;
+    skip_authorize().authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists))
+}
+
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub struct AltchaChallengeQuery {
@@ -339,16 +395,29 @@ the format the ALTCHA widget fetches.
     operation_id = "getAuthAltchaChallenge",
     params(AltchaChallengeQuery),
     responses(
-        (status = 200, description = "A signed ALTCHA challenge", body = serde_json::Value)
+        (status = 200, description = "A signed ALTCHA challenge", body = serde_json::Value),
+        (status = 429, description = "Too many attempts; see Retry-After")
     )
 )]
-#[instrument]
+#[instrument(skip(request, pool))]
 pub async fn altcha_challenge(
+    request: HttpRequest,
+    pool: web::Data<PgPool>,
     query: web::Query<AltchaChallengeQuery>,
 ) -> ControllerResult<HttpResponse> {
     let token = skip_authorize();
+    let mut conn = pool.acquire().await?;
+    shared_limits::check_and_count(
+        &mut conn,
+        &pool,
+        "challenge",
+        session_verification::client_ip(&request),
+        &shared_limits::CHALLENGE_NETWORK_LIMITS,
+    )
+    .await?;
     let challenge = proof_of_work::create_challenge(ChallengeContext {
         purpose: query.purpose,
+        level: form_volume::level(&mut conn, query.purpose).await?,
     })
     .await?;
     token.authorized_ok(
@@ -370,20 +439,6 @@ async fn handle_test_mode_signup(
     );
 
     warn!("Handling signup in test mode. No real account is created.");
-
-    match models::users::get_by_email(conn, &user_details.email).await {
-        Ok(_) => {
-            let token = skip_authorize();
-            return token
-                .authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists));
-        }
-        Err(error)
-            if matches!(
-                error.error_type(),
-                ModelErrorType::RecordNotFound | ModelErrorType::NotFound
-            ) => {}
-        Err(error) => return Err(error.into()),
-    }
 
     let user_id = models::users::insert(
         conn,

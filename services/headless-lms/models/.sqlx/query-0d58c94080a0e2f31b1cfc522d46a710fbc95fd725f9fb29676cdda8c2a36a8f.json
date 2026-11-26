@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM account_form_decisions\nWHERE created_at < $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0d58c94080a0e2f31b1cfc522d46a710fbc95fd725f9fb29676cdda8c2a36a8f"
+}

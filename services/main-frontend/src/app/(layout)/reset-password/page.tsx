@@ -18,7 +18,9 @@ import {
   RESET_EMAIL_RESEND_COOLDOWN_MS,
   RESET_LINK_LIFETIME_HOURS,
 } from "@/components/auth/passwordReset"
+import { useAccountFormReport } from "@/components/forms/accountFormReport/useAccountFormReport"
 import AltchaWidget, { type AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
+import TooManyAttemptsNotice, { isTooManyAttempts } from "@/components/forms/TooManyAttemptsNotice"
 import { sendResetPasswordEmail } from "@/generated/api/sdk.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
@@ -82,6 +84,7 @@ interface RequestLinkFormProps {
   onSubmit: React.FormEventHandler<HTMLFormElement>
   isSending: boolean
   apiError: React.ReactNode
+  formRef: (form: HTMLFormElement | null) => void
 }
 
 const RequestLinkForm: React.FC<RequestLinkFormProps> = ({
@@ -89,10 +92,11 @@ const RequestLinkForm: React.FC<RequestLinkFormProps> = ({
   onSubmit,
   isSending,
   apiError,
+  formRef,
 }) => {
   const { t } = useTranslation()
   return (
-    <form noValidate onSubmit={onSubmit} className={authCardStackCss}>
+    <form noValidate ref={formRef} onSubmit={onSubmit} className={authCardStackCss}>
       {apiError}
       <TextField
         name="email"
@@ -185,6 +189,7 @@ const ResetPassword: React.FC = () => {
   const [isResent, setIsResent] = useState(false)
   const [cooldownSeconds, startCooldown] = useCooldown(0)
   const altchaRef = useRef<AltchaWidgetHandle>(null)
+  const accountFormReport = useAccountFormReport()
   const headingRef = useRef<HTMLHeadingElement>(null)
   const { control, handleSubmit, setFocus } = useForm<SubmitEmailFormFields>({
     defaultValues: { email: "" },
@@ -211,6 +216,7 @@ const ResetPassword: React.FC = () => {
             email: data.email,
             language: i18n.language,
             altcha,
+            client_info: accountFormReport.report(),
           },
         }),
         isBoolean,
@@ -229,10 +235,14 @@ const ResetPassword: React.FC = () => {
     },
   )
 
-  const apiError = postResetPassword.isError && (
-    // oxlint-disable-next-line i18next/no-literal-string -- ErrorNotice enum value
-    <ErrorNotice error={postResetPassword.error} density="compact" />
-  )
+  const apiError =
+    postResetPassword.isError &&
+    (isTooManyAttempts(postResetPassword.error) ? (
+      <TooManyAttemptsNotice error={postResetPassword.error} />
+    ) : (
+      // oxlint-disable-next-line i18next/no-literal-string -- ErrorNotice enum value
+      <ErrorNotice error={postResetPassword.error} density="compact" />
+    ))
 
   const returnToEmailForm = () => {
     sendGenerationRef.current += 1
@@ -267,6 +277,7 @@ const ResetPassword: React.FC = () => {
               )}
               isSending={postResetPassword.isPending}
               apiError={apiError}
+              formRef={accountFormReport.formRef}
             />
           ),
         }

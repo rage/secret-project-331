@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT coalesce(t.count, 0) AS \"count!\",\n  w.start + make_interval(secs => w.seconds) AS \"ends_at!\"\nFROM (\n    SELECT seconds,\n      position,\n      to_timestamp(floor(extract(epoch FROM now()) / seconds) * seconds) AS start\n    FROM unnest($2::integer []) WITH ORDINALITY AS u(seconds, position)\n  ) w\n  LEFT JOIN shared_rate_counts t ON t.key_digest = $1\n  AND t.window_seconds = w.seconds\n  AND t.window_start = w.start\nORDER BY w.position\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "ends_at!",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Int4Array"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "e20fd4c622bdb27223c8a336d998e85c20d289c6530ff2916225dd3368b06199"
+}

@@ -12,6 +12,7 @@ export const zChallengePurpose = z.enum(["signup", "password_reset"])
 
 export const zCreateAccountDetails = z.object({
   altcha: z.string(),
+  client_info: z.string().nullish(),
   country: z.string(),
   email: z.string(),
   email_communication_consent: z.boolean(),

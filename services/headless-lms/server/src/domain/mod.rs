@@ -2,6 +2,7 @@
 Helpful structs and functions that are not related to database tables.
 */
 
+pub mod account_form_checks;
 pub mod answer_files_archive;
 pub mod authentication;
 pub mod authorization;
@@ -12,6 +13,7 @@ pub mod error;
 pub mod exercise_repositories;
 pub mod exercise_services;
 pub mod exercises;
+pub mod form_volume;
 pub mod internal_error_reporting;
 pub mod mail_budget;
 pub mod mcp_endpoint;
@@ -22,8 +24,11 @@ pub mod proof_of_work;
 pub mod rate_limit_middleware_builder;
 pub mod removed_routes;
 pub mod request_id;
+pub mod request_network;
 pub mod request_span_middleware;
 pub mod session_verification;
+pub mod shared_limits;
+pub mod signup;
 pub mod system_health;
 pub mod tmc_user_sync;
 pub mod user_info;

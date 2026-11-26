@@ -1,0 +1,134 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE account_form_rules\nSET deleted_at = now()\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING name,\n  description,\n  expression,\n  list_kind,\n  list_entries,\n  outcome,\n  enabled,\n  log_only\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "name",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "account_form_rules",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "description",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "account_form_rules",
+            "name": "description"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "expression",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "account_form_rules",
+            "name": "expression"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "list_kind",
+        "type_info": {
+          "Custom": {
+            "name": "account_form_list_kind",
+            "kind": {
+              "Enum": [
+                "address",
+                "mailbox",
+                "account",
+                "domain"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "account_form_rules",
+            "name": "list_kind"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "list_entries",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "account_form_rules",
+            "name": "list_entries"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "outcome",
+        "type_info": {
+          "Custom": {
+            "name": "account_form_outcome",
+            "kind": {
+              "Enum": [
+                "allow",
+                "drop"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "account_form_rules",
+            "name": "outcome"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "enabled",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "account_form_rules",
+            "name": "enabled"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "log_only",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "account_form_rules",
+            "name": "log_only"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "876f7477468c5dbeb2ecf128736aa1c233761c600d3d15cf91a3e5beddce4ea3"
+}

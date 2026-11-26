@@ -6,6 +6,97 @@
 import * as z from "zod"
 
 /**
+ * Which account form a submission was for. Each of them mails an address.
+ */
+export const zAccountFormAction = z.enum([
+  "signup",
+  "signup_code_resend",
+  "password_reset",
+  "email_change",
+])
+
+/**
+ * What the entries of a list rule are matched against.
+ */
+export const zAccountFormListKind = z.enum(["address", "mailbox", "account", "domain"])
+
+/**
+ * What the account form rules decided for a submission, and the handler did.
+ */
+export const zAccountFormOutcome = z.enum(["allow", "drop"])
+
+/**
+ * A logged submission, as the admin page shows it.
+ */
+export const zAccountFormDecision = z.object({
+  action: zAccountFormAction,
+  created_at: z.iso.datetime(),
+  id: z.uuid(),
+  matched_rule_ids: z.array(z.uuid()),
+  network_prefix: z.string().nullish(),
+  outcome: zAccountFormOutcome,
+  recipient_domain: z.string().nullish(),
+  signals: z.unknown(),
+  user_id: z.uuid().nullish(),
+})
+
+/**
+ * A rule as it is now. Matches by `expression` or by the list, never both.
+ */
+export const zAccountFormRule = z.object({
+  created_at: z.iso.datetime(),
+  description: z.string(),
+  enabled: z.boolean(),
+  expression: z.string().nullish(),
+  id: z.uuid(),
+  list_entries: z.array(z.string()),
+  list_kind: zAccountFormListKind.nullish(),
+  log_only: z.boolean(),
+  name: z.string(),
+  outcome: zAccountFormOutcome,
+  updated_at: z.iso.datetime(),
+})
+
+/**
+ * A rule as an admin saves it.
+ */
+export const zAccountFormRuleUpdate = z.object({
+  description: z.string(),
+  enabled: z.boolean(),
+  expression: z.string().nullish(),
+  list_entries: z.array(z.string()),
+  list_kind: zAccountFormListKind.nullish(),
+  log_only: z.boolean(),
+  name: z.string(),
+  outcome: zAccountFormOutcome,
+})
+
+/**
+ * One saved version of a rule.
+ */
+export const zAccountFormRuleVersion = z.object({
+  changed_by_user_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  deleted: z.boolean(),
+  description: z.string(),
+  enabled: z.boolean(),
+  expression: z.string().nullish(),
+  id: z.uuid(),
+  list_entries: z.array(z.string()),
+  list_kind: zAccountFormListKind.nullish(),
+  log_only: z.boolean(),
+  name: z.string(),
+  outcome: zAccountFormOutcome,
+})
+
+/**
+ * The admin settings, with defaults for a deployment where none are saved.
+ */
+export const zAccountFormSettings = z.object({
+  rules_log_only: z.boolean(),
+})
+
+/**
  * What one code's last enrolment list that fed account linking did, each person counted once in
  * exactly one of the counters after `listed_person_count`. Written whole, so the dashboard never
  * mixes two runs.
@@ -2899,6 +2990,13 @@ export const zDatabaseOrganization = z.object({
   updated_at: z.iso.datetime(),
 })
 
+/**
+ * The address whose logged submissions to list.
+ */
+export const zDecisionLookupRequest = z.object({
+  email: z.string(),
+})
+
 export const zDeploymentInfo = z.object({
   name: z.string(),
   ready_replicas: z
@@ -3195,6 +3293,7 @@ export const zEditProposalInfo = z.object({
 
 export const zEmailData = z.object({
   altcha: z.string(),
+  client_info: z.string().nullish(),
   email: z.string(),
   language: z.string(),
 })
@@ -6944,6 +7043,47 @@ export const zRoleDomain = z.union([
   }),
 ])
 
+/**
+ * A rule's matcher to try: an expression, or a list kind with its entries.
+ */
+export const zRuleDryRunRequest = z.object({
+  expression: z.string().nullish(),
+  list_entries: z.array(z.string()).optional(),
+  list_kind: zAccountFormListKind.nullish(),
+})
+
+/**
+ * How a rule would have matched the latest logged submissions.
+ */
+export const zRuleDryRunResult = z.object({
+  errors: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  evaluated: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  examples: z.array(zAccountFormDecision),
+  first_error: z.string().nullish(),
+  matched: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
 export const zSaveCourseDesignerScheduleRequest = z.object({
   name: z.string().nullish(),
   stages: z.array(zCourseDesignerScheduleStageInput),
@@ -9176,6 +9316,7 @@ export const zUserIdsPayload = z.object({
  * The profile form as both frontends submit it.
  */
 export const zUserInfoPayload = z.object({
+  client_info: z.string().nullish(),
   country: z.string(),
   email: z.string(),
   email_communication_consent: z.boolean(),
@@ -9826,6 +9967,68 @@ export const zUploadFilesFromExerciseServicePath = z.object({
  * Uploaded files
  */
 export const zUploadFilesFromExerciseServiceResponse = z.array(zExerciseServiceUploadResultEntry)
+
+export const zGetAccountFormDecisionsQuery = z.object({
+  before: z.iso.datetime().optional(),
+  before_id: z.uuid().optional(),
+})
+
+/**
+ * Logged submissions
+ */
+export const zGetAccountFormDecisionsResponse = z.array(zAccountFormDecision)
+
+export const zLookupAccountFormDecisionsBody = zDecisionLookupRequest
+
+/**
+ * Logged submissions about the address
+ */
+export const zLookupAccountFormDecisionsResponse = z.array(zAccountFormDecision)
+
+/**
+ * Rules
+ */
+export const zGetAccountFormRulesResponse = z.array(zAccountFormRule)
+
+export const zCreateAccountFormRuleBody = zAccountFormRuleUpdate
+
+/**
+ * The new rule's id
+ */
+export const zCreateAccountFormRuleResponse = z.uuid()
+
+export const zDryRunAccountFormRuleBody = zRuleDryRunRequest
+
+/**
+ * How the rule would have matched
+ */
+export const zDryRunAccountFormRuleResponse = zRuleDryRunResult
+
+export const zDeleteAccountFormRulePath = z.object({
+  id: z.uuid(),
+})
+
+export const zUpdateAccountFormRuleBody = zAccountFormRuleUpdate
+
+export const zUpdateAccountFormRulePath = z.object({
+  id: z.uuid(),
+})
+
+export const zGetAccountFormRuleVersionsPath = z.object({
+  id: z.uuid(),
+})
+
+/**
+ * Versions
+ */
+export const zGetAccountFormRuleVersionsResponse = z.array(zAccountFormRuleVersion)
+
+/**
+ * Settings
+ */
+export const zGetAccountFormSettingsResponse = zAccountFormSettings
+
+export const zUpdateAccountFormSettingsBody = zAccountFormSettings
 
 export const zGetAgentChangesetsQuery = z.object({
   course_id: z.uuid(),

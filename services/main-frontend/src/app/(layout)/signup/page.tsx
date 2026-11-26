@@ -8,9 +8,11 @@ import { useForm, useFormState } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { AuthCard, AuthCardFooterLink, authCardStackCss } from "@/components/auth/AuthCard"
+import { useAccountFormReport } from "@/components/forms/accountFormReport/useAccountFormReport"
 import AltchaWidget, { type AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
 import { PasswordField } from "@/components/forms/PasswordField"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
+import TooManyAttemptsNotice, { isTooManyAttempts } from "@/components/forms/TooManyAttemptsNotice"
 import { getUsersIpCountryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
@@ -117,6 +119,7 @@ const CreateAccountForm: React.FC = () => {
   const { t, i18n } = useTranslation()
   const confirmHeadingRef = useRef<HTMLHeadingElement>(null)
   const altchaRef = useRef<AltchaWidgetHandle>(null)
+  const accountFormReport = useAccountFormReport()
   usePageTitle(confirmEmailPageVisible ? t("confirm-email-title") : t("title-sign-up"))
 
   useEffect(() => {
@@ -160,10 +163,11 @@ const CreateAccountForm: React.FC = () => {
           country: country,
           email_communication_consent: Boolean(email_communication_consent),
           altcha,
+          client_info: accountFormReport.report(),
         },
       })
     },
-    { notify: true, method: "POST" },
+    { notify: true, method: "POST", isErrorHandledByCaller: isTooManyAttempts },
   )
 
   useEffect(() => {
@@ -267,6 +271,7 @@ const CreateAccountForm: React.FC = () => {
       <form
         className={authCardStackCss}
         noValidate
+        ref={accountFormReport.formRef}
         onSubmit={handleSubmit(async (data, event) => {
           event?.preventDefault()
           try {
@@ -443,10 +448,15 @@ const CreateAccountForm: React.FC = () => {
         </div>
       )}
       {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
-      {createAccountMutation.isError && !emailAlreadyTakenError && (
-        // oxlint-disable-next-line i18next/no-literal-string -- ErrorNotice enum values, not UI text
-        <ErrorNotice error={createAccountMutation.error} announce="off" density="compact" />
-      )}
+      {createAccountMutation.isError &&
+        (isTooManyAttempts(createAccountMutation.error) ? (
+          <TooManyAttemptsNotice error={createAccountMutation.error} />
+        ) : (
+          !emailAlreadyTakenError && (
+            // oxlint-disable-next-line i18next/no-literal-string -- ErrorNotice enum values, not UI text
+            <ErrorNotice error={createAccountMutation.error} announce="off" density="compact" />
+          )
+        ))}
     </AuthCard>
   )
 }

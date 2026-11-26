@@ -115,6 +115,290 @@
         }
       }
     },
+    "/api/v0/main-frontend/account-forms/decisions": {
+      "get": {
+        "tags": ["account_forms"],
+        "summary": "GET `/api/v0/main-frontend/account-forms/decisions` The latest logged submissions, newest first.",
+        "operationId": "getAccountFormDecisions",
+        "parameters": [
+          {
+            "name": "before",
+            "in": "query",
+            "description": "The `created_at` of the previous page's last submission, given together with `before_id`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "before_id",
+            "in": "query",
+            "description": "The `id` of the previous page's last submission.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logged submissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccountFormDecision"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/account-forms/decisions/lookup": {
+      "post": {
+        "tags": ["account_forms"],
+        "summary": "POST `/api/v0/main-frontend/account-forms/decisions/lookup` The logged submissions about one\naddress, for helping a person who did not get their mail.",
+        "operationId": "lookupAccountFormDecisions",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionLookupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Logged submissions about the address",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccountFormDecision"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/account-forms/rules": {
+      "get": {
+        "tags": ["account_forms"],
+        "summary": "GET `/api/v0/main-frontend/account-forms/rules`",
+        "operationId": "getAccountFormRules",
+        "responses": {
+          "200": {
+            "description": "Rules",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccountFormRule"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["account_forms"],
+        "summary": "POST `/api/v0/main-frontend/account-forms/rules` Creates a rule.",
+        "operationId": "createAccountFormRule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountFormRuleUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The new rule's id",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/account-forms/rules/dry-run": {
+      "post": {
+        "tags": ["account_forms"],
+        "summary": "POST `/api/v0/main-frontend/account-forms/rules/dry-run` Evaluates a rule's matcher on the latest\nlogged submissions without saving anything.",
+        "operationId": "dryRunAccountFormRule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuleDryRunRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "How the rule would have matched",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuleDryRunResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/account-forms/rules/{id}": {
+      "put": {
+        "tags": ["account_forms"],
+        "summary": "PUT `/api/v0/main-frontend/account-forms/rules/{id}`",
+        "operationId": "updateAccountFormRule",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Rule id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountFormRuleUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Saved"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["account_forms"],
+        "summary": "DELETE `/api/v0/main-frontend/account-forms/rules/{id}` Deletes a rule; its versions stay.",
+        "operationId": "deleteAccountFormRule",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Rule id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/account-forms/rules/{id}/versions": {
+      "get": {
+        "tags": ["account_forms"],
+        "summary": "GET `/api/v0/main-frontend/account-forms/rules/{id}/versions` Every saved version of a rule, newest\nfirst.",
+        "operationId": "getAccountFormRuleVersions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Rule id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Versions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccountFormRuleVersion"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/account-forms/settings": {
+      "get": {
+        "tags": ["account_forms"],
+        "summary": "GET `/api/v0/main-frontend/account-forms/settings`",
+        "operationId": "getAccountFormSettings",
+        "responses": {
+          "200": {
+            "description": "Settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountFormSettings"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["account_forms"],
+        "summary": "PUT `/api/v0/main-frontend/account-forms/settings`",
+        "operationId": "updateAccountFormSettings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountFormSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Saved"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/agent-changesets": {
       "get": {
         "tags": ["agent_changesets"],
@@ -17039,6 +17323,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too many attempts; see Retry-After"
           }
         }
       }
@@ -17361,6 +17648,252 @@
   },
   "components": {
     "schemas": {
+      "AccountFormAction": {
+        "type": "string",
+        "description": "Which account form a submission was for. Each of them mails an address.",
+        "enum": ["signup", "signup_code_resend", "password_reset", "email_change"]
+      },
+      "AccountFormDecision": {
+        "type": "object",
+        "description": "A logged submission, as the admin page shows it.",
+        "required": ["id", "created_at", "action", "outcome", "matched_rule_ids", "signals"],
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/AccountFormAction"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matched_rule_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "network_prefix": {
+            "type": ["string", "null"]
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/AccountFormOutcome"
+          },
+          "recipient_domain": {
+            "type": ["string", "null"]
+          },
+          "signals": {},
+          "user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          }
+        }
+      },
+      "AccountFormListKind": {
+        "type": "string",
+        "description": "What the entries of a list rule are matched against.",
+        "enum": ["address", "mailbox", "account", "domain"]
+      },
+      "AccountFormOutcome": {
+        "type": "string",
+        "description": "What the account form rules decided for a submission, and the handler did.",
+        "enum": ["allow", "drop"]
+      },
+      "AccountFormRule": {
+        "type": "object",
+        "description": "A rule as it is now. Matches by `expression` or by the list, never both.",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "name",
+          "description",
+          "list_entries",
+          "outcome",
+          "enabled",
+          "log_only"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "expression": {
+            "type": ["string", "null"],
+            "description": "`None` for a list rule."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "list_entries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "list_kind": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AccountFormListKind",
+                "description": "`None` for an expression rule."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "log_only": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/AccountFormOutcome",
+            "description": "[`AccountFormOutcome::Allow`] or [`AccountFormOutcome::Drop`]."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AccountFormRuleUpdate": {
+        "type": "object",
+        "description": "A rule as an admin saves it.",
+        "required": ["name", "description", "list_entries", "outcome", "enabled", "log_only"],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "expression": {
+            "type": ["string", "null"],
+            "description": "`None` for a list rule."
+          },
+          "list_entries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "list_kind": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AccountFormListKind",
+                "description": "`None` for an expression rule."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "log_only": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/AccountFormOutcome",
+            "description": "[`AccountFormOutcome::Allow`] or [`AccountFormOutcome::Drop`]."
+          }
+        }
+      },
+      "AccountFormRuleVersion": {
+        "type": "object",
+        "description": "One saved version of a rule.",
+        "required": [
+          "id",
+          "created_at",
+          "changed_by_user_id",
+          "name",
+          "description",
+          "list_entries",
+          "outcome",
+          "enabled",
+          "log_only",
+          "deleted"
+        ],
+        "properties": {
+          "changed_by_user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted": {
+            "type": "boolean",
+            "description": "Whether this save deleted the rule."
+          },
+          "description": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "expression": {
+            "type": ["string", "null"],
+            "description": "`None` for a list rule."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "list_entries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "list_kind": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AccountFormListKind",
+                "description": "`None` for an expression rule."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "log_only": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/AccountFormOutcome",
+            "description": "[`AccountFormOutcome::Allow`] or [`AccountFormOutcome::Drop`]."
+          }
+        }
+      },
+      "AccountFormSettings": {
+        "type": "object",
+        "description": "The admin settings, with defaults for a deployment where none are saved.",
+        "required": ["rules_log_only"],
+        "properties": {
+          "rules_log_only": {
+            "type": "boolean",
+            "description": "Makes every account form rule log-only."
+          }
+        }
+      },
       "AccountLinkingCodeCounters": {
         "type": "object",
         "description": "What one code's last enrolment list that fed account linking did, each person counted once in\nexactly one of the counters after `listed_person_count`. Written whole, so the dashboard never\nmixes two runs.",
@@ -27570,6 +28103,16 @@
           }
         }
       },
+      "DecisionLookupRequest": {
+        "type": "object",
+        "description": "The address whose logged submissions to list.",
+        "required": ["email"],
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      },
       "DeploymentInfo": {
         "type": "object",
         "required": ["name", "replicas", "ready_replicas", "selector_labels"],
@@ -28223,6 +28766,10 @@
           "altcha": {
             "type": "string",
             "description": "The solved proof-of-work challenge, see [`crate::domain::proof_of_work`]."
+          },
+          "client_info": {
+            "type": ["string", "null"],
+            "description": "The form's opaque report about the browser, for the account form log."
           },
           "email": {
             "type": "string"
@@ -37473,6 +38020,61 @@
           }
         }
       },
+      "RuleDryRunRequest": {
+        "type": "object",
+        "description": "A rule's matcher to try: an expression, or a list kind with its entries.",
+        "properties": {
+          "expression": {
+            "type": ["string", "null"]
+          },
+          "list_entries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "list_kind": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AccountFormListKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "RuleDryRunResult": {
+        "type": "object",
+        "description": "How a rule would have matched the latest logged submissions.",
+        "required": ["evaluated", "matched", "errors", "examples"],
+        "properties": {
+          "errors": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Submissions the expression could not be evaluated on, e.g. for lacking a signal."
+          },
+          "evaluated": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "examples": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountFormDecision"
+            },
+            "description": "The latest matched submissions, at most a few dozen."
+          },
+          "first_error": {
+            "type": ["string", "null"]
+          },
+          "matched": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "SaveCourseDesignerScheduleRequest": {
         "type": "object",
         "required": ["stages"],
@@ -39652,6 +40254,10 @@
         "description": "The profile form as both frontends submit it.",
         "required": ["email", "first_name", "last_name", "country", "email_communication_consent"],
         "properties": {
+          "client_info": {
+            "type": ["string", "null"],
+            "description": "The form's opaque report about the browser, for the account form log."
+          },
           "country": {
             "type": "string"
           },

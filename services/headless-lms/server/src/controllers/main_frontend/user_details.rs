@@ -364,7 +364,7 @@ A new email reaches TMC only once it is verified, through
 [`crate::controllers::main_frontend::email_verification::verify_email_ownership`], unless email
 ownership verification is off.
 */
-#[instrument(skip(pool, app_conf, tmc_client))]
+#[instrument(skip(request, pool, app_conf, tmc_client, ip_to_country_mapper))]
 #[utoipa::path(
     post,
     path = "/update-user-info",
@@ -376,18 +376,29 @@ ownership verification is off.
     )
 )]
 pub async fn update_user_info(
+    request: HttpRequest,
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<UserInfoPayload>,
     tmc_client: web::Data<TmcClient>,
     app_conf: web::Data<ApplicationConfiguration>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
 ) -> ControllerResult<web::Json<UserDetail>> {
     let mut conn = pool.acquire().await?;
     let updated =
         domain::user_info::update_user_info(&mut conn, user.id, &payload, &tmc_client, &app_conf)
             .await?;
 
-    if updated.email_changed {
+    if domain::user_info::may_mail_changed_email(
+        &mut conn,
+        &ip_to_country_mapper,
+        &request,
+        user.id,
+        &payload,
+        &updated,
+    )
+    .await
+    {
         // After the commit: a rolled-back edit must not mail a code for an address the account lacks.
         domain::email_ownership_verification::queue_verification_email_best_effort(
             &mut conn,

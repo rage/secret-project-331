@@ -1,4 +1,4 @@
-import type { BrowserContext, Page } from "@playwright/test"
+import type { BrowserContext, Locator, Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import { expandPeerAndSelfReviewConfig } from "@/utils/cmsUtils"
@@ -28,6 +28,14 @@ async function refreshUntilPeerReviewCandidate(page: Page, expectedProgress: str
     }
     await expect(progress).toHaveAttribute("aria-valuetext", expectedProgress, { timeout: 3_000 })
   }).toPass({ timeout: 30_000 })
+}
+
+async function checkRadio(radio: Locator) {
+  // The reviewed answer's iframe resizes as it loads, which can shift a click off its target.
+  await expect(async () => {
+    await radio.click()
+    await expect(radio).toBeChecked({ timeout: 1_000 })
+  }).toPass({ timeout: 15_000 })
 }
 
 test.describe("Peer review followed by self review works", () => {
@@ -141,8 +149,8 @@ test.describe("Peer review followed by self review works", () => {
       await student2Page
         .getByRole("textbox", { name: "The answer was hard to read" })
         .fill("Best answer of our generation!")
-      await student2Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
-      await student2Page.getByRole("radio", { name: "Disagree", exact: true }).nth(1).click()
+      await checkRadio(student2Page.getByRole("radio", { name: "Agree", exact: true }).first())
+      await checkRadio(student2Page.getByRole("radio", { name: "Disagree", exact: true }).nth(1))
       await waitForSuccessNotification(student2Page, async () => {
         await student2Page.getByRole("button", { name: "Submit" }).click()
       })
@@ -167,14 +175,14 @@ test.describe("Peer review followed by self review works", () => {
       await getExerciseTaskFrame(student3Page, 1).getByText("Your answer was correct.").waitFor()
       await student3Page.getByRole("button", { name: "Start peer review" }).click()
       await refreshUntilPeerReviewCandidate(student3Page, "0 / 2")
-      await student3Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
-      await student3Page.getByRole("radio", { name: "Agree", exact: true }).nth(1).click()
+      await checkRadio(student3Page.getByRole("radio", { name: "Agree", exact: true }).first())
+      await checkRadio(student3Page.getByRole("radio", { name: "Agree", exact: true }).nth(1))
       await waitForSuccessNotification(student3Page, async () => {
         await student3Page.getByRole("button", { name: "Submit" }).click()
       })
       await refreshUntilPeerReviewCandidate(student3Page, "1 / 2")
-      await student3Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
-      await student3Page.getByRole("radio", { name: "Agree", exact: true }).nth(1).click()
+      await checkRadio(student3Page.getByRole("radio", { name: "Agree", exact: true }).first())
+      await checkRadio(student3Page.getByRole("radio", { name: "Agree", exact: true }).nth(1))
       await student3Page.getByRole("textbox", { name: "The answer was hard to read" }).fill("LOL")
       await student3Page.getByRole("button", { name: "Submit" }).click()
     })
@@ -186,11 +194,12 @@ test.describe("Peer review followed by self review works", () => {
       await student3Page
         .getByRole("textbox", { name: "The answer was hard to read" })
         .fill("I agree with myself. I am the best!")
-      await student3Page.getByRole("radio", { name: "Strongly agree", exact: true }).first().click()
-      await student3Page
-        .getByRole("radio", { name: "Strongly disagree", exact: true })
-        .nth(1)
-        .click()
+      await checkRadio(
+        student3Page.getByRole("radio", { name: "Strongly agree", exact: true }).first(),
+      )
+      await checkRadio(
+        student3Page.getByRole("radio", { name: "Strongly disagree", exact: true }).nth(1),
+      )
       await waitForSuccessNotification(student3Page, async () => {
         await student3Page.getByRole("button", { name: "Submit" }).click()
       })
@@ -199,14 +208,16 @@ test.describe("Peer review followed by self review works", () => {
 
     await test.step(`Student 1 reviews student 3's answer`, async () => {
       await student1Page.getByRole("button", { name: "Refresh" }).click()
+      await student1Page.getByRole("heading", { name: "Answer submitted by another" }).waitFor()
       await student1Page
         .getByRole("textbox", { name: "The answer was hard to read" })
         .fill("Good point. I agree with you.")
-      await student1Page.getByRole("radio", { name: "Strongly agree", exact: true }).first().click()
-      await student1Page
-        .getByRole("radio", { name: "Strongly disagree", exact: true })
-        .nth(1)
-        .click()
+      await checkRadio(
+        student1Page.getByRole("radio", { name: "Strongly agree", exact: true }).first(),
+      )
+      await checkRadio(
+        student1Page.getByRole("radio", { name: "Strongly disagree", exact: true }).nth(1),
+      )
       await waitForSuccessNotification(student1Page, async () => {
         await student1Page.getByRole("button", { name: "Submit" }).click()
       })

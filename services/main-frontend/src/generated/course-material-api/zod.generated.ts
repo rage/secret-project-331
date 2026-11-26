@@ -1479,6 +1479,7 @@ export const zUserDetail = z.object({
  * The profile form as both frontends submit it.
  */
 export const zUserInfoPayload = z.object({
+  client_info: z.string().nullish(),
   country: z.string(),
   email: z.string(),
   email_communication_consent: z.boolean(),

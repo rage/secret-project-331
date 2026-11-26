@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { refetchEmailVerificationStatusForUser } from "@/components/EmailVerificationSection"
+import { useAccountFormReport } from "@/components/forms/accountFormReport/useAccountFormReport"
 import { updateUserInfo } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
 import { refetchUserDetailsForUser } from "@/hooks/useUserDetailsForUserQuery"
@@ -15,6 +16,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { Button, Checkbox, ComboBox, TextField, useToggleFocus } from "@/shared-module/components"
 import { settingsCardCss } from "@/styles/sharedStyles"
 
@@ -61,6 +63,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   const { t: tCountries } = useTranslation("countries")
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
+  const accountFormReport = useAccountFormReport()
 
   const { handleSubmit, control, reset, setFocus } = useForm<SelectUserInfoFormFields>({
     // oxlint-disable-next-line i18next/no-literal-string
@@ -103,6 +106,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
           last_name,
           country: submittedCountry,
           email_communication_consent: submittedEmailConsent,
+          ...includeIf(submittedEmail !== email, { client_info: accountFormReport.report() }),
         },
       })
     },
@@ -268,7 +272,11 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
       >
         {t("user-settings-personal-info")}
       </h2>
-      <form noValidate onSubmit={handleSubmit((data) => postUserCountryMutation.mutate(data))}>
+      <form
+        noValidate
+        ref={accountFormReport.formRef}
+        onSubmit={handleSubmit((data) => postUserCountryMutation.mutate(data))}
+      >
         <div
           className={css`
             display: grid;

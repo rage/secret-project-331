@@ -85,6 +85,10 @@ export type CreateAccountDetails = {
    * The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
    */
   altcha: string
+  /**
+   * The form's opaque report about the browser, for the account form log.
+   */
+  client_info?: string | null
   country: string
   email: string
   email_communication_consent: boolean
@@ -385,6 +389,13 @@ export type GetAuthAltchaChallengeData = {
   url: "/api/v0/auth/altcha-challenge"
 }
 
+export type GetAuthAltchaChallengeErrors = {
+  /**
+   * Too many attempts; see Retry-After
+   */
+  429: unknown
+}
+
 export type GetAuthAltchaChallengeResponses = {
   /**
    * A signed ALTCHA challenge
@@ -437,6 +448,10 @@ export type PostAuthSignupErrors = {
    * Cannot sign up (e.g. already signed in or validation error)
    */
   400: unknown
+  /**
+   * Too many attempts; see Retry-After
+   */
+  429: unknown
 }
 
 export type PostAuthSignupResponses = {

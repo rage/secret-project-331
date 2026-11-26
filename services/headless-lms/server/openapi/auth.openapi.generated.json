@@ -38,6 +38,9 @@
                 "schema": {}
               }
             }
+          },
+          "429": {
+            "description": "Too many attempts; see Retry-After"
           }
         }
       }
@@ -134,6 +137,9 @@
           },
           "400": {
             "description": "Cannot sign up (e.g. already signed in or validation error)"
+          },
+          "429": {
+            "description": "Too many attempts; see Retry-After"
           }
         }
       }
@@ -627,6 +633,10 @@
           "altcha": {
             "type": "string",
             "description": "The solved proof-of-work challenge, see [`crate::domain::proof_of_work`]."
+          },
+          "client_info": {
+            "type": ["string", "null"],
+            "description": "The form's opaque report about the browser, for the account form log."
           },
           "country": {
             "type": "string"

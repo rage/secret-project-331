@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE password_reset_tokens\nSET mailed_at = array_append(mailed_at, clock_timestamp())\nWHERE user_id = $1\n  AND deleted_at IS NULL\n  AND used_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "264462d1f9c6283c0d63f8a3426ab6330b89f302da6ee50d1b76600e70c53c27"
+}

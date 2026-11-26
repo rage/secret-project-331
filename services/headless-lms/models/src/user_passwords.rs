@@ -103,6 +103,7 @@ pub struct PasswordResetToken {
     pub expires_at: DateTime<Utc>,
     pub used_at: Option<DateTime<Utc>>,
     pub deleted_at: Option<DateTime<Utc>>,
+    pub mailed_at: Vec<DateTime<Utc>>,
 }
 
 pub async fn upsert_user_password(
@@ -318,8 +319,8 @@ RETURNING *
     Ok(record.token)
 }
 
-/// Serializes issuing reset tokens to the user until the transaction ends, so a read from
-/// [`get_password_reset_token_creation_times_since`] stays current until the token is issued.
+/// Serializes mailing reset links to the user until the transaction ends, so a read from
+/// [`get_password_reset_mail_times_since`] stays current until the mail is recorded.
 pub async fn lock_password_reset_tokens_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -333,25 +334,44 @@ pub async fn lock_password_reset_tokens_for_user(
     Ok(())
 }
 
-/// When the user was issued reset tokens after `since`, used and superseded ones included.
-pub async fn get_password_reset_token_creation_times_since(
+/// When the user was mailed reset links after `since`, a link mailed again counting once per mail.
+pub async fn get_password_reset_mail_times_since(
     conn: &mut PgConnection,
     user_id: Uuid,
     since: DateTime<Utc>,
 ) -> ModelResult<Vec<DateTime<Utc>>> {
-    let created_at = sqlx::query_scalar!(
+    let mailed_at = sqlx::query_scalar!(
         r#"
-SELECT created_at
-FROM password_reset_tokens
-WHERE user_id = $1
-  AND created_at > $2
+SELECT m.mailed_at AS "mailed_at!"
+FROM password_reset_tokens t,
+  unnest(t.mailed_at) AS m(mailed_at)
+WHERE t.user_id = $1
+  AND t.expires_at > $2
+  AND m.mailed_at > $2
         "#,
         user_id,
         since,
     )
     .fetch_all(conn)
     .await?;
-    Ok(created_at)
+    Ok(mailed_at)
+}
+
+/// Records that the user's active reset link was mailed now.
+pub async fn record_password_reset_mail(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE password_reset_tokens
+SET mailed_at = array_append(mailed_at, clock_timestamp())
+WHERE user_id = $1
+  AND deleted_at IS NULL
+  AND used_at IS NULL
+        "#,
+        user_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 pub async fn get_unused_reset_password_token_with_user_id(

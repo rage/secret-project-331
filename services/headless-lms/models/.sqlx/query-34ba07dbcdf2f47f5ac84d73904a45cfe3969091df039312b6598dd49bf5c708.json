@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH w AS (\n  SELECT to_timestamp(floor(extract(epoch FROM now()) / $2::integer) * $2::integer) AS start,\n    extract(epoch FROM now()) / $2::integer - floor(extract(epoch FROM now()) / $2::integer) AS elapsed_fraction\n)\nSELECT coalesce(\n    sum(\n      t.count * CASE\n        WHEN t.window_start = w.start THEN 1\n        ELSE 1 - w.elapsed_fraction\n      END\n    ),\n    0\n  )::float8 AS \"count!\"\nFROM w\n  LEFT JOIN shared_rate_counts t ON t.key_digest = $1\n  AND t.window_seconds = $2::integer\n  AND t.window_start >= w.start - make_interval(secs => $2::integer)\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Float8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "34ba07dbcdf2f47f5ac84d73904a45cfe3969091df039312b6598dd49bf5c708"
+}

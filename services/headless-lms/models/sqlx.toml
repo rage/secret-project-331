@@ -3,6 +3,9 @@
 
 
 # Enums
+'account_form_action' = "crate::account_form_decisions::AccountFormAction"
+'account_form_list_kind' = "crate::account_form_rules::AccountFormListKind"
+'account_form_outcome' = "crate::account_form_decisions::AccountFormOutcome"
 'activity_progress' = "crate::exercises::ActivityProgress"
 'agent_changeset_status' = "crate::agent_changesets::AgentChangesetStatus"
 'answer_kind' = "crate::exercise_task_submissions::AnswerKind"

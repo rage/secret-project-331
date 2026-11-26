@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO course_designer_plan_stage_tasks (\n  course_designer_plan_stage_id,\n  title,\n  description,\n  order_number,\n  is_auto_generated,\n  created_by_user_id\n)\nVALUES ($1, $2, $3, $4, FALSE, $5)\nRETURNING\n  id,\n  created_at,\n  updated_at,\n  course_designer_plan_stage_id,\n  title,\n  description,\n  order_number,\n  is_completed,\n  completed_at,\n  completed_by_user_id,\n  is_auto_generated,\n  created_by_user_id,\n  assignee_user_id,\n  automatic_check AS \"automatic_check: CourseDesignerAutomaticCheck\"\n",
+  "query": "\nSELECT\n  t.id,\n  t.created_at,\n  t.updated_at,\n  t.course_designer_plan_stage_id,\n  t.title,\n  t.description,\n  t.order_number,\n  t.is_completed,\n  t.completed_at,\n  t.completed_by_user_id,\n  t.is_auto_generated,\n  t.created_by_user_id,\n  t.assignee_user_id,\n  t.automatic_check\nFROM course_designer_plan_stage_tasks t\nJOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL\nWHERE s.course_designer_plan_id = $1\n  AND t.deleted_at IS NULL\nORDER BY s.id, t.order_number, t.id\n",
   "describe": {
     "columns": [
       {
@@ -148,7 +148,7 @@
       },
       {
         "ordinal": 13,
-        "name": "automatic_check: CourseDesignerAutomaticCheck",
+        "name": "automatic_check",
         "type_info": {
           "Custom": {
             "name": "course_designer_automatic_check",
@@ -171,10 +171,6 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Varchar",
-        "Text",
-        "Int4",
         "Uuid"
       ]
     },
@@ -195,5 +191,5 @@
       true
     ]
   },
-  "hash": "4b9bd3af9b8c96c0db03542f04e97b7e8417203883f9b243ca3a272041a9c5ed"
+  "hash": "fa2e771aedfdf7f565c7688cbc139a58bc31851384c6a5de638b1322cd87ca52"
 }

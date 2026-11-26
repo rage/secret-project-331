@@ -15,6 +15,8 @@ use crate::{
 pub const AI_OUTLINE_CLASS_NAME: &str = "course-plan-ai-outline";
 
 const PAGE_TITLE_BLOCKS: [&str; 2] = ["moocfi/hero-section", "moocfi/landing-page-hero-section"];
+/// Blocks whose only content is their `content` text, so a blank one leaves the page empty.
+const TEXT_BLOCKS: [&str; 2] = ["core/paragraph", "core/heading"];
 
 /// Why a page of the course does not count as written yet. When several apply, the first in
 /// declaration order is reported.
@@ -148,8 +150,11 @@ SELECT ch.course_id AS "course_id!",
   EXISTS (
     SELECT 1
     FROM exercises e
+      JOIN pages p ON p.id = e.page_id
     WHERE e.chapter_id = ch.id
       AND e.deleted_at IS NULL
+      AND p.deleted_at IS NULL
+      AND NOT p.hidden
   ) AS "has_exercises!"
 FROM chapters ch
 WHERE ch.course_id = ANY($1)
@@ -226,10 +231,21 @@ ORDER BY ch.chapter_number
 fn unfilled_reason(content: &Value) -> Option<CourseDesignerUnfilledPageReason> {
     let blocks = content.as_array().map(Vec::as_slice).unwrap_or_default();
     let has_body = blocks.iter().any(|block| {
-        block
-            .get("name")
-            .and_then(Value::as_str)
-            .is_none_or(|name| !PAGE_TITLE_BLOCKS.contains(&name))
+        let name = block.get("name").and_then(Value::as_str);
+        if name.is_some_and(|name| PAGE_TITLE_BLOCKS.contains(&name)) {
+            return false;
+        }
+        if name.is_some_and(|name| TEXT_BLOCKS.contains(&name)) {
+            let content = block
+                .get("attributes")
+                .and_then(|attributes| attributes.get("content"))
+                .and_then(Value::as_str)
+                .unwrap_or_default();
+            return !decode_html_entities(&strip_html_tags(content))
+                .trim()
+                .is_empty();
+        }
+        true
     });
     if !has_body {
         return Some(CourseDesignerUnfilledPageReason::Empty);

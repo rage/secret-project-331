@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -10,6 +9,7 @@ import { createCourseFromCourseDesignerPlanMutation } from "@/generated/api/@tan
 import type { AnalysisWorkspaceV1 } from "@/generated/api/types.generated"
 import useAllOrganizationsQuery from "@/hooks/useAllOrganizationsQuery"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import {
   Button,
@@ -104,13 +104,16 @@ function CreateCourseDialog(props: {
     },
   })
 
-  const mutation = useMutation({
-    ...createCourseFromCourseDesignerPlanMutation(),
-    onSuccess: async () => {
-      await invalidatePlan()
-      onClose()
+  const mutation = useToastMutationOptions(
+    createCourseFromCourseDesignerPlanMutation(),
+    { notify: true, method: "POST", isErrorHandledByCaller: () => true },
+    {
+      onSuccess: async () => {
+        await invalidatePlan()
+        onClose()
+      },
     },
-  })
+  )
 
   const onSubmit = (values: CreateCourseFormValues) => {
     mutation.mutate({

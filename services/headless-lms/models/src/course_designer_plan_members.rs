@@ -178,7 +178,7 @@ SELECT
   t.is_auto_generated,
   t.created_by_user_id,
   t.assignee_user_id,
-  t.automatic_check AS "automatic_check: CourseDesignerAutomaticCheck"
+  t.automatic_check
 FROM course_designer_plan_stage_tasks t
 JOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL
 WHERE s.course_designer_plan_id = $1
@@ -271,7 +271,7 @@ RETURNING
   is_auto_generated,
   created_by_user_id,
   assignee_user_id,
-  automatic_check AS "automatic_check: CourseDesignerAutomaticCheck"
+  automatic_check
 "#,
         stage_id,
         title,
@@ -306,7 +306,7 @@ SELECT
   t.is_completed,
   t.completed_at,
   t.completed_by_user_id,
-  t.automatic_check AS "automatic_check: CourseDesignerAutomaticCheck",
+  t.automatic_check,
   s.stage AS "stage: CourseDesignerStage"
 FROM course_designer_plan_stage_tasks t
 JOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL
@@ -405,7 +405,7 @@ RETURNING
   t.is_auto_generated,
   t.created_by_user_id,
   t.assignee_user_id,
-  t.automatic_check AS "automatic_check: CourseDesignerAutomaticCheck"
+  t.automatic_check
 "#,
         plan_id,
         new_title,
@@ -521,7 +521,7 @@ RETURNING
   t.is_auto_generated,
   t.created_by_user_id,
   t.assignee_user_id,
-  t.automatic_check AS "automatic_check: CourseDesignerAutomaticCheck"
+  t.automatic_check
 "#,
         plan_id,
         user_id,

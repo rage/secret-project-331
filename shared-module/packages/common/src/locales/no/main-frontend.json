@@ -1269,7 +1269,7 @@
   "course-plans-support-column-schedule": "Tidsplan",
   "course-plans-support-column-status": "Status",
   "course-plans-support-column-tasks": "Oppgaver",
-  "course-plans-support-description": "Alle kursdesignplaner. Åpne en rad for å se fasene og seksjonene medlemmene har markert, med kommentarer.",
+  "course-plans-support-description": "Alle kursdesignplaner. Åpne en rad for å se datoene for hver fase og hvor mange av fasens oppgaver som er gjort.",
   "course-plans-support-empty": "Ingen har opprettet en kursdesignplan ennå.",
   "course-plans-support-on-schedule": "I rute",
   "course-plans-support-stages-heading": "Faser",

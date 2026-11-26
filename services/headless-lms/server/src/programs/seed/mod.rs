@@ -64,7 +64,7 @@ pub async fn main() -> anyhow::Result<()> {
     // Not run parallely because waits another future that is not send.
     let seed_file_storage_result = seed_file_storage::seed_file_storage().await?;
 
-    let (uh_cs_organization_result, _uh_mathstat_organization_id, _no_users_organization_id) = try_join!(
+    let (uh_cs_organization_result, uh_mathstat_organization_id, _no_users_organization_id) = try_join!(
         run_parallelly(seed_organizations::uh_cs::seed_organization_uh_cs(
             db_pool.clone(),
             app_config.clone(),
@@ -101,7 +101,6 @@ pub async fn main() -> anyhow::Result<()> {
     )
     .await?;
 
-    let uh_cs_organization_id = uh_cs_organization_result.uh_cs_organization_id;
     try_join!(
         run_parallelly(seed_roles::seed_roles(
             db_pool.clone(),
@@ -124,7 +123,8 @@ pub async fn main() -> anyhow::Result<()> {
             db_pool.clone(),
             app_config.clone(),
             seed_users_result,
-            uh_cs_organization_id
+            // Not uh-cs: its course list is screenshot-tested.
+            uh_mathstat_organization_id
         )),
         run_parallelly(
             seed_courses::seed_language_versions::seed_language_version_sets(

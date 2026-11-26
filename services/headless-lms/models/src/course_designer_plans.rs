@@ -859,7 +859,7 @@ SELECT
   COALESCE(
     ARRAY_AGG(t.automatic_check) FILTER (WHERE t.automatic_check IS NOT NULL),
     '{}'
-  ) AS "automatic_checks!: Vec<CourseDesignerAutomaticCheck>"
+  ) AS "automatic_checks!"
 FROM course_designer_plan_stages s
 LEFT JOIN course_designer_plan_stage_tasks t
   ON t.course_designer_plan_stage_id = s.id

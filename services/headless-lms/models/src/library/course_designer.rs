@@ -14,8 +14,7 @@ use crate::{
     chapters::{self, NewChapter},
     chatbot_configurations::{self, NewChatbotConf},
     course_designer_plans::{
-        CourseDesignerAutomaticCheck, CourseDesignerPlan, CourseDesignerPlanStageStatus,
-        CourseDesignerStage, insert_plan_event,
+        CourseDesignerPlan, CourseDesignerPlanStageStatus, CourseDesignerStage, insert_plan_event,
     },
     course_designer_stage_workspace::{
         AnalysisWorkspaceV1, CourseDesignerStageWorkspace, DesignChapter, DesignWorkspaceV1,
@@ -177,10 +176,9 @@ pub async fn get_course_from_plan_source(
             if is_ietf_language_code_like(code) {
                 Ok(code.to_string())
             } else {
-                Err(ModelError::new(
-                    ModelErrorType::InvalidRequest,
-                    "Malformed language code.".to_string(),
-                    None,
+                Err(model_err!(
+                    InvalidRequest,
+                    "Malformed language code.".to_string()
                 ))
             }
         })
@@ -210,28 +208,27 @@ SELECT (c.id IS NOT NULL) AS "has_live_course!",
     WHERE s.course_designer_plan_id = p.id
       AND s.stage = 'design'
       AND s.deleted_at IS NULL
-  ) AS "design_status: CourseDesignerPlanStageStatus"
+  ) AS design_status
 FROM course_designer_plans p
   LEFT JOIN courses c ON c.id = p.created_course_id
   AND c.deleted_at IS NULL
 WHERE p.id = $1
+  AND p.deleted_at IS NULL
 "#,
         plan.id
     )
     .fetch_one(conn)
     .await?;
     if row.has_live_course {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "A course has already been created from this plan.".to_string(),
-            None,
+        return Err(model_err!(
+            PreconditionFailed,
+            "A course has already been created from this plan.".to_string()
         ));
     }
     if row.design_status != Some(CourseDesignerPlanStageStatus::Completed) {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "The course can be created once the Design phase is done.".to_string(),
-            None,
+        return Err(model_err!(
+            PreconditionFailed,
+            "The course can be created once the Design phase is done.".to_string()
         ));
     }
     Ok(())
@@ -243,11 +240,11 @@ async fn default_chatbot_model(
     crate::chatbot_configurations_models::get_default(conn)
         .await
         .map_err(|e| {
-            ModelError::new(
-                ModelErrorType::PreconditionFailed,
+            model_err!(
+                PreconditionFailed,
                 "No default chatbot model is configured, so the planned chatbot cannot be created."
                     .to_string(),
-                Some(e.into()),
+                e
             )
         })
 }
@@ -353,20 +350,14 @@ pub async fn create_course_from_plan(
 
     let chapter_colors = course_content::chapter_colors(&design.style_guide.colour_palette);
     if drafts.chapters.len() != design.chapters.len() {
-        return Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "The drafts must have one chapter draft per planned chapter.".to_string(),
-            None,
+        return Err(model_err!(
+            InvalidRequest,
+            "The drafts must have one chapter draft per planned chapter.".to_string()
         ));
     }
     for (index, planned_chapter) in design.chapters.iter().enumerate() {
-        let chapter_number = i32::try_from(index + 1).map_err(|_| {
-            ModelError::new(
-                ModelErrorType::InvalidRequest,
-                "Too many chapters.".to_string(),
-                None,
-            )
-        })?;
+        let chapter_number = i32::try_from(index + 1)
+            .map_err(|_| model_err!(InvalidRequest, "Too many chapters.".to_string()))?;
         let chapter_name = non_empty_trimmed(&planned_chapter.title)
             .map(str::to_string)
             .unwrap_or_else(|| format!("Chapter {chapter_number}"));
@@ -757,7 +748,7 @@ SELECT COUNT(*)::BIGINT AS "task_count!",
   COALESCE(
     ARRAY_AGG(t.automatic_check) FILTER (WHERE t.automatic_check IS NOT NULL),
     '{}'
-  ) AS "automatic_checks!: Vec<CourseDesignerAutomaticCheck>"
+  ) AS "automatic_checks!"
 FROM course_designer_plan_stage_tasks t
 JOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id
 WHERE s.course_designer_plan_id = $1

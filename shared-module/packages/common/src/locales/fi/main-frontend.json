@@ -1268,7 +1268,7 @@
   "course-plans-support-column-schedule": "Aikataulu",
   "course-plans-support-column-status": "Tila",
   "course-plans-support-column-tasks": "Tehtävät",
-  "course-plans-support-description": "Kaikki kurssisuunnitelmat. Avaa rivi, niin näet vaiheet ja osiot, jotka jäsenet ovat merkinneet, sekä niiden kommentit.",
+  "course-plans-support-description": "Kaikki kurssisuunnitelmat. Avaa rivi, niin näet kunkin vaiheen päivämäärät ja sen, montako vaiheen tehtävistä on tehty.",
   "course-plans-support-empty": "Kukaan ei ole vielä luonut kurssisuunnitelmaa.",
   "course-plans-support-on-schedule": "Aikataulussa",
   "course-plans-support-stages-heading": "Vaiheet",

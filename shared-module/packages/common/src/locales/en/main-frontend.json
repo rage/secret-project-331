@@ -1268,7 +1268,7 @@
   "course-plans-support-column-schedule": "Schedule",
   "course-plans-support-column-status": "Status",
   "course-plans-support-column-tasks": "Tasks",
-  "course-plans-support-description": "All course design plans. Open a row to see the stages and the sections that members have marked, with their comments.",
+  "course-plans-support-description": "All course design plans. Open a row to see each stage's dates and how many of its tasks are done.",
   "course-plans-support-empty": "No one has created a course design plan yet.",
   "course-plans-support-on-schedule": "On schedule",
   "course-plans-support-stages-heading": "Stages",

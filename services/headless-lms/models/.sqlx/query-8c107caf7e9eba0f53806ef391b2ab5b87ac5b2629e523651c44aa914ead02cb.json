@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  t.title,\n  t.description,\n  t.is_completed,\n  t.completed_at,\n  t.completed_by_user_id,\n  t.automatic_check AS \"automatic_check: CourseDesignerAutomaticCheck\",\n  s.stage AS \"stage: CourseDesignerStage\"\nFROM course_designer_plan_stage_tasks t\nJOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL\nJOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id\n  AND m.user_id = $2 AND m.deleted_at IS NULL\nWHERE t.id = $3 AND s.course_designer_plan_id = $1 AND t.deleted_at IS NULL\nFOR UPDATE OF t\n",
+  "query": "\nSELECT\n  t.title,\n  t.description,\n  t.is_completed,\n  t.completed_at,\n  t.completed_by_user_id,\n  t.automatic_check,\n  s.stage AS \"stage: CourseDesignerStage\"\nFROM course_designer_plan_stage_tasks t\nJOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL\nJOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id\n  AND m.user_id = $2 AND m.deleted_at IS NULL\nWHERE t.id = $3 AND s.course_designer_plan_id = $1 AND t.deleted_at IS NULL\nFOR UPDATE OF t\n",
   "describe": {
     "columns": [
       {
@@ -60,7 +60,7 @@
       },
       {
         "ordinal": 5,
-        "name": "automatic_check: CourseDesignerAutomaticCheck",
+        "name": "automatic_check",
         "type_info": {
           "Custom": {
             "name": "course_designer_automatic_check",
@@ -122,5 +122,5 @@
       false
     ]
   },
-  "hash": "072b06d1f39eb5d9be327b17db83d2d99cc286ce2d44704fcebd7e0925320195"
+  "hash": "8c107caf7e9eba0f53806ef391b2ab5b87ac5b2629e523651c44aa914ead02cb"
 }

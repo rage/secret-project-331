@@ -111,6 +111,7 @@ FROM course_designer_plans p
 JOIN courses c ON c.id = p.created_course_id
   AND c.deleted_at IS NULL
 WHERE p.id = ANY($1)
+  AND p.deleted_at IS NULL
 "#,
         plan_ids
     )

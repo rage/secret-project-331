@@ -1,13 +1,17 @@
 import type { APIRequestContext } from "@playwright/test"
 
-import { linkStudentNumberUrl } from "@/utils/creditRegistration"
+import { getJson, linkStudentNumberUrl } from "@/utils/creditRegistration"
 import {
+  ADMIN_REGISTRATIONS_URL,
   adminRegistrationDetails,
+  type AdminRegistrationsPage,
   listAdminRegistrations,
   makeRegistrationDueNow,
 } from "@/utils/creditRegistrationAdmin"
 import {
   CRS_MOOCFI_101,
+  CRS_MOOCFI_TIER_2,
+  CRS_MOOCFI_TIER_3,
   forgetMockMoocfiStudent,
   mockMoocfiRegistrationsOf,
   MOOCFI_COURSE,
@@ -16,10 +20,23 @@ import {
   MOOCFI_STUDENT_2,
   MOOCFI_TARGET_ID,
   MOOCFI_TARGET_NAME,
+  MOOCFI_TIER_2_CODE_ID,
+  MOOCFI_TIER_2_CODE_NAME,
+  MOOCFI_TIER_3_CODE_ID,
+  MOOCFI_TIER_3_CODE_NAME,
+  MOOCFI_TIERED_COURSE,
+  MOOCFI_TIERED_TARGET_ID,
+  MOOCFI_TIERED_TARGET_NAME,
+  moocfiRegistrationUrl,
+  myMoocfiCreditRegistrations,
   openRegistrationFromMoocfi,
   seedMockMoocfiCompletions,
 } from "@/utils/mockMoocfi"
-import { transitionMockSuotarSubmissionsFor } from "@/utils/mockSuotar"
+import {
+  activeStudyRightPeriod,
+  transitionMockSuotarSubmissionsFor,
+  upsertMockSuotarEnrolments,
+} from "@/utils/mockSuotar"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
   queuedEmailsFor,
@@ -28,6 +45,7 @@ import {
   runMaterializeTick,
   runMoocfiReportTick,
   runPreconditionsTick,
+  runResolveEnrolmentsTick,
   runStudentNotificationsTick,
   runVerifyPollTick,
 } from "@/utils/suotarControl"
@@ -40,6 +58,11 @@ import { pollUntil } from "@/utils/waitingUtils"
 const STUDENT = MOOCFI_STUDENT_2
 const COMPLETION_ID = "c5ed17ea-2a01-4a5e-9e6e-c0de00002a01"
 const SCOPE = { externalCreditTargetId: MOOCFI_TARGET_ID, userEmail: STUDENT.email }
+const TIER_3_COMPLETION_ID = "c5ed17ea-2a02-4a5e-9e6e-c0de00002a02"
+const TIERED_SCOPE = {
+  externalCreditTargetId: MOOCFI_TIERED_TARGET_ID,
+  userEmail: STUDENT.email,
+}
 
 /** The student's one ledger row on the target, once materialize has written it. */
 const moocfiRegistrationId = (adminApi: APIRequestContext): Promise<string> =>
@@ -49,6 +72,19 @@ const moocfiRegistrationId = (adminApi: APIRequestContext): Promise<string> =>
       return data.find((row) => row.email === STUDENT.email)?.id ?? null
     },
     { description: `a ledger row for ${STUDENT.email} on the mooc.fi target` },
+  )
+
+/** The student's ledger row under one mooc.fi code, once materialize has written it. */
+const codeRegistrationId = (adminApi: APIRequestContext, codeId: string): Promise<string> =>
+  pollUntil(
+    async () => {
+      const { data } = await getJson<AdminRegistrationsPage>(
+        adminApi,
+        `${ADMIN_REGISTRATIONS_URL}?include_not_started=true&course_module_id=${codeId}`,
+      )
+      return data.find((row) => row.email === STUDENT.email)?.id ?? null
+    },
+    { description: `a ledger row for ${STUDENT.email} under the mooc.fi code ${codeId}` },
   )
 
 const waitForState = (adminApi: APIRequestContext, registrationId: string, state: string) =>
@@ -143,5 +179,79 @@ test("A mooc.fi completion is registered in Sisu and reported back to mooc.fi on
   await test.step("The student's page shows the credit registered", async () => {
     await page.goto(`/completion-registration/mooc-fi/${MOOCFI_COURSE.id}`)
     await expect(page.getByRole("heading", { name: "Your completion is registered" })).toBeVisible()
+  })
+
+  await test.step("A tier 3 completion shows both of its courses", async () => {
+    await upsertMockSuotarEnrolments(
+      request,
+      [CRS_MOOCFI_TIER_2, CRS_MOOCFI_TIER_3].map((courseCode) => ({
+        studentNumber: MOOCFI_PIPELINE_STUDENT_NUMBER,
+        courseCode,
+        kind: "degree" as const,
+        state: "ENROLLED" as const,
+        studyRightValidityPeriod: activeStudyRightPeriod(),
+      })),
+    )
+    await seedMockMoocfiCompletions(request, [
+      {
+        id: TIER_3_COMPLETION_ID,
+        course_id: MOOCFI_TIERED_COURSE.id,
+        user_upstream_id: STUDENT.upstreamId,
+        eligible_for_ects: true,
+        tier: 3,
+      },
+    ])
+    await page.goto(moocfiRegistrationUrl(MOOCFI_TIERED_COURSE))
+    await expect(page.getByText(`Course: ${MOOCFI_TIERED_TARGET_NAME}`)).toBeVisible()
+    const completion = (
+      await myMoocfiCreditRegistrations(page.request, MOOCFI_TIERED_COURSE)
+    ).completions.find((row) => row.moocfi_completion_id === TIER_3_COMPLETION_ID)
+    expect(completion?.credit_units.map((unit) => unit.credit_unit.uh_course_code)).toStrictEqual([
+      CRS_MOOCFI_TIER_2,
+      CRS_MOOCFI_TIER_3,
+    ])
+    expect(completion?.credit_units.map((unit) => unit.status)).toStrictEqual([
+      "registering_on_courses",
+      "registering_on_courses",
+    ])
+  })
+
+  const [intermediateId, advancedId] =
+    await test.step("The intermediate course is sent, and the advanced one waits for it", async () => {
+      await runMaterializeTick(request, TIERED_SCOPE)
+      const intermediate = await codeRegistrationId(adminApi, MOOCFI_TIER_2_CODE_ID)
+      const advanced = await codeRegistrationId(adminApi, MOOCFI_TIER_3_CODE_ID)
+      await runEnrolmentCheckNow(request, TIERED_SCOPE)
+      // The first lookup leaves the rows for Sisu to be asked about the older equivalent code.
+      await runResolveEnrolmentsTick(request, TIERED_SCOPE)
+      await runImportSubmissionTick(request, TIERED_SCOPE)
+      await waitForState(adminApi, intermediate, "awaiting_verification")
+      // Held by its prerequisite after its enrolment was found.
+      await waitForState(adminApi, advanced, "checking_enrolment")
+
+      await page.reload()
+      await expect(page.getByRole("heading", { name: "Registering your completion" })).toBeVisible()
+      await expect(page.getByRole("heading", { name: MOOCFI_TIER_2_CODE_NAME })).toBeVisible()
+      await expect(page.getByRole("heading", { name: MOOCFI_TIER_3_CODE_NAME })).toBeVisible()
+      await expect(
+        page.getByText(
+          `We send this course to Sisu after ${MOOCFI_TIER_2_CODE_NAME} is registered.`,
+        ),
+      ).toBeVisible()
+      return [intermediate, advanced] as const
+    })
+
+  await test.step("Once the intermediate course is registered, the advanced one is sent", async () => {
+    await transitionMockSuotarSubmissionsFor(
+      request,
+      MOOCFI_PIPELINE_STUDENT_NUMBER,
+      "registered",
+      CRS_MOOCFI_TIER_2,
+    )
+    await makeRegistrationDueNow(adminApi, intermediateId)
+    await runVerifyPollTick(request, TIERED_SCOPE)
+    await waitForState(adminApi, intermediateId, "registered")
+    await runImportSubmissionTick(request, TIERED_SCOPE)
+    await waitForState(adminApi, advancedId, "awaiting_verification")
   })
 })

@@ -457,7 +457,7 @@ pub struct RosterEnrolee {
     pub enrolment_ids: Vec<String>,
 }
 
-/// Wakes the rows of this module or mooc.fi target waiting for an enrolment when the roster lists
+/// Wakes the rows of this module or mooc.fi code waiting for an enrolment when the roster lists
 /// their student under an enrolment id the row has not seen, stopped rows included, and returns how
 /// many it touched.
 ///
@@ -621,7 +621,7 @@ pub async fn record_enrolment_check(
     Ok(())
 }
 
-/// Moves the schedules of a module's or mooc.fi target's rows past a pause that began at
+/// Moves the schedules of a module's or mooc.fi code's rows past a pause that began at
 /// `paused_at` and ends now, so the pause spends none of their ladder. A batched row stays on a
 /// batch boundary. Stopped rows are left as they are.
 pub async fn shift_past_pause(

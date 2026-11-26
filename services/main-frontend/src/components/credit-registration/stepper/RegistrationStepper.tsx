@@ -13,6 +13,7 @@ import type {
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Button, Infobox } from "@/shared-module/components"
 
+import { CardHeading } from "../CardHeading"
 import {
   BUTTON_TERTIARY,
   CREDIT_REGISTRATION_NS,
@@ -29,6 +30,7 @@ import { bandedCardCss } from "../styles"
 import { studentNumberLinkBand, wasListedByTheRegistry } from "../trackerView"
 import { useIsAccountLinkingEnabled } from "../useIsAccountLinkingEnabled"
 import { CertificateChosenPage } from "./CertificateChosenPage"
+import { CoursesStatusPage } from "./CoursesStatusPage"
 import { EnrolmentPage } from "./EnrolmentPage"
 import { LinkingPage } from "./LinkingPage"
 import { OverviewPage } from "./OverviewPage"
@@ -39,11 +41,19 @@ import { StepperFaq } from "./StepperFaq"
 import { captionCss, pageCss } from "./stepperStyles"
 import {
   canWithdrawEnrolmentConfirmation,
+  courseCodeOf,
+  courseStageOf,
+  coursesStatusPageOf,
   detourRoute,
+  ectsCreditsOf,
+  isEnrollingStage,
   isReachable,
   landingPage,
+  laterCoursesOf,
   PAGE,
   type StatusPage as StatusPageKind,
+  type CourseStage,
+  type StepperCourse,
   type StepperInput,
   type StepperPage,
   statusPageOf,
@@ -59,26 +69,30 @@ const ENROLLING_PAGES: readonly (StepperPage | StatusPageKind)[] = [
   "enrolment",
   "linking",
   "waiting",
+  "courses",
 ]
 
 export interface RegistrationStepperProps {
   subject: CreditRegistrationSubject
-  heading: React.ReactNode
+  /** The course the completion is of; the card names the course instead when there is only one. */
   courseName: string
   moduleName: string | null | undefined
-  ectsCredits: number | null | undefined
-  /** `null` before the pipeline has created a ledger row for the completion. */
+  /** Every course the completion earns, each registered on its own; usually just one. */
+  courses: readonly [StepperCourse, ...StepperCourse[]]
+  /**
+   * The registration the student's own steps are about: the only course's, or the one the server
+   * picks among several. `null` before the pipeline has created it.
+   */
   registration: MyCreditRegistration | null
   statusBeforeRegistration: StudentFacingCreditRegistrationStatus
+  /** The answers the steps show, from the same course as `registration`. */
   enrolmentRoute: MyEnrolmentRoute | null
   verifiedNumber: MyVerifiedStudentNumber | null
   /** Set when a certificate could serve instead, which asks the detour questions. */
   certificate: CertificateOffer | null
-  /** The Sisu course to enrol on, known before the registration exists. */
-  uhCourseCode: string | null | undefined
-  /** Where an Open University student enrols, known before the registration exists. */
-  enrolmentLink: string | null | undefined
   checkedAt: string | null
+  /** Shown in the title band when the page signed the student in on their behalf. */
+  signedInEmail?: string | undefined
   /** Rendered between the card and the questions: the earlier attempts. */
   children?: React.ReactNode
 }
@@ -92,18 +106,16 @@ export interface RegistrationStepperProps {
  */
 export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
   subject,
-  heading,
-  courseName,
+  courseName: completionCourseName,
   moduleName,
-  ectsCredits,
+  courses,
   registration,
   statusBeforeRegistration,
   enrolmentRoute,
   verifiedNumber,
   certificate,
-  uhCourseCode,
-  enrolmentLink,
   checkedAt,
+  signedInEmail,
   children,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -111,6 +123,12 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
   const [hasSavedJustificationHere, setHasSavedJustificationHere] = useState(false)
   const actions = useEnrolmentAnswers(subject, registration?.course_id ?? null)
   const { requestedPage, goTo } = useStepParam()
+
+  const [firstCourse] = courses
+  const hasSeveralCourses = courses.length > 1
+  const courseName = hasSeveralCourses ? completionCourseName : firstCourse.name
+  const ectsCredits = ectsCreditsOf(courses)
+  const laterCourses = hasSeveralCourses ? laterCoursesOf(courses) : []
 
   const hasLinkedStudentNumber = verifiedNumber !== null
   const input: StepperInput = {
@@ -121,14 +139,15 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
     hasCertificate: certificate !== null,
     hasSavedJustification: Boolean(certificate?.creditJustification) || hasSavedJustificationHere,
   }
-  const statusPage = statusPageOf(input)
+  const courseStages = courses.map((course) => courseStageOf(course, input))
+  const statusPage = hasSeveralCourses ? coursesStatusPageOf(courseStages) : statusPageOf(input)
   const page: StepperPage | StatusPageKind =
     statusPage ??
     (requestedPage && isReachable(requestedPage, input) ? requestedPage : landingPage(input))
   const route = detourRoute(enrolmentRoute, input.hasCertificate, input.hasSavedJustification)
   const isSisu = enrolmentRoute?.route === UNIVERSITY_OF_HELSINKI
   const studentNumber = verifiedNumber?.student_number ?? registration?.student_number ?? null
-  const courseCode = (registration?.uh_course_code ?? uhCourseCode)?.trim() || null
+  const courseCode = (registration?.uh_course_code ?? firstCourse.uhCourseCode)?.trim() || null
   const supportCourse = { courseName, moduleName }
 
   useRecordEnrolmentPageVisitOnce(subject, ENROLLING_PAGES.includes(page))
@@ -239,8 +258,8 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
         return (
           <EnrolmentPage
             isSisu={route === "sisu"}
-            courseCode={courseCode}
-            openUniversityEnrolmentLink={registration?.enrolment_link ?? enrolmentLink}
+            courses={courses}
+            laterCourses={laterCourses}
             missingCourseCodeSupportMail={missingSisuCourseCodeSupportMail(
               t,
               registration,
@@ -264,7 +283,7 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
             }
             isSisu={isSisu}
             courseName={courseName}
-            courseCode={courseCode}
+            courseCodes={courses.flatMap((course) => courseCodeOf(course) ?? [])}
           >
             {confirmedSentence}
             {acceptanceTakesDays}
@@ -282,6 +301,27 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
           />
         )
       default:
+        if (hasSeveralCourses && (page === "waiting" || page === "courses")) {
+          return (
+            <CoursesStatusPage
+              kind={page}
+              courses={courses}
+              stages={courseStages}
+              studentNumber={studentNumber}
+              isDegreeStudent={isSisu}
+              checkedAt={checkedAt}
+            >
+              {page === "waiting" ? (
+                <>
+                  {confirmedSentence}
+                  {acceptanceTakesDays}
+                  {enrolmentCheck}
+                  {wayBack}
+                </>
+              ) : null}
+            </CoursesStatusPage>
+          )
+        }
         return (
           <StatusPage
             kind={page}
@@ -310,7 +350,12 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
   return (
     <>
       <article className={bandedCardCss}>
-        {heading}
+        <CardHeading
+          courseName={courseName}
+          moduleName={moduleName}
+          ectsCredits={ectsCredits}
+          signedInEmail={signedInEmail}
+        />
         {step ? (
           <StepIndicator
             steps={stepsFor(hasLinkedStudentNumber)}
@@ -328,7 +373,28 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
         </section>
       </article>
       {children}
-      <StepperFaq page={page} isSisu={isSisu} courseName={courseName} />
+      <StepperFaq
+        page={faqPageOf(page, courseStages)}
+        isSisu={isSisu}
+        courseName={courseName}
+        laterCourses={laterCourses}
+      />
     </>
   )
+}
+
+const FAQ_WHILE_ENROLLING: StatusPageKind = "waiting"
+const FAQ_WHILE_REGISTERING: StatusPageKind = "registering"
+
+/** The page whose questions the FAQ answers: the page about several courses asks what its parts do. */
+const faqPageOf = (
+  page: StepperPage | StatusPageKind,
+  stages: readonly CourseStage[],
+): StepperPage | StatusPageKind => {
+  if (page !== "courses") {
+    return page
+  }
+  return stages.some((stage) => isEnrollingStage(stage))
+    ? FAQ_WHILE_ENROLLING
+    : FAQ_WHILE_REGISTERING
 }

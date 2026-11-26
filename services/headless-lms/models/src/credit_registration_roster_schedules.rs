@@ -484,15 +484,15 @@ GROUP BY w.course_code
         .collect())
 }
 
-/// An active module or mooc.fi target on a course code, with the facts a roster listing of the
+/// An active module or mooc.fi code on a course code, with the facts a roster listing of the
 /// code needs about it.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RosterUnit {
-    /// The module's or target's id.
+    /// The module's or mooc.fi code's id.
     pub credit_unit_id: Uuid,
     /// Set for a module only.
     pub course_id: Option<Uuid>,
-    /// Set for a mooc.fi target only.
+    /// Set for a mooc.fi code only: its target.
     pub external_credit_target_id: Option<Uuid>,
     pub uh_course_code: String,
     /// The language the mails the listing sets off are written in.
@@ -503,9 +503,12 @@ impl RosterUnit {
     /// What a linking mail claimed off this unit's roster is sent for: the module's course, or the
     /// target.
     pub fn linking_mail_source(&self) -> LinkingMailSource {
-        match self.course_id {
-            Some(course_id) => LinkingMailSource::Course(course_id),
-            None => LinkingMailSource::ExternalCreditTarget(self.credit_unit_id),
+        match (self.course_id, self.external_credit_target_id) {
+            (Some(course_id), _) => LinkingMailSource::Course(course_id),
+            // `credit_registration_active_units` names a target on every row without a course.
+            (None, target_id) => {
+                LinkingMailSource::ExternalCreditTarget(target_id.unwrap_or_default())
+            }
         }
     }
 }

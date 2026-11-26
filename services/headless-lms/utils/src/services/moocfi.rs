@@ -57,6 +57,10 @@ pub struct DelegatedCompletionRegistration {
     pub organization_slug: Option<String>,
     pub registration_date: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
+    /// The course code the registration was under. `None` from organizations or times that did not
+    /// say.
+    #[serde(default)]
+    pub course_code: Option<String>,
 }
 
 /// What courses reads of a handler course from mooc.fi's delegated-courses lookup.
@@ -80,6 +84,10 @@ pub struct CompletionRegistrationReport {
     #[serde(serialize_with = "serialize_exposed")]
     pub student_number: SecretString,
     pub registration_date: DateTime<Utc>,
+    /// The course code the completion was registered under; a completion can be registered under
+    /// several.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub course_code: Option<String>,
 }
 
 /// Why a mooc.fi call got no usable answer.

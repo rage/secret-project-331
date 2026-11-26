@@ -39,6 +39,7 @@
 'error_source' = "crate::errors::ErrorSource"
 'exercise_answer_snapshot_purpose' = "crate::exercise_answer_snapshots::SnapshotPurpose"
 'exercise_repository_status' = "crate::exercise_repositories::ExerciseRepositoryStatus"
+'external_grading' = "crate::external_credit_target_codes::ExternalGrading"
 'grant_type' = "crate::library::oauth::grant_type::GrantTypeName"
 'grading_progress' = "crate::exercises::GradingProgress"
 'history_change_reason' = "crate::page_history::HistoryChangeReason"

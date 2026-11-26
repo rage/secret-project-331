@@ -9,7 +9,7 @@ import {
   chooseCertificate as chooseCertificateFor,
   confirmEnrolment as confirmEnrolmentFor,
   type CreditRegistrationSubject,
-  myEnrolmentRouteQueryKey,
+  enrolmentAnswersCache,
   setEnrolmentRoute,
   subjectId,
   withdrawCertificateChoice as withdrawCertificateChoiceFor,
@@ -45,7 +45,8 @@ export const useEnrolmentAnswers = (
   courseId: string | null,
 ) => {
   const queryClient = useQueryClient()
-  const routeQueryKey = myEnrolmentRouteQueryKey(subject)
+  const answersCache = enrolmentAnswersCache(subject)
+  const routeQueryKey = answersCache.queryKey
 
   const invalidateRoute = async () => {
     await queryClient.invalidateQueries({ queryKey: routeQueryKey })
@@ -57,12 +58,7 @@ export const useEnrolmentAnswers = (
 
   // Each save replaces every answer, so saves run in order and only the last one refetches.
   const saveScopeId = `enrolment-answers-${subjectId(subject)}`
-  const saveAnswers = useToastMutation<
-    void,
-    unknown,
-    EnrolmentAnswers,
-    { previous: MyEnrolmentRoute | null | undefined }
-  >(
+  const saveAnswers = useToastMutation<void, unknown, EnrolmentAnswers, { previous: unknown }>(
     async (answers) => {
       await setEnrolmentRoute(subject, answers)
     },
@@ -71,9 +67,9 @@ export const useEnrolmentAnswers = (
       scope: { id: saveScopeId },
       onMutate: async (answers) => {
         await queryClient.cancelQueries({ queryKey: routeQueryKey })
-        const previous = queryClient.getQueryData<MyEnrolmentRoute | null>(routeQueryKey)
+        const previous = queryClient.getQueryData(routeQueryKey)
         if (previous) {
-          queryClient.setQueryData<MyEnrolmentRoute>(routeQueryKey, { ...previous, ...answers })
+          queryClient.setQueryData(routeQueryKey, answersCache.withAnswers(previous, answers))
         }
         return { previous }
       },

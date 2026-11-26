@@ -7,7 +7,7 @@ use headless_lms_models::credit_registrations::{
 };
 use headless_lms_models::{
     ModelResult, course_module_suotar_configurations, credit_registration_phase_state,
-    credit_registration_roster_schedules, external_credit_targets,
+    credit_registration_roster_schedules, external_credit_target_codes,
 };
 use sqlx::PgConnection;
 
@@ -72,7 +72,7 @@ pub async fn attention_rules(
     let mut misconfigured_module_ids =
         course_module_suotar_configurations::get_module_ids_failing_config_check(conn).await?;
     misconfigured_module_ids
-        .extend(external_credit_targets::get_ids_failing_config_check(conn).await?);
+        .extend(external_credit_target_codes::get_ids_failing_config_check(conn).await?);
     Ok(AttentionRules {
         thresholds: StuckThresholds::CURRENT,
         account_linking_since,

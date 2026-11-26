@@ -67,6 +67,7 @@ pub struct RecordedRegistration {
     pub completion_id: Uuid,
     pub student_number: String,
     pub registration_date: DateTime<Utc>,
+    pub course_code: Option<String>,
 }
 
 /// A completion to seed. Omitted fields get a fresh id, the current time and no registrations.
@@ -164,6 +165,7 @@ async fn register_completions(
                     organization_slug: Some(MOCK_MOOCFI_ORGANIZATION_SLUG.to_string()),
                     registration_date: Some(report.registration_date),
                     created_at: now,
+                    course_code: report.course_code.clone(),
                 });
         }
     }
@@ -176,6 +178,7 @@ async fn register_completions(
                 completion_id: report.completion_id,
                 student_number: report.student_number.expose_secret().to_string(),
                 registration_date: report.registration_date,
+                course_code: report.course_code.clone(),
             })
             .collect(),
     };
@@ -203,9 +206,9 @@ async fn get_delegated_course(
         !state.courses_without_certificate.contains(&course_id)
     };
     let mut conn = pool.acquire().await?;
-    let targets =
+    let target =
         models::external_credit_targets::get_by_moocfi_course_id(&mut conn, *course_id).await?;
-    if targets.is_empty() {
+    if target.is_none() {
         return token.authorized_ok(HttpResponse::NotFound().finish());
     }
     token.authorized_ok(HttpResponse::Ok().json(DelegatedCourse { has_certificate }))
@@ -455,7 +458,6 @@ async fn create_handoff(
     let Some(delegated_at) =
         models::external_credit_targets::get_by_moocfi_course_id(&mut conn, moocfi_course_id)
             .await?
-            .first()
             .map(|target| target.delegated_at)
     else {
         return token.authorized_ok(HttpResponse::NotFound().finish());
@@ -615,8 +617,7 @@ async fn redeem_courses_handoff(
         redeemed.moocfi_course_id,
     )
     .await?
-    .first()
-    .map(|target| target.moocfi_course_slug.clone())
+    .map(|target| target.moocfi_course_slug)
     .unwrap_or_default();
     token.authorized_ok(HttpResponse::Ok().json(serde_json::json!({
         "upstream_id": redeemed.upstream_id,

@@ -14,7 +14,7 @@
  * | Spec                    | Student            | mooc.fi courses          |
  * | ----------------------- | ------------------ | ------------------------ |
  * | moocfi-handoff          | moocfi-student-1   | delegated                |
- * | moocfi-pipeline         | moocfi-student-2   | delegated                |
+ * | moocfi-pipeline         | moocfi-student-2   | delegated, tiered        |
  * | moocfi-student-page     | moocfi-student-3   | delegated, tiered, paused |
  * | moocfi-cutoff-split     | moocfi-student-4   | delegated, tiered, graded |
  * | moocfi-certificate      | moocfi-student-5   | delegated                |
@@ -49,15 +49,25 @@ export const MOOCFI_COURSE: MoocfiCourse = {
 }
 export const MOOCFI_TARGET_ID = "c5ed17ea-0a01-4a5e-9e6e-c0de00000a01"
 export const MOOCFI_TARGET_NAME = "Delegated course"
+export const MOOCFI_CODE_ID = "c5ed17ea-0b01-4a5e-9e6e-c0de00000b01"
 export const CRS_MOOCFI_101 = "CRS-MOOCFI-101"
 
-/** Tier 2 and tier 3 have a target each; tier 1 has none. */
+/**
+ * One target with two codes: tier 2 earns the intermediate one, tier 3 the advanced one as well,
+ * which waits for the intermediate one in Sisu. Tier 1 earns none.
+ */
 export const MOOCFI_TIERED_COURSE: MoocfiCourse = {
   id: "c5ed17ea-0012-4a5e-9e6e-c0de00000012",
   slug: "credit-registration-moocfi-tiered",
 }
-export const MOOCFI_TIER_2_TARGET_ID = "c5ed17ea-0a02-4a5e-9e6e-c0de00000a02"
-export const MOOCFI_TIER_2_TARGET_NAME = "Tiered course, intermediate"
+export const MOOCFI_TIERED_TARGET_ID = "c5ed17ea-0a02-4a5e-9e6e-c0de00000a02"
+export const MOOCFI_TIERED_TARGET_NAME = "Tiered course"
+export const MOOCFI_TIER_2_CODE_ID = "c5ed17ea-0b02-4a5e-9e6e-c0de00000b02"
+export const MOOCFI_TIER_2_CODE_NAME = "Tiered course, intermediate"
+export const CRS_MOOCFI_TIER_2 = "CRS-MOOCFI-202"
+export const MOOCFI_TIER_3_CODE_ID = "c5ed17ea-0b03-4a5e-9e6e-c0de00000b03"
+export const MOOCFI_TIER_3_CODE_NAME = "Tiered course, advanced"
+export const CRS_MOOCFI_TIER_3 = "CRS-MOOCFI-303"
 
 /** Enabled but paused, with a pending row for `moocfi-student-3` that nothing moves. */
 export const MOOCFI_PAUSED_COURSE: MoocfiCourse = {
@@ -66,6 +76,7 @@ export const MOOCFI_PAUSED_COURSE: MoocfiCourse = {
 }
 export const MOOCFI_PAUSED_TARGET_ID = "c5ed17ea-0a04-4a5e-9e6e-c0de00000a04"
 export const MOOCFI_PAUSED_TARGET_NAME = "Paused course"
+export const MOOCFI_PAUSED_CODE_ID = "c5ed17ea-0b04-4a5e-9e6e-c0de00000b04"
 export const MOOCFI_PAUSED_COMPLETION_ID = "c5ed17ea-0a11-4a5e-9e6e-c0de00000a11"
 export const MOOCFI_PAUSED_REGISTRATION_ID = "c5ed17ea-0a21-4a5e-9e6e-c0de00000a21"
 /** The raw grade the seed stored on the paused target's completion. */
@@ -77,6 +88,7 @@ export const MOOCFI_GRADED_COURSE: MoocfiCourse = {
   slug: "credit-registration-moocfi-graded",
 }
 export const MOOCFI_GRADED_TARGET_ID = "c5ed17ea-0a05-4a5e-9e6e-c0de00000a05"
+export const MOOCFI_GRADED_CODE_ID = "c5ed17ea-0b05-4a5e-9e6e-c0de00000b05"
 
 export interface MoocfiStudent {
   email: string
@@ -249,22 +261,40 @@ export type MoocfiCompletionStatus =
   | "not_eligible"
   | "registered_on_moocfi"
   | "equivalent_registered"
-  | "no_credit_unit"
   | "removed_from_moocfi"
+
+/** One course code of a completion, as `getMyMoocfiCreditRegistrations` lists it. */
+export interface MyMoocfiCreditUnitRegistration {
+  credit_unit: { external_credit_target_code_id: string; name: string; uh_course_code: string }
+  status: MoocfiCompletionStatus
+  external_completion_id: string | null
+  credit_registration_id: string | null
+}
+
+export interface MyMoocfiCompletionRegistration {
+  moocfi_completion_id: string
+  tier: number | null
+  /** One per code the tier earns, lowest minimum tier first; empty when it earns none. */
+  credit_units: MyMoocfiCreditUnitRegistration[]
+  offers_certificate: boolean
+  credit_justification: string | null
+}
 
 /** The subset of `getMyMoocfiCreditRegistrations` these specs assert on. */
 export interface MyMoocfiCreditRegistrations {
   signed_in_email: string
   is_up_to_date: boolean
-  completions: {
-    moocfi_completion_id: string
-    status: MoocfiCompletionStatus
-    external_completion_id: string | null
-    credit_registration_id: string | null
-    offers_certificate: boolean
-    credit_justification: string | null
-  }[]
+  completions: MyMoocfiCompletionRegistration[]
 }
+
+/** The completion's status under each code it earns, in the order the page lists them. */
+export const unitStatusesOf = (
+  registrations: MyMoocfiCreditRegistrations,
+  moocfiCompletionId: string,
+): MoocfiCompletionStatus[] | undefined =>
+  registrations.completions
+    .find((completion) => completion.moocfi_completion_id === moocfiCompletionId)
+    ?.credit_units.map((unit) => unit.status)
 
 /**
  * What the signed-in student's registration page reads. Each call syncs from the mock and is rate

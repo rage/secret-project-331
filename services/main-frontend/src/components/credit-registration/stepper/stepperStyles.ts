@@ -218,3 +218,63 @@ export const actionsCss = css`
   gap: var(--space-3-5) var(--space-4);
   align-items: center;
 `
+
+/** The smaller mark in front of one course's heading, under the page's own status heading. */
+const courseMarkCss = css`
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 15px;
+`
+
+export const courseMarkDoneCss = cx(
+  courseMarkCss,
+  css`
+    background: var(--color-green-600);
+    color: var(--color-clear-50);
+  `,
+)
+
+export const courseMarkWaitingCss = cx(
+  courseMarkCss,
+  css`
+    background: var(--color-green-75);
+    color: var(--color-green-600);
+  `,
+)
+
+export const courseMarkTodoCss = cx(
+  courseMarkCss,
+  css`
+    border: 2px solid var(--color-clear-400);
+    background: var(--color-clear-50);
+    color: var(--color-gray-500);
+  `,
+)
+
+/** Same size as the other course marks, so the headings line up whichever mark they carry. */
+export const courseMarkSpinnerCss = courseMarkCss
+
+/** One course's part of a page about several: its heading, then what is under it. */
+export const courseBlockCss = css`
+  display: grid;
+  gap: var(--space-3-5);
+`
+
+/** Lines up a course's details with its heading text rather than with its mark. */
+export const underCourseMarkCss = css`
+  display: grid;
+  gap: var(--space-3-5);
+  margin-left: 40px;
+
+  > * {
+    min-width: 0;
+  }
+
+  ${NARROW} {
+    margin-left: 0;
+  }
+`

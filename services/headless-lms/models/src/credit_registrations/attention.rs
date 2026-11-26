@@ -101,7 +101,7 @@ pub enum BlockingProblemKind {
     ProcessingPhaseStopped,
     /// The course code's enrolment list keeps failing to arrive. The subject is the course code.
     CourseCodeFailing,
-    /// The module or mooc.fi target fails its configuration check. The subject is its id.
+    /// The module or mooc.fi code fails its configuration check. The subject is its id.
     ModuleMisconfigured,
 }
 
@@ -164,7 +164,7 @@ pub struct AttentionRegistration {
     pub course_module_id: Option<Uuid>,
     pub course_module_name: Option<String>,
     pub course_or_target_id: Uuid,
-    /// The module or mooc.fi target, whichever kind it is.
+    /// The module or mooc.fi code, whichever kind it is.
     pub credit_unit_id: Uuid,
     /// The module's or target's code now, trimmed; not the one frozen on the row.
     pub uh_course_code: Option<String>,
@@ -451,8 +451,9 @@ FROM credit_registrations cr
                 )
                 OR EXISTS (
                   SELECT 1
-                  FROM external_credit_targets code_target
-                  WHERE code_target.id = e.external_credit_target_id
+                  FROM external_credit_target_codes code_target
+                  WHERE code_target.external_credit_target_id = e.external_credit_target_id
+                    AND code_target.deleted_at IS NULL
                     AND TRIM(code_target.uh_course_code) = s.course_code
                 )
               )

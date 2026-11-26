@@ -503,7 +503,7 @@ WHERE id = $1
 ///
 /// Only `failed_retryable`: no other state's backoff means "waiting out an outage", and
 /// `submission_uncertain` must never be swept forward in bulk. Each filter left `None` matches every
-/// row; `credit_unit_id` takes a module's or a mooc.fi target's id.
+/// row; `credit_unit_id` takes a module's or a mooc.fi code's id.
 pub async fn requeue_retryable_now(
     conn: &mut PgConnection,
     course_id: Option<Uuid>,

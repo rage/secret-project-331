@@ -191,15 +191,21 @@ pub enum BadRequestReason {
     /// Only a paste snapshot can be shared, not a backup.
     #[display("Backup not shareable")]
     BackupNotShareable,
-    /// A mooc.fi target's tiers overlap another live target's of the same mooc.fi course.
-    #[display("Tiers overlap")]
-    ExternalCreditTargetTiersOverlap,
-    /// The mooc.fi course already has a live target with this course code.
+    /// The mooc.fi course already has a live target.
+    #[display("mooc.fi course taken")]
+    ExternalCreditTargetMoocfiCourseTaken,
+    /// The mooc.fi target already has a live code with this course code.
     #[display("Course code taken")]
     ExternalCreditTargetCourseCodeTaken,
     /// A mooc.fi target with completions cannot be moved to another mooc.fi course.
     #[display("mooc.fi course fixed")]
     ExternalCreditTargetMoocfiCourseFixed,
+    /// A code's prerequisite needs a higher completion tier than the code itself.
+    #[display("Prerequisite tier above")]
+    ExternalCreditTargetCodePrerequisiteTierAbove,
+    /// The prerequisites of a mooc.fi target's codes lead round in a circle.
+    #[display("Prerequisites circular")]
+    ExternalCreditTargetCodePrerequisitesCircular,
     /// A save named a version of the record that is no longer the latest.
     #[display("Stale version")]
     StaleVersion,
@@ -225,10 +231,18 @@ impl BadRequestReason {
             Self::UnknownUpload => "unknown_upload",
             Self::DuplicateUpload => "duplicate_upload",
             Self::BackupNotShareable => "backup_not_shareable",
-            Self::ExternalCreditTargetTiersOverlap => "external_credit_target_tiers_overlap",
+            Self::ExternalCreditTargetMoocfiCourseTaken => {
+                "external_credit_target_moocfi_course_taken"
+            }
             Self::ExternalCreditTargetCourseCodeTaken => "external_credit_target_course_code_taken",
             Self::ExternalCreditTargetMoocfiCourseFixed => {
                 "external_credit_target_moocfi_course_fixed"
+            }
+            Self::ExternalCreditTargetCodePrerequisiteTierAbove => {
+                "external_credit_target_code_prerequisite_tier_above"
+            }
+            Self::ExternalCreditTargetCodePrerequisitesCircular => {
+                "external_credit_target_code_prerequisites_circular"
             }
             Self::StaleVersion => "stale_version",
             Self::FormVerificationFailed => "form_verification_failed",
@@ -243,8 +257,10 @@ impl BadRequestReason {
             | "course_language_groups_slug_unique_non_deleted" => {
                 Some(Self::CourseSlugAlreadyTaken)
             }
-            "external_credit_targets_tier_overlap" => Some(Self::ExternalCreditTargetTiersOverlap),
-            "uq_external_credit_targets_course_code" => {
+            "uq_external_credit_targets_moocfi_course" => {
+                Some(Self::ExternalCreditTargetMoocfiCourseTaken)
+            }
+            "uq_external_credit_target_codes_course_code" => {
                 Some(Self::ExternalCreditTargetCourseCodeTaken)
             }
             _ => None,

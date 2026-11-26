@@ -21,6 +21,9 @@ pub enum StudentFacingCreditRegistrationStatus {
     /// Held until staff fix the course's registration settings, with no known end: unlike
     /// [`Self::LookingForEnrolment`], not a short wait.
     WaitingForCourseSetup,
+    /// An enrolment is settled, and the attainment goes to the study registry once the student
+    /// has the prerequisite course code in Sisu. Only on a mooc.fi code with a prerequisite.
+    WaitingForPrerequisite,
     /// An enrolment is settled and the attainment is on its way to the study registry.
     Sending,
     WaitingForSisu,
@@ -72,6 +75,21 @@ impl StudentFacingCreditRegistrationStatus {
             State::Registered | State::Duplicate | State::NotImproved => Self::Registered,
             State::Misregistered | State::FailedPermanent => Self::Failed,
             State::Blocked | State::Cancelled => Self::NotRegistering,
+        }
+    }
+
+    /// [`Self::WaitingForPrerequisite`] in place of the stage of a row held in `checking_enrolment`
+    /// because `prerequisite_met` is false; see `credit_registration_prerequisite_met`. Not part of
+    /// [`Self::of`], whose stages [`StageMatch`] enumerates, since only mooc.fi rows wait so.
+    pub fn held_for_prerequisite(
+        self,
+        state: CreditRegistrationState,
+        prerequisite_met: bool,
+    ) -> Self {
+        if state == CreditRegistrationState::CheckingEnrolment && !prerequisite_met {
+            Self::WaitingForPrerequisite
+        } else {
+            self
         }
     }
 

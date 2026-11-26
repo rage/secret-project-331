@@ -12,10 +12,13 @@
 //! [`claim_enrolment_checks`], so a check that finds nothing leaves it there with only its schedule
 //! and last check time moved.
 //!
-//! Each iteration first looks up the Sisu person for links that lack one; see [`persons`].
+//! Each iteration first looks up the Sisu person for links that lack one; see [`persons`]. After
+//! the enrolment lookup it asks Sisu about course codes that stand in for a row's own or its
+//! prerequisite; see [`sisu_code_checks`].
 
 mod enrolments;
 mod persons;
+mod sisu_code_checks;
 
 use headless_lms_models::credit_registrations::{
     BatchMove, CreditRegistration, CreditRegistrationState, claim_enrolment_checks,
@@ -40,6 +43,8 @@ pub(crate) async fn run<R: StudyRegistry>(
 ) -> CreditRegistrationResult<Counts> {
     let mut counts = run_registry_batch_flow::<ResolvePersonIds, _>(ctx, registry).await?;
     counts += run_registry_batch_flow::<ResolveEnrolments, _>(ctx, registry).await?;
+    // After the lookup, so the checks spend only the allowance and breaker probe it left.
+    counts += sisu_code_checks::run(ctx, registry).await?;
     Ok(counts)
 }
 

@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE external_credit_targets\nSET moocfi_course_id = $2,\n  moocfi_course_slug = $3,\n  name = $4,\n  language_code = $5,\n  delegated_at = $6,\n  enabled_at = $7\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Timestamptz",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "080e9754745dbc00dee591d756f18849b0a748f28717892d9898a95296173067"
+}

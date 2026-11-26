@@ -11,13 +11,14 @@ import {
   MOOCFI_PAUSED_RAW_GRADE,
   MOOCFI_PAUSED_TARGET_NAME,
   MOOCFI_STUDENT_3,
-  MOOCFI_TIER_2_TARGET_NAME,
+  MOOCFI_TIER_2_CODE_NAME,
   MOOCFI_TIERED_COURSE,
   moocfiRegistrationUrl,
   myMoocfiCreditRegistrations,
   openRegistrationFromMoocfi,
   seedMockMoocfiCompletions,
   setMockMoocfiAvailableFor,
+  unitStatusesOf,
 } from "@/utils/mockMoocfi"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 
@@ -32,7 +33,7 @@ const REGISTERING_ID = completionId(1)
 const BEFORE_CUTOFF_ID = completionId(2)
 const NOT_ELIGIBLE_ID = completionId(3)
 const REGISTERED_ELSEWHERE_ID = completionId(4)
-const NO_CREDIT_UNIT_ID = completionId(5)
+const TIER_1_ID = completionId(5)
 const REMOVED_ID = completionId(6)
 
 const tiered = (
@@ -47,7 +48,8 @@ const tiered = (
 })
 
 const TIERED_COMPLETIONS: MockMoocfiCompletionSeed[] = [
-  tiered(REGISTERING_ID, { tier: 2 }),
+  // Dated before the registered tier 3 completion, whose intermediate course it would repeat.
+  tiered(REGISTERING_ID, { tier: 2, completion_date: "2025-07-01T12:00:00Z" }),
   tiered(BEFORE_CUTOFF_ID, { tier: 3, completion_date: BEFORE_MOOCFI_CUTOFF }),
   tiered(NOT_ELIGIBLE_ID, { tier: 2, eligible_for_ects: false }),
   tiered(REGISTERED_ELSEWHERE_ID, {
@@ -60,8 +62,8 @@ const TIERED_COMPLETIONS: MockMoocfiCompletionSeed[] = [
       },
     ],
   }),
-  tiered(NO_CREDIT_UNIT_ID, { tier: 1 }),
-  // Dated before the registered tier 3 completion, which would otherwise make it a repeat.
+  tiered(TIER_1_ID, { tier: 1 }),
+  // Dated before the registered tier 3 completion for the same reason.
   tiered(REMOVED_ID, { tier: 3, completion_date: "2025-06-01T12:00:00Z" }),
 ]
 
@@ -93,23 +95,28 @@ test("Each completion says how it is registered, and stale or missing data says 
     await expect(
       page.getByRole("heading", { name: "Register on the older version of the platform" }),
     ).toBeVisible()
-    await expect(
-      page.getByRole("heading", { name: "No credits for this completion" }),
-    ).toBeVisible()
+    // The tier 1 completion earns no course, and the ineligible one no credits.
+    await expect(page.getByRole("heading", { name: "No credits for this completion" })).toHaveCount(
+      2,
+    )
     await expect(page.getByRole("heading", { name: "Already registered" })).toBeVisible()
-    await expect(page.getByRole("heading", { name: "Not registered here" })).toBeVisible()
-    await expect(page.getByText(MOOCFI_TIER_2_TARGET_NAME).first()).toBeVisible()
+    await expect(page.getByText(MOOCFI_TIER_2_CODE_NAME).first()).toBeVisible()
     await accessibilityCheck(page, "mooc.fi registration page with every status")
 
-    const { completions } = await myMoocfiCreditRegistrations(page.request, MOOCFI_TIERED_COURSE)
-    const statusOf = (id: string) =>
-      completions.find((completion) => completion.moocfi_completion_id === id)?.status
-    expect(statusOf(REGISTERING_ID)).toBe("registering_on_courses")
-    expect(statusOf(BEFORE_CUTOFF_ID)).toBe("before_cutoff")
-    expect(statusOf(NOT_ELIGIBLE_ID)).toBe("not_eligible")
-    expect(statusOf(REGISTERED_ELSEWHERE_ID)).toBe("registered_on_moocfi")
-    expect(statusOf(NO_CREDIT_UNIT_ID)).toBe("no_credit_unit")
-    expect(statusOf(REMOVED_ID)).toBe("registering_on_courses")
+    const registrations = await myMoocfiCreditRegistrations(page.request, MOOCFI_TIERED_COURSE)
+    const statusesOf = (id: string) => unitStatusesOf(registrations, id)
+    expect(statusesOf(REGISTERING_ID)).toStrictEqual(["registering_on_courses"])
+    expect(statusesOf(BEFORE_CUTOFF_ID)).toStrictEqual(["before_cutoff", "before_cutoff"])
+    expect(statusesOf(NOT_ELIGIBLE_ID)).toStrictEqual(["not_eligible"])
+    expect(statusesOf(REGISTERED_ELSEWHERE_ID)).toStrictEqual([
+      "registered_on_moocfi",
+      "registered_on_moocfi",
+    ])
+    expect(statusesOf(TIER_1_ID)).toStrictEqual([])
+    expect(statusesOf(REMOVED_ID)).toStrictEqual([
+      "registering_on_courses",
+      "registering_on_courses",
+    ])
   })
 
   await test.step("Two completions registering each get their own page", async () => {
@@ -132,10 +139,12 @@ test("Each completion says how it is registered, and stale or missing data says 
     await expect(page.getByRole("button", { name: "Start" })).toBeVisible()
     await expect(page.getByRole("link", { name: "Show registration" })).toHaveCount(0)
     await expect(page.getByRole("heading", { name: "Already registered" })).toHaveCount(0)
-    const { completions } = await myMoocfiCreditRegistrations(page.request, MOOCFI_TIERED_COURSE)
     expect(
-      completions.find((completion) => completion.moocfi_completion_id === REMOVED_ID)?.status,
-    ).toBe("removed_from_moocfi")
+      unitStatusesOf(
+        await myMoocfiCreditRegistrations(page.request, MOOCFI_TIERED_COURSE),
+        REMOVED_ID,
+      ),
+    ).toStrictEqual(["removed_from_moocfi", "removed_from_moocfi"])
   })
 
   await test.step("When mooc.fi cannot be reached, the stored completions show with a notice", async () => {
@@ -146,11 +155,12 @@ test("Each completion says how it is registered, and stale or missing data says 
         "We could not check the older version of the platform just now, so your latest completions may be missing",
       ),
     ).toBeVisible()
-    const { completions } = await myMoocfiCreditRegistrations(page.request, MOOCFI_TIERED_COURSE)
-    const statuses = completions.map((completion) => completion.status)
-    expect(statuses).toContain("registered_on_moocfi")
+    const registrations = await myMoocfiCreditRegistrations(page.request, MOOCFI_TIERED_COURSE)
+    expect(unitStatusesOf(registrations, REGISTERED_ELSEWHERE_ID)).toContain("registered_on_moocfi")
     // Never stored, so nothing remembers it while mooc.fi is away.
-    expect(statuses).not.toContain("no_credit_unit")
+    expect(
+      registrations.completions.map((completion) => completion.moocfi_completion_id),
+    ).not.toContain(TIER_1_ID)
     await setMockMoocfiAvailableFor(request, STUDENT, true)
   })
 

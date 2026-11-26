@@ -28,10 +28,17 @@ export interface StepperFaqProps {
   page: StepperPage | StatusPage
   isSisu: boolean
   courseName: string
+  /** Courses of the completion that wait for another course before they go to Sisu. */
+  laterCourses?: readonly { name: string; prerequisiteName: string }[]
 }
 
 /** The questions students ask on the page they are on, and only those. */
-export const StepperFaq: React.FC<StepperFaqProps> = ({ page, isSisu, courseName }) => {
+export const StepperFaq: React.FC<StepperFaqProps> = ({
+  page,
+  isSisu,
+  courseName,
+  laterCourses = [],
+}) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAwaitingEnrolment = page === "linking" || page === "waiting"
   const asksAboutEnrolment = page === "enrolment" || isAwaitingEnrolment
@@ -75,6 +82,19 @@ export const StepperFaq: React.FC<StepperFaqProps> = ({ page, isSisu, courseName
           </Disclosure>
         </>
       ) : null}
+      {laterCourses.map((course) => (
+        <Disclosure
+          key={course.name}
+          title={t("credit-registration-faq-registered-later-question", { course: course.name })}
+        >
+          <p>
+            {t("credit-registration-faq-registered-later-answer", {
+              course: course.name,
+              prerequisite: course.prerequisiteName,
+            })}
+          </p>
+        </Disclosure>
+      ))}
       {asksWhenVisible ? (
         <Disclosure title={t("credit-registration-faq-when-can-i-see-question")}>
           <p>

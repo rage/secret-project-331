@@ -7,6 +7,7 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { CardHeading } from "@/components/credit-registration/CardHeading"
 import {
   CREDIT_REGISTRATION_NS,
   QUIET_REFRESH,
@@ -17,13 +18,12 @@ import {
   moocfiCompletionStatusCopy,
   registrationStatusLabel,
 } from "@/components/credit-registration/creditRegistrationCopy"
-import CreditRegistrationStatus, {
-  CardHeading,
-} from "@/components/credit-registration/CreditRegistrationStatus"
+import CreditRegistrationStatus from "@/components/credit-registration/CreditRegistrationStatus"
 import {
   moocfiCertificateOffer,
   moocfiSubject,
 } from "@/components/credit-registration/creditRegistrationSubject"
+import type { CreditCourse } from "@/components/credit-registration/stepper/stepperView"
 import {
   bandCss,
   bandedCardCss,
@@ -37,6 +37,8 @@ import {
 import { getMyMoocfiCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   MoocfiCompletionRegistration,
+  MoocfiCompletionStatus,
+  MoocfiCreditUnitRegistration,
   StudentFacingCreditRegistrationStatus,
 } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -79,16 +81,33 @@ const completionRowCss = css`
 /** The pipeline takes up a stored completion within minutes, so until then it reads as under way. */
 const STATUS_BEFORE_REGISTRATION: StudentFacingCreditRegistrationStatus = "sending"
 
+const NO_CREDITS: MoocfiCompletionStatus = "not_eligible"
+
 /** Every fetch reads mooc.fi, so it refetches only on a reload or a new visit. */
 const QUERY_OPTIONS = { refetchOnWindowFocus: false, staleTime: Infinity } as const
 
 /** Picks the one completion whose stepper the page shows, so its `step` param is unambiguous. */
 const COMPLETION_PARAM = "completion"
 
-const isRegistering = (
-  completion: MoocfiCompletionRegistration,
-): completion is MoocfiCompletionRegistration & { external_completion_id: string } =>
-  completion.status === "registering_on_courses" && Boolean(completion.external_completion_id)
+type RegisteringUnit = MoocfiCreditUnitRegistration & { external_completion_id: string }
+
+/** The completion's courses that courses registers, lowest minimum tier first. */
+const registeringUnitsOf = (completion: MoocfiCompletionRegistration): RegisteringUnit[] =>
+  completion.credit_units.filter(
+    (unit): unit is RegisteringUnit =>
+      unit.status === "registering_on_courses" && Boolean(unit.external_completion_id),
+  )
+
+const isRegistering = (completion: MoocfiCompletionRegistration): boolean =>
+  registeringUnitsOf(completion).length > 0
+
+/** What the completion's courses are worth together; `null` when it earns none. */
+const ectsCreditsOf = (units: readonly MoocfiCreditUnitRegistration[]): number | null =>
+  units.length === 0 ? null : units.reduce((sum, unit) => sum + unit.credit_unit.ects_credits, 0)
+
+/** The status card for a completion courses does not register, taken from its first course. */
+const notRegisteringStatusOf = (completion: MoocfiCompletionRegistration) =>
+  completion.credit_units[0]?.status ?? NO_CREDITS
 
 const MoocfiCompletionRegistrationPage: React.FC = () => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -164,7 +183,7 @@ const Completions: React.FC<{
   const registering = completions.filter((completion) => isRegistering(completion))
   const requested = completions.find(
     (completion) =>
-      isRegistering(completion) && completion.external_completion_id === requestedCompletionId,
+      completion.moocfi_completion_id === requestedCompletionId && isRegistering(completion),
   )
   const chosen = requested ?? (registering.length === 1 ? registering[0] : undefined)
   const pageRoute = moocfiCompletionRegistrationRoute(moocfiCourseId)
@@ -215,7 +234,7 @@ const Completions: React.FC<{
               courseName={courseName}
               href={
                 isRegistering(completion)
-                  ? `${pageRoute}?${COMPLETION_PARAM}=${completion.external_completion_id}`
+                  ? `${pageRoute}?${COMPLETION_PARAM}=${completion.moocfi_completion_id}`
                   : null
               }
             />
@@ -233,9 +252,10 @@ const CompletionRow: React.FC<{
   href: string | null
 }> = ({ completion, courseName, href }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const unitName = completion.credit_unit?.name
-  const ectsCredits = completion.credit_unit?.ects_credits
-  const copy = href ? null : moocfiCompletionStatusCopy(t, completion.status)
+  const units = completion.credit_units
+  const unitNames = units.map((unit) => unit.credit_unit.name).filter((name) => name !== courseName)
+  const ectsCredits = ectsCreditsOf(units)
+  const copy = href ? null : moocfiCompletionStatusCopy(t, notRegisteringStatusOf(completion))
   return (
     <li className={completionRowCss}>
       <h2 className={subheadingCss}>
@@ -250,9 +270,13 @@ const CompletionRow: React.FC<{
         {t("label-completed")}{" "}
         <RelativeTime at={completion.completion_date} absoluteTime={TIME_DATE} />
       </p>
-      {unitName && unitName !== courseName ? <p className={noteCss}>{unitName}</p> : null}
-      {typeof ectsCredits === "number" ? (
-        <p className={noteCss}>{t("credits-n-ects", { n: ectsCredits })}</p>
+      {unitNames.map((name) => (
+        <p key={name} className={noteCss}>
+          {name}
+        </p>
+      ))}
+      {ectsCredits !== null ? (
+        <p className={noteCss}>{t("credits-n-ects", { count: ectsCredits, n: ectsCredits })}</p>
       ) : null}
       {copy ? <p>{copy.body}</p> : null}
       {href ? (
@@ -270,33 +294,33 @@ const MoocfiCompletion: React.FC<{
   signedInEmail: string
 }> = ({ completion, courseName, signedInEmail }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const name = completion.credit_unit?.name ?? courseName
-  const ectsCredits = completion.credit_unit?.ects_credits
+  const [firstUnit, ...laterUnits] = registeringUnitsOf(completion)
 
-  if (isRegistering(completion)) {
+  if (firstUnit) {
     return (
       <CreditRegistrationStatus
-        subject={moocfiSubject(completion.external_completion_id)}
-        courseName={name ?? ""}
+        subject={moocfiSubject(completion.moocfi_completion_id)}
+        courseName={courseName ?? ""}
         moduleName={null}
-        ectsCredits={ectsCredits}
+        courses={[creditCourseOf(firstUnit), ...laterUnits.map((unit) => creditCourseOf(unit))]}
         statusBeforeRegistration={STATUS_BEFORE_REGISTRATION}
         certificate={moocfiCertificateOffer(
-          completion.external_completion_id,
+          completion.moocfi_completion_id,
           completion.offers_certificate,
           completion.credit_justification,
         )}
-        uhCourseCode={completion.credit_unit?.uh_course_code}
-        enrolmentLink={completion.credit_unit?.enrolment_link}
         signedInEmail={signedInEmail}
       />
     )
   }
-  const copy = moocfiCompletionStatusCopy(t, completion.status)
+  const [onlyUnit] = completion.credit_units
+  const copy = moocfiCompletionStatusCopy(t, notRegisteringStatusOf(completion))
   return (
     <StatusCard
-      courseName={name}
-      ectsCredits={ectsCredits}
+      courseName={
+        completion.credit_units.length === 1 && onlyUnit ? onlyUnit.credit_unit.name : courseName
+      }
+      ectsCredits={ectsCreditsOf(completion.credit_units)}
       signedInEmail={signedInEmail}
       heading={copy.heading}
       body={copy.body}
@@ -304,6 +328,16 @@ const MoocfiCompletion: React.FC<{
     />
   )
 }
+
+/** A registering course of the completion, for the stepper. */
+const creditCourseOf = (unit: RegisteringUnit): CreditCourse => ({
+  key: unit.external_completion_id,
+  name: unit.credit_unit.name,
+  uhCourseCode: unit.credit_unit.uh_course_code,
+  ectsCredits: unit.credit_unit.ects_credits,
+  enrolmentLink: unit.credit_unit.enrolment_link,
+  prerequisiteName: unit.prerequisite_name ?? null,
+})
 
 /** A completion courses does not register, in the same card the stepper uses. */
 const StatusCard: React.FC<{

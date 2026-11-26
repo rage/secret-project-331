@@ -1,0 +1,54 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH wanted AS (\n  SELECT cr.id AS credit_registration_id,\n    cr.user_id,\n    UPPER(TRIM(equivalent)) AS course_code\n  FROM credit_registrations cr\n    JOIN credit_registration_active_units au ON au.credit_unit_id = cr.credit_unit_id\n    JOIN external_credit_target_codes code ON code.id = cr.external_credit_target_code_id\n    CROSS JOIN LATERAL UNNEST(code.equivalent_course_codes) AS equivalent\n  WHERE cr.state IN ('ready_to_submit', 'no_usable_enrolment')\n    AND cr.deleted_at IS NULL\n    AND cr.superseded_by_id IS NULL\n    AND cr.next_attempt_at <= now()\n    AND (\n      cr.enrolment_check_claimed_until IS NULL\n      OR cr.enrolment_check_claimed_until <= now()\n    )\n    AND ($2::uuid IS NULL OR cr.external_credit_target_id = $2)\n    AND ($3::uuid IS NULL OR cr.user_id = $3)\n    AND (\n      cardinality($4::uuid []) = 0\n      OR cr.id = ANY($4::uuid [])\n    )\n    AND $5::uuid IS NULL\n  UNION ALL\n  SELECT cr.id,\n    cr.user_id,\n    UPPER(TRIM(prerequisite_code))\n  FROM credit_registrations cr\n    JOIN credit_registration_active_units au ON au.credit_unit_id = cr.credit_unit_id\n    JOIN external_credit_target_codes code ON code.id = cr.external_credit_target_code_id\n    JOIN external_credit_target_codes prerequisite ON prerequisite.id = code.prerequisite_code_id\n    CROSS JOIN LATERAL UNNEST(\n      prerequisite.uh_course_code::text || prerequisite.equivalent_course_codes\n    ) AS prerequisite_code\n  WHERE cr.state = 'checking_enrolment'\n    AND code.prerequisite_code_id IS NOT NULL\n    AND cr.deleted_at IS NULL\n    AND cr.superseded_by_id IS NULL\n    AND NOT credit_registration_prerequisite_met(cr)\n    AND ($2::uuid IS NULL OR cr.external_credit_target_id = $2)\n    AND ($3::uuid IS NULL OR cr.user_id = $3)\n    AND (\n      cardinality($4::uuid []) = 0\n      OR cr.id = ANY($4::uuid [])\n    )\n    AND $5::uuid IS NULL\n)\nSELECT w.user_id AS \"user_id!\",\n  vsn.student_number AS \"student_number!\",\n  w.course_code AS \"course_code!\",\n  ARRAY_AGG(DISTINCT w.credit_registration_id) AS \"credit_registration_ids!\"\nFROM wanted w\n  JOIN verified_student_numbers vsn ON vsn.user_id = w.user_id\n  AND vsn.deleted_at IS NULL\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM credit_registration_sisu_code_checks c\n    WHERE c.user_id = w.user_id\n      AND c.course_code = w.course_code\n      AND c.deleted_at IS NULL\n      AND (\n        c.attained_at IS NOT NULL\n        OR c.checked_at > now() - $6::interval\n      )\n  )\nGROUP BY w.user_id,\n  vsn.student_number,\n  w.course_code\nORDER BY w.user_id,\n  w.course_code\nLIMIT $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id!",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "student_number!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "verified_student_numbers",
+            "name": "student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_code!",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "credit_registration_ids!",
+        "type_info": "UuidArray",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Uuid",
+        "Uuid",
+        "UuidArray",
+        "Uuid",
+        "Interval"
+      ]
+    },
+    "nullable": [
+      null,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "f025c740a2d9ba3d8b2a09389f36d62698b918392f01cf88371133c1eeb6c1c4"
+}

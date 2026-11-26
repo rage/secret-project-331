@@ -23,7 +23,7 @@ import {
 // family is invalidated by query id rather than by the one key the caller happens to know.
 const PER_SUBJECT_REGISTRATION_QUERY_IDS: ReadonlySet<string> = new Set([
   "getMyCreditRegistrationForCourseModule",
-  "getMyCreditRegistrationForExternalCompletion",
+  "getMyMoocfiCompletionRegistration",
 ])
 
 /**

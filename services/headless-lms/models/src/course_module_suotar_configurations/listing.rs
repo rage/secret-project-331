@@ -1,5 +1,5 @@
 //! Enrolment discovery's per-module listing: which modules a roster request covers, and what the
-//! last listing of each module and mooc.fi target found.
+//! last listing of each module and mooc.fi code found.
 
 use crate::credit_registrations::CreditRegistrationErrorCode;
 use crate::prelude::*;
@@ -41,17 +41,17 @@ ORDER BY cm.order_number,
     Ok(res)
 }
 
-/// One active module's or mooc.fi target's last successful listing, and whether the attempts since
+/// One active module's or mooc.fi code's last successful listing, and whether the attempts since
 /// then have been failing.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ModuleDiscoveryReport {
-    /// The module's or target's id.
+    /// The module's or mooc.fi code's id.
     pub credit_unit_id: Uuid,
-    /// `None` for a mooc.fi target.
+    /// `None` for a mooc.fi code.
     pub course_id: Option<Uuid>,
     /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    /// `None` for a mooc.fi target.
+    /// The module's name, or the mooc.fi code's.
     pub course_module_name: Option<String>,
     pub uh_course_code: Option<String>,
     pub last_listed_at: Option<DateTime<Utc>>,
@@ -60,7 +60,7 @@ pub struct ModuleDiscoveryReport {
     pub consecutive_listing_failures: i32,
 }
 
-/// Every active module's and mooc.fi target's listing status, for the account-linking dashboard.
+/// Every active module's and mooc.fi code's listing status, for the account-linking dashboard.
 pub async fn get_active_discovery_reports(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<ModuleDiscoveryReport>> {
@@ -94,18 +94,19 @@ FROM (
       AND c.deleted_at IS NULL
     WHERE conf.deleted_at IS NULL
     UNION ALL
-    SELECT target.id,
+    SELECT code.id,
       NULL::uuid,
       'mooc.fi: ' || target.name,
-      NULL,
-      target.uh_course_code,
-      target.last_listed_at,
-      target.last_listing_attempted_at,
-      target.last_listing_error,
-      target.consecutive_listing_failures,
-      0
-    FROM external_credit_targets target
-      JOIN credit_registration_active_units au ON au.credit_unit_id = target.id
+      code.name,
+      code.uh_course_code,
+      code.last_listed_at,
+      code.last_listing_attempted_at,
+      code.last_listing_error,
+      code.consecutive_listing_failures,
+      code.minimum_tier
+    FROM external_credit_target_codes code
+      JOIN external_credit_targets target ON target.id = code.external_credit_target_id
+      JOIN credit_registration_active_units au ON au.credit_unit_id = code.id
   ) r
 ORDER BY r.course_name,
   r.order_number
@@ -116,7 +117,7 @@ ORDER BY r.course_name,
     Ok(res)
 }
 
-/// Records a listing attempt of a module or mooc.fi target whose roster never arrived.
+/// Records a listing attempt of a module or mooc.fi code whose roster never arrived.
 /// `last_listed_at` keeps describing the last roster that did, because a failed listing must not
 /// read as an empty course.
 pub async fn mark_listing_failed(
@@ -140,7 +141,7 @@ WHERE course_module_id = $1
     .await?;
     sqlx::query!(
         r#"
-UPDATE external_credit_targets
+UPDATE external_credit_target_codes
 SET last_listing_attempted_at = now(),
   last_listing_error = $2,
   consecutive_listing_failures = consecutive_listing_failures + 1
@@ -155,7 +156,7 @@ WHERE id = $1
     Ok(())
 }
 
-/// Records a listing of a module or mooc.fi target whose roster arrived and clears the failure
+/// Records a listing of a module or mooc.fi code whose roster arrived and clears the failure
 /// streak. `fed_linking` is whether account linking was on for it; only then does it move
 /// `last_listed_at`. Sibling of [`mark_listing_failed`].
 pub async fn mark_listing_succeeded(
@@ -183,7 +184,7 @@ WHERE course_module_id = $1
     .await?;
     sqlx::query!(
         r#"
-UPDATE external_credit_targets
+UPDATE external_credit_target_codes
 SET last_listed_at = CASE
     WHEN $2 THEN now()
     ELSE last_listed_at

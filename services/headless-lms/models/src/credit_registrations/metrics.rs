@@ -291,8 +291,9 @@ FROM credit_registrations cr
         )
         OR EXISTS (
           SELECT 1
-          FROM external_credit_targets code_target
-          WHERE code_target.id = e.external_credit_target_id
+          FROM external_credit_target_codes code_target
+          WHERE code_target.external_credit_target_id = e.external_credit_target_id
+            AND code_target.deleted_at IS NULL
             AND TRIM(code_target.uh_course_code) = TRIM(subj.uh_course_code)
         )
       )
@@ -564,7 +565,7 @@ WHERE state = 'registered'
     Ok(res)
 }
 
-/// Live volumes per module or mooc.fi target, for the Courses tab's one row per unit.
+/// Live volumes per module or mooc.fi code, for the Courses tab's one row per unit.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct CreditUnitRegistrationTotals {
     pub credit_unit_id: Uuid,

@@ -35,6 +35,7 @@ pub(crate) fn registration(state: CreditRegistrationState) -> CreditRegistration
         external_credit_target_id: None,
         subject_id,
         credit_unit_id,
+        external_credit_target_code_id: None,
         state,
         state_entered_at: at,
         state_changed_at: at,

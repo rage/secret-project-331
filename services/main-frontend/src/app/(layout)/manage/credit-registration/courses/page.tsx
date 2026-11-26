@@ -194,7 +194,10 @@ const ConfigDetail: React.FC<{ module: CreditRegistrationCourseStats }> = ({ mod
       label: t("credit-registration-admin-check-course-code"),
       value: module.check.course_code_allowed ?? null,
     },
-    { label: t("credit-registration-admin-check-ects"), value: module.ects_credits !== null },
+    {
+      label: t("credit-registration-admin-check-ects"),
+      value: module.ects_credits !== null,
+    },
     {
       label: t("credit-registration-admin-check-enrolment-link"),
       value: Boolean(module.enrolment_link),
@@ -329,24 +332,32 @@ const ModuleStepCounts: React.FC<{ module: CreditRegistrationCourseStats }> = ({
   )
 }
 
-/** A tiered mooc.fi target's tiers, e.g. "Tiers 2–3"; `null` for a module or an untiered target. */
-const tiersLabel = (
+/** "From tier 3, requires TKT210281" under a mooc.fi code; `null` for a module or a code with neither. */
+const tierLabel = (
   t: CreditRegistrationTFunction,
   unit: CreditRegistrationCourseStats,
+  units: readonly CreditRegistrationCourseStats[],
 ): string | null => {
-  const tiers = unit.external_credit_target?.tiers
-  if (!tiers) {
+  const code = unit.external_credit_target_code
+  if (!code) {
     return null
   }
-  const lowest = tiers.lowest ?? null
-  const highest = tiers.highest ?? null
-  if (lowest !== null && lowest === highest) {
-    return t("credit-registration-admin-moocfi-tier", { tier: lowest })
+  const tier = code.minimum_tier ?? null
+  const prerequisiteCode = code.prerequisite_code_id
+    ? units.find((other) => other.credit_unit_id === code.prerequisite_code_id)?.uh_course_code
+    : null
+  if (tier !== null && prerequisiteCode) {
+    return t("credit-registration-admin-moocfi-from-tier-requires", {
+      tier,
+      code: prerequisiteCode,
+    })
   }
-  return t("credit-registration-admin-moocfi-tiers", {
-    lowest: lowest ?? "",
-    highest: highest ?? "",
-  })
+  if (tier !== null) {
+    return t("credit-registration-admin-moocfi-from-tier", { tier })
+  }
+  return prerequisiteCode
+    ? t("credit-registration-admin-moocfi-requires", { code: prerequisiteCode })
+    : null
 }
 
 /** Which course modules and mooc.fi courses register credits, how well each does it, and what is
@@ -404,6 +415,11 @@ const CoursesPage: React.FC = () => {
               }
               return activeReason === null || configFailureReason(unit) === activeReason
             })
+            const registeredTargetIds = new Set(
+              units
+                .filter((unit) => unit.external_credit_target && unit.registration_count > 0)
+                .map((unit) => unit.course_or_target_id),
+            )
             const sortedUnits = shown.toSorted(SORT_COMPARATORS[sort])
             const isNothingChecked =
               units.length > 0 && units.every((module) => courseModuleStatus(module) === UNCHECKED)
@@ -506,11 +522,16 @@ const CoursesPage: React.FC = () => {
                           <InlineParts
                             className={cx(noteCss, codeValueCss)}
                             parts={moduleSubtitleParts(
-                              row.course_module_name,
+                              row.external_credit_target ? null : row.course_module_name,
                               row.uh_course_code,
-                              tiersLabel(t, row),
+                              tierLabel(t, row, units),
                             )}
                           />
+                          {row.external_credit_target && !row.external_credit_target_code && (
+                            <span className={noteCss}>
+                              {t("credit-registration-admin-moocfi-no-codes")}
+                            </span>
+                          )}
                           <span className={rowCss}>
                             <Link
                               href={creditRegistrationCourseRoute(row.course_or_target_id)}
@@ -518,12 +539,16 @@ const CoursesPage: React.FC = () => {
                             >
                               {t("credit-registration-admin-course-page-link")}
                             </Link>
-                            <Link
-                              href={registrationsListHref({ courseModuleId: row.credit_unit_id })}
-                              appearance={LINK_QUIET}
-                            >
-                              {t("credit-registration-tab-registrations")}
-                            </Link>
+                            {(!row.external_credit_target || row.external_credit_target_code) && (
+                              <Link
+                                href={registrationsListHref({
+                                  courseModuleId: row.credit_unit_id,
+                                })}
+                                appearance={LINK_QUIET}
+                              >
+                                {t("credit-registration-tab-registrations")}
+                              </Link>
+                            )}
                           </span>
                         </span>
                       ),
@@ -664,7 +689,7 @@ const CoursesPage: React.FC = () => {
                           return (
                             <ExternalCreditTargetActions
                               target={row.external_credit_target}
-                              hasRegistrations={row.registration_count > 0}
+                              hasRegistrations={registeredTargetIds.has(row.course_or_target_id)}
                             />
                           )
                         }

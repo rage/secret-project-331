@@ -233,6 +233,17 @@
             "name": "reported_at"
           }
         }
+      },
+      {
+        "ordinal": 21,
+        "name": "external_credit_target_code_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "external_credit_target_code_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -262,7 +273,8 @@
       true,
       true,
       true,
-      true
+      true,
+      false
     ]
   },
   "hash": "b1276a9e52a89d078a30903e07d4cc09e042c74bf7266c1ccbaad7fcf0417b3c"

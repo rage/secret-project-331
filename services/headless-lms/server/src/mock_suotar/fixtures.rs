@@ -91,6 +91,8 @@ pub const MOOCFI_GRADED_COURSE_SLUG: &str = "credit-registration-moocfi-graded";
 pub const CRS_MOOCFI_101: &str = "CRS-MOOCFI-101";
 pub const CRS_MOOCFI_TIER_2: &str = "CRS-MOOCFI-202";
 pub const CRS_MOOCFI_TIER_3: &str = "CRS-MOOCFI-303";
+/// An older course code that counts as [`CRS_MOOCFI_TIER_2`].
+pub const CRS_MOOCFI_TIER_2_OLD: &str = "CRS-MOOCFI-OLD-202";
 pub const CRS_MOOCFI_PAUSED_101: &str = "CRS-MOOCFI-PAUSED-101";
 pub const CRS_MOOCFI_GRADED_101: &str = "CRS-MOOCFI-GRADED-101";
 
@@ -480,6 +482,7 @@ pub fn mock_suotar_world() -> WorldPush {
             (CRS_MOOCFI_101, MOOCFI_COURSE_SLUG),
             (CRS_MOOCFI_TIER_2, MOOCFI_TIERED_COURSE_SLUG),
             (CRS_MOOCFI_TIER_3, MOOCFI_TIERED_COURSE_SLUG),
+            (CRS_MOOCFI_TIER_2_OLD, MOOCFI_TIERED_COURSE_SLUG),
             (CRS_MOOCFI_PAUSED_101, MOOCFI_PAUSED_COURSE_SLUG),
         ]
         .map(|(course_code, course_slug)| {

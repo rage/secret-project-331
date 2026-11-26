@@ -1,15 +1,15 @@
-//! Deciding whether one module's or mooc.fi target's credit-registration configuration is usable.
+//! Deciding whether one module's or mooc.fi code's credit-registration configuration is usable.
 //!
 //! Pure: the facts are gathered by
 //! [`crate::course_module_suotar_configurations::get_config_facts_for_modules_with_course_code`]
-//! and [`crate::external_credit_targets::get_config_facts_for_enabled_targets`], the course code
-//! verdict comes from Suotar's `course-codes/validate`, and the result is stamped back by each
-//! one's `record_config_check`.
+//! and [`crate::external_credit_target_codes::get_config_facts_for_enabled_targets`], the course
+//! code verdict comes from Suotar's `course-codes/validate`, and the result is stamped back by
+//! each one's `record_config_check`.
 
 use std::borrow::Cow;
 
 use crate::course_module_suotar_configurations::{SuotarConfigCheck, SuotarModuleConfigFacts};
-use crate::external_credit_targets::ExternalCreditTargetConfigFacts;
+use crate::external_credit_target_codes::ExternalCreditTargetCodeConfigFacts;
 
 /// The problems the check reports, in the order they block a registration. English on purpose:
 /// this is operator diagnostics stored on the row, not student-facing copy.
@@ -36,8 +36,8 @@ impl CourseCodeVerdict {
         )
     }
 
-    /// [`Self::stored`] for a mooc.fi target.
-    pub fn stored_for_target(facts: &ExternalCreditTargetConfigFacts) -> Option<Self> {
+    /// [`Self::stored`] for a mooc.fi code.
+    pub fn stored_for_target_code(facts: &ExternalCreditTargetCodeConfigFacts) -> Option<Self> {
         Self::from_stored(
             facts.stored_course_code_allowed,
             facts.stored_course_code_rejection.as_deref(),
@@ -70,10 +70,10 @@ pub fn check_module_config(
     )
 }
 
-/// [`check_module_config`] for a mooc.fi target, whose code and credits the schema already
+/// [`check_module_config`] for a mooc.fi code, whose course code and credits the schema already
 /// requires, so only Suotar's verdict can fail it.
-pub fn check_target_config(
-    facts: &ExternalCreditTargetConfigFacts,
+pub fn check_target_code_config(
+    facts: &ExternalCreditTargetCodeConfigFacts,
     verdict: Option<&CourseCodeVerdict>,
 ) -> SuotarConfigCheck {
     check_config(&facts.uh_course_code, true, verdict)

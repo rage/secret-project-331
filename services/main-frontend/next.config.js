@@ -99,6 +99,7 @@ const config = {
     "@tanstack/react-table",
     "@tanstack/table-core",
     "jotai",
+    "jotai-tanstack-query",
   ],
   allowedDevOrigins: ["project-331.local"],
   // This is open source, so no need to hide the code

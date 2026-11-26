@@ -82,10 +82,10 @@ test.describe("Teacher can set threshold for course", () => {
 
     // Check if the cheaters table is rightly populated
     await teacherPage.reload()
-    await teacherPage.getByRole("columnheader", { name: "Student ID" }).waitFor()
+    await teacherPage.getByRole("columnheader", { name: "Student" }).waitFor()
     await teacherPage.getByRole("columnheader", { name: "Completion time", exact: true }).waitFor()
     const targetStudentCell = teacherPage.getByRole("cell", {
-      name: /Student ID: 7ba4beb1-abe8-/,
+      name: /User 5/,
     })
     const targetStudentRow = teacherPage.locator("tr").filter({ has: targetStudentCell })
     await expect(targetStudentCell).toBeVisible()
@@ -115,7 +115,7 @@ test.describe("Teacher can set threshold for course", () => {
       teacherPage
         .getByRole("row")
         .filter({
-          has: teacherPage.getByRole("cell", { name: /Student ID: 7ba4beb1-abe8-/ }),
+          has: teacherPage.getByRole("cell", { name: /User 5/ }),
         })
         .first(),
     ).toBeVisible()
@@ -135,7 +135,7 @@ test.describe("Teacher can set threshold for course", () => {
 
     // The confirmed cheater now shows up under the "Confirmed cheating" tab
     await teacherPage.getByRole("tab", { name: "Confirmed cheating" }).click()
-    await expect(teacherPage.getByRole("cell", { name: /Student ID:/ }).first()).toBeVisible()
+    await expect(teacherPage.getByRole("cell", { name: /User/ }).first()).toBeVisible()
 
     // Ensure Congratulation block is not shown for suspected cheaters after teacher confirms it
     await student3Page.goto(

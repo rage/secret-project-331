@@ -50,13 +50,42 @@ const spanOf = (value: string | undefined | null): number | undefined => {
   return value && Number.isInteger(n) && n > 0 ? n : undefined
 }
 
-const fetchAlignment = (align: string | undefined) => {
+const fetchAlignment = (align: string | undefined, isNumericColumn = false) => {
+  // Doubled class: must beat the table's own cell rule.
   if (align) {
     return css`
-      text-align: ${align};
+      && {
+        text-align: ${align};
+      }
     `
   }
+  if (isNumericColumn) {
+    return numericCellStyles
+  }
   return undefined
+}
+
+const numericCellStyles = css`
+  && {
+    text-align: right;
+  }
+`
+
+const NUMBER = /^[-+−]?[\d\s.,:/%€$£]*\d[\d\s.,:/%€$£]*$/
+
+/** Columns whose body cells are all numbers (empty cells allowed) line up on the right. */
+const numericColumns = (body: Cells[]): Set<number> => {
+  const result = new Set<number>()
+  const columnCount = Math.max(0, ...body.map((row) => row.cells?.length ?? 0))
+  for (let column = 0; column < columnCount; column++) {
+    const values = body
+      .map((row) => richTextToPlainText(row.cells?.[column]?.content ?? "").trim())
+      .filter((value) => value !== "")
+    if (values.length > 0 && values.every((value) => NUMBER.test(value))) {
+      result.add(column)
+    }
+  }
+  return result
 }
 
 const TableBlock: React.FC<
@@ -95,6 +124,10 @@ const TableBlock: React.FC<
   const shouldUseSmallerFont = hasManyColumns && dontAllowBlockToBeWiderThanContainerWidth
 
   const isStriped = className === "is-style-stripes"
+  const numericColumnIndexes = useMemo(() => numericColumns(body), [body])
+  // Authors use one-cell tables as framed boxes, so those keep their frame.
+  const isFramedBox =
+    !head?.length && !foot?.length && body.length === 1 && body[0]?.cells?.length === 1
 
   const captionRef = useRef<HTMLElement>(null)
 
@@ -111,26 +144,51 @@ const TableBlock: React.FC<
       >
         <table
           className={css`
+            /* Textbook rules: a strong rule under the header and at the end, hairlines between rows,
+               no vertical lines. As wide as its content, unless the author fixed the column widths. */
+            ${hasFixedLayout && "width: 100%; table-layout: fixed;"}
             border-collapse: collapse;
+            font-size: 0.9em;
+            line-height: 1.5;
             td,
             th {
-              ${!isStriped && `border: 1px solid currentColor;`}
               white-space: pre-wrap;
-              padding: 0.5rem;
+              padding: 0.625rem 1rem;
+              text-align: start;
+              vertical-align: top;
               font-variant-numeric: tabular-nums;
               ${hasFixedLayout && "overflow-wrap: break-word;"}
             }
+            /* Without row shading, the outer columns line up with the text above and below. */
+            ${
+              !isStriped &&
+              !isFramedBox &&
+              `td:first-child, th:first-child { padding-left: 0; } td:last-child, th:last-child { padding-right: 0; }`
+            }
+            th {
+              font-weight: 600;
+            }
+            thead th {
+              vertical-align: bottom;
+              color: ${baseTheme.colors.gray[600]};
+            }
+            tbody tr {
+              border-bottom: 1px solid ${baseTheme.colors.gray[100]};
+            }
             /* stylelint-disable-next-line block-no-empty */
             tbody tr:nth-child(odd) {
-              ${isStriped && `background-color: ${baseTheme.colors.gray[100]};`}
+              ${isStriped && `background-color: ${baseTheme.colors.gray[50]};`}
             }
-            ${hasFixedLayout && "table-layout: fixed;"}
             thead {
-              border-bottom: 3px solid;
+              border-bottom: 2px solid ${baseTheme.colors.gray[700]};
             }
+            ${!foot?.length && `tbody tr:last-child { border-bottom: 2px solid ${baseTheme.colors.gray[700]}; }`}
             tfoot {
-              border-top: 3px solid;
+              border-top: 1px solid ${baseTheme.colors.gray[700]};
+              border-bottom: 2px solid ${baseTheme.colors.gray[700]};
+              font-weight: 600;
             }
+            ${isFramedBox && `&& td, && th, && tbody tr:last-child { border: 1px solid currentColor; padding: 0.625rem 1rem; }`}
 
             ${shouldUseSmallerFont && `font-size: 15px;`}
           `}
@@ -149,7 +207,7 @@ const TableBlock: React.FC<
                         tagProps={{
                           // oxlint-disable-next-line i18next/no-literal-string
                           scope: "col",
-                          className: fetchAlignment(cell.align),
+                          className: fetchAlignment(cell.align, numericColumnIndexes.has(i)),
                           colSpan: spanOf(cell.colspan),
                           rowSpan: spanOf(cell.rowspan),
                         }}
@@ -177,7 +235,7 @@ const TableBlock: React.FC<
                           ? // oxlint-disable-next-line i18next/no-literal-string
                             { scope: cell.scope ?? "row" }
                           : {}),
-                        className: fetchAlignment(cell.align),
+                        className: fetchAlignment(cell.align, numericColumnIndexes.has(i)),
                         colSpan: spanOf(cell.colspan),
                         rowSpan: spanOf(cell.rowspan),
                       }}
@@ -221,9 +279,12 @@ const TableBlock: React.FC<
             tag="caption"
             tagProps={{
               className: css`
-                text-align: center;
-                font-size: 0.8125rem;
-                caption-side: bottom;
+                caption-side: top;
+                text-align: start;
+                font-size: 0.875rem;
+                line-height: 1.4;
+                color: ${baseTheme.colors.gray[500]};
+                padding-bottom: 0.5rem;
               `,
             }}
             useWrapperElement={false}

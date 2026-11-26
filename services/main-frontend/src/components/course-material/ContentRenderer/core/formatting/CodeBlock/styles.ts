@@ -2,18 +2,11 @@ import { css } from "@emotion/css"
 
 import { monospaceFont } from "@/shared-module/common/styles"
 
-export const containerStyles = css`
-  position: relative;
-  max-width: 1000px;
-  margin: 0 auto;
-`
-
 /** Long lines scroll sideways instead of wrapping, so a wrapped line can't read as a new statement. */
-export const getScrollerStyles = (allowFullWidth: boolean) => css`
+export const scrollerStyles = css`
   overflow-x: auto;
   border-radius: 4px;
   background-color: #282c34;
-  margin: ${allowFullWidth ? "calc(16px - 1.5rem) 16px" : "16px"};
 `
 
 export const getPreStyles = (fontSizePx: number) => css`
@@ -24,8 +17,6 @@ export const getPreStyles = (fontSizePx: number) => css`
   font-family: ${monospaceFont} !important;
   line-height: 1.75rem;
   white-space: pre;
-  /* Room for the copy button, so lines that fit don't run under it. */
-  padding-right: 2.5rem;
 `
 
 export const codeBlockStyles = css`
@@ -46,10 +37,15 @@ export const codeBlockStyles = css`
   .code-line {
     display: block;
   }
+  /* Room on the right for the copy button. */
+  &.hljs {
+    padding-right: 3rem;
+  }
+  /* Spans the code's padding on both sides, so the highlight reaches the block's edges. */
   .highlighted-line {
     background-color: rgba(255, 255, 100, 0.1);
-    margin: 0 -16px;
-    padding: 0 16px 0 13px;
+    margin: 0 -3rem 0 -1em;
+    padding: 0 3rem 0 calc(1em - 3px);
     border-left: 3px solid #ffd700;
   }
 `
@@ -100,4 +96,16 @@ export const tooltipStyles = css`
     visibility: visible;
     opacity: 1;
   }
+`
+
+/** Fades the right edge while more of the lines is hidden there, so cut-off code reads as scrollable. */
+export const scrollHintStyles = css`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 3rem;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(to right, rgba(40, 44, 52, 0), #282c34);
+  pointer-events: none;
 `

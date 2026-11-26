@@ -35,8 +35,10 @@ interface CopyButtonProps {
 
 const buttonStyles = css`
   position: absolute;
-  top: 26px;
-  right: 26px;
+  /* Above the scroll fade. */
+  z-index: 1;
+  top: 10px;
+  right: 10px;
   /* Opaque, because long lines scroll underneath it; matches the code background. */
   background-color: #282c34;
   border: none;

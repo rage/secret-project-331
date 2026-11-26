@@ -266,7 +266,8 @@ async fn get_page_navigation(
     // Lists hidden pages too, so only editors may see it.
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
     let res =
-        models::pages::get_page_navigation_data(&mut conn, *page_id, PageVisibility::Any).await?;
+        models::pages::get_page_navigation_data(&mut conn, *page_id, None, PageVisibility::Any)
+            .await?;
 
     token.authorized_ok(web::Json(res))
 }

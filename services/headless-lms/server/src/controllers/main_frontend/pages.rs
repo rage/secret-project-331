@@ -2,6 +2,7 @@
 
 use std::sync::Arc;
 
+use headless_lms_models::page_read_statuses::{BlockStatusUpdate, PageReadStatusUpdate};
 use models::{
     CourseOrExamId,
     page_history::PageHistory,
@@ -26,7 +27,9 @@ use crate::{
     history,
     history_count,
     restore,
-    get_all_pages_by_course_id
+    get_all_pages_by_course_id,
+    update_page_read_status,
+    update_block_status
 ))]
 pub(crate) struct MainFrontendPagesApiDoc;
 
@@ -357,6 +360,76 @@ async fn get_all_pages_by_course_id(
 }
 
 /**
+POST `/api/v0/main-frontend/pages/:page_id/page-read-status` - Update if the page is read.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/{page_id}/page-read-status",
+    operation_id = "updatePageReadStatus",
+    tag = "pages",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    request_body = PageReadStatusUpdate,
+    responses(
+        (status = 200, description = "Updated page read status", body = bool)
+    )
+)]
+async fn update_page_read_status(
+    page_id: web::Path<Uuid>,
+    payload: web::Json<PageReadStatusUpdate>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Page(*page_id)).await?;
+
+    let status = PageReadStatusUpdate {
+        page_read: payload.page_read,
+    };
+
+    models::page_read_statuses::upsert_page_read_status(&mut conn, user.id, *page_id, status)
+        .await?;
+
+    token.authorized_ok(web::Json(true))
+}
+
+/**
+POST `/api/v0/main-frontend/pages/:page_id/update-block-status` - Update the block viewing status.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/{page_id}/update-block-status",
+    operation_id = "updateBlockStatus",
+    tag = "pages",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    request_body = BlockStatusUpdate,
+    responses(
+        (status = 200, description = "Updated block viewing status", body = bool)
+    )
+)]
+async fn update_block_status(
+    page_id: web::Path<Uuid>,
+    payload: web::Json<BlockStatusUpdate>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Page(*page_id)).await?;
+
+    let status = payload.0;
+
+    models::page_read_statuses::upsert_block_statuses(&mut conn, user.id, *page_id, status).await?;
+
+    token.authorized_ok(web::Json(true))
+}
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -377,5 +450,13 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/all-course-pages-for-course",
             web::get().to(get_all_pages_by_course_id),
+        )
+        .route(
+            "/{page_id}/page-read-status",
+            web::post().to(update_page_read_status),
+        )
+        .route(
+            "/{page_id}/update-block-status",
+            web::post().to(update_block_status),
         );
 }

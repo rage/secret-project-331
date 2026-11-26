@@ -962,6 +962,8 @@ import type {
   UnlinkMyStudentNumberResponses,
   UnsetExamCourseData,
   UnsetExamCourseResponses,
+  UpdateBlockStatusData,
+  UpdateBlockStatusResponses,
   UpdateCertificateConfigurationData,
   UpdateCertificateConfigurationResponses,
   UpdateChapterData,
@@ -1008,6 +1010,8 @@ import type {
   UpdateOrganizationResponses,
   UpdatePageDetailsData,
   UpdatePageDetailsResponses,
+  UpdatePageReadStatusData,
+  UpdatePageReadStatusResponses,
   UpdatePlaygroundExampleData,
   UpdatePlaygroundExampleResponses,
   UpdateUserInfoData,
@@ -1416,6 +1420,7 @@ import {
   zTeacherUnlockStudentChapterResponse,
   zUnarchiveCourseDesignerPlanResponse,
   zUnlinkMyStudentNumberResponse,
+  zUpdateBlockStatusResponse,
   zUpdateCertificateConfigurationResponse,
   zUpdateChapterImageResponse,
   zUpdateChapterResponse,
@@ -1431,6 +1436,7 @@ import {
   zUpdateGeneratedCertificateResponse,
   zUpdateMetadataResponse,
   zUpdatePageDetailsResponse,
+  zUpdatePageReadStatusResponse,
   zUpdatePlaygroundExampleResponse,
   zUpdateUserInfoResponse,
   zUploadCourseMediaResponse,
@@ -10087,6 +10093,23 @@ export const updatePageDetails = <ThrowOnError extends boolean = true>(
   })
 
 /**
+ * POST `/api/v0/main-frontend/pages/:page_id/page-read-status` - Update if the page is read.
+ */
+export const updatePageReadStatus = <ThrowOnError extends boolean = true>(
+  options: Options<UpdatePageReadStatusData, ThrowOnError>,
+): RequestResult<UpdatePageReadStatusResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<UpdatePageReadStatusResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdatePageReadStatusResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/pages/{page_id}/page-read-status",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
  * POST /api/v0/main-frontend/pages/:page_id/restore
  */
 export const restorePageHistory = <ThrowOnError extends boolean = true>(
@@ -10096,6 +10119,23 @@ export const restorePageHistory = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zRestorePageHistoryResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/pages/{page_id}/restore",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * POST `/api/v0/main-frontend/pages/:page_id/update-block-status` - Update the block viewing status.
+ */
+export const updateBlockStatus = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateBlockStatusData, ThrowOnError>,
+): RequestResult<UpdateBlockStatusResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<UpdateBlockStatusResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdateBlockStatusResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/pages/{page_id}/update-block-status",
     ...options,
     headers: {
       "Content-Type": "application/json",

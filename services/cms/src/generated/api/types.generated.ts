@@ -652,6 +652,7 @@ export type PageLinkCandidate = {
 
 export type PageNavigationInformation = {
   chapter_front_page?: PageRoutingData | null
+  current_page_read: boolean
   next_page?: PageRoutingData | null
   previous_page?: PageRoutingData | null
 }

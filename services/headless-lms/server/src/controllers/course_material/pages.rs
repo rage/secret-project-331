@@ -197,7 +197,8 @@ async fn get_page_navigation(
     let current_page = models::pages::get_page(&mut conn, *page_id).await?;
     let (token, visibility) =
         authorize_page_parent_access(&mut conn, user_id, &current_page).await?;
-    let res = models::pages::get_page_navigation_data(&mut conn, *page_id, visibility).await?;
+    let res =
+        models::pages::get_page_navigation_data(&mut conn, *page_id, user_id, visibility).await?;
     let res = filter_navigation_by_visibility(&mut conn, res, visibility).await?;
 
     token.authorized_ok(web::Json(res))

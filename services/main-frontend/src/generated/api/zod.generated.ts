@@ -754,6 +754,10 @@ export const zBlockProposalInfo = z.object({
   id: z.uuid(),
 })
 
+export const zBlockStatusUpdate = z.object({
+  block_statuses: z.unknown(),
+})
+
 /**
  * What kind of thing a [`BlockingProblem`] is, which decides what its `subject` names.
  */
@@ -5389,6 +5393,10 @@ export const zPagePositionDifference = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
+export const zPageReadStatusUpdate = z.object({
+  page_read: z.boolean(),
 })
 
 export const zPageVisitDatumSummaryByCourse = z.object({
@@ -13828,6 +13836,17 @@ export const zUpdatePageDetailsPath = z.object({
  */
 export const zUpdatePageDetailsResponse = z.boolean()
 
+export const zUpdatePageReadStatusBody = zPageReadStatusUpdate
+
+export const zUpdatePageReadStatusPath = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * Updated page read status
+ */
+export const zUpdatePageReadStatusResponse = z.boolean()
+
 export const zRestorePageHistoryBody = zHistoryRestoreData
 
 export const zRestorePageHistoryPath = z.object({
@@ -13838,6 +13857,17 @@ export const zRestorePageHistoryPath = z.object({
  * Restored history id
  */
 export const zRestorePageHistoryResponse = z.uuid()
+
+export const zUpdateBlockStatusBody = zBlockStatusUpdate
+
+export const zUpdateBlockStatusPath = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * Updated block viewing status
+ */
+export const zUpdateBlockStatusResponse = z.boolean()
 
 export const zReceivePlaygroundGradingBody = zExerciseTaskGradingResult
 

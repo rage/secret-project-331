@@ -136,6 +136,8 @@
   "listBox.noResults": "Tuloksia ei löytynyt",
   "log-in": "Kirjaudu sisään",
   "log-out": "Kirjaudu ulos",
+  "mark-page-as-read": "Merkitse sivu luetuksi",
+  "mark-page-as-unread": "Merkitse sivu lukemattomaksi",
   "modules": "Moduulit",
   "mooc-project-description": "Tämä verkkosivusto pyörii Helsingin yliopiston MOOC-keskuksen kehittämällä avoimen lähdekoodin ohjelmistolla.",
   "multiSelect.nothingPicked": "Ei valintoja",

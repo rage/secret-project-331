@@ -1,23 +1,19 @@
 "use client"
 
 /* oxlint-disable i18next/no-literal-string */
-import { css, cx } from "@emotion/css"
+import { css } from "@emotion/css"
 import DOMPurify from "dompurify"
 import { useSearchParams } from "next/navigation"
 import React, { createContext, useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BreakFromCenteredDisabledContext } from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { baseTheme } from "@/shared-module/common/styles"
 import { linkWithExtraIconClass } from "@/shared-module/common/styles/constants"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { Block } from "@/types/courseMaterialBlock"
-import {
-  COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM,
-  courseMaterialBlockClass,
-} from "@/utils/course-material/constants"
 
+import ContentBlockRenderer from "./ContentBlockRenderer"
 import AudioBlock from "./core/common/Audio/AudioBlock"
 import FileBlock from "./core/common/File/FileBlock"
 import HeadingBlock from "./core/common/Heading/HeadingBlock"
@@ -197,17 +193,6 @@ export const blockToRendererMap: Record<string, any> = {
 // oxlint-disable-next-line typescript/no-explicit-any
 export const BlockRendererOverridesContext = createContext<Record<string, any>>({})
 
-const highlightedBlockStyles = css`
-  outline: 2px solid ${baseTheme.colors.red[400]};
-  outline-offset: 10px;
-`
-
-// Adds a default margin between all blocks. If you would like to undo this margin in some cases, add a negative margin to the block implementation
-// or add dontUseDefaultBlockMargin to the block implementation. See the Heading block for an example.
-const defaultBlockMargin = css`
-  margin: ${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem 0;
-`
-
 const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> = ({
   data,
   isExam,
@@ -268,51 +253,16 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
 
   const content = (
     <>
-      {data.map((block) => {
-        const Component =
-          blockRendererOverrides[block.name] ?? blockToRendererMap[block.name] ?? DefaultBlock
-        const isHighlighted = highlightBlocks.includes(block.clientId)
-        const dontUseDefaultBlockMargin = Component.dontUseDefaultBlockMargin === true
-        const wrapperClassName = cx(
-          courseMaterialBlockClass,
-          (isHighlighted && highlightedBlockStyles) ?? undefined,
-          dontUseDefaultBlockMargin ? undefined : defaultBlockMargin,
-        )
-
-        // In some cases we cannot use the wrapper div to get the correct HTML.
-        // Those blocks can opt out of the wrapper div but they MUST render the same class names as the wrapper div
-        // so that the features that depend on those class names don't break.
-        // This is done by setting "className={props.wrapperClassName} id={props.id}" on the outermost returned element in the block
-        if (Component.dontRenderWrapperDivIllDoItMySelf === true) {
-          return (
-            <Component
-              key={block.clientId}
-              id={block.clientId}
-              data={block}
-              isExam={isExam}
-              wrapperClassName={wrapperClassName}
-              dontAllowBlockToBeWiderThanContainerWidth={dontAllowBlockToBeWiderThanContainerWidth}
-            />
-          )
-        }
-
-        return (
-          <div
-            key={block.clientId}
-            id={block.clientId}
-            className={wrapperClassName}
-            data-block-name={block.name}
-          >
-            <Component
-              id={block.clientId}
-              data={block}
-              isExam={isExam}
-              wrapperClassName={wrapperClassName}
-              dontAllowBlockToBeWiderThanContainerWidth={dontAllowBlockToBeWiderThanContainerWidth}
-            />
-          </div>
-        )
-      })}
+      {data.map((block) => (
+        <ContentBlockRenderer
+          key={block.clientId}
+          block={block}
+          isExam={isExam}
+          dontAllowBlockToBeWiderThanContainerWidth={dontAllowBlockToBeWiderThanContainerWidth}
+          blockRendererOverrides={blockRendererOverrides}
+          highlightBlocks={highlightBlocks}
+        />
+      ))}
     </>
   )
 

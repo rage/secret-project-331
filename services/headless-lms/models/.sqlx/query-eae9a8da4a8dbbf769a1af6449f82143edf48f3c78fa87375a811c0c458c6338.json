@@ -1,0 +1,126 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO page_read_statuses (\n    user_id,\n    page_id,\n    page_read,\n    read_at\n)\nVALUES (\n    $1,\n    $2,\n    $3,\n    CASE WHEN $3 THEN NOW() ELSE NULL END\n)\nON CONFLICT (user_id, page_id, deleted_at)\nDO UPDATE SET\n    page_read = EXCLUDED.page_read,\n    read_at = CASE\n        WHEN EXCLUDED.page_read\n        THEN COALESCE(page_read_statuses.read_at, NOW())\n        ELSE NULL\n    END,\n    updated_at = NOW(),\n    deleted_at = NULL\nRETURNING *\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_read_statuses",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_read_statuses",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_read_statuses",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_read_statuses",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_read_statuses",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "page_read_statuses",
+            "name": "page_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "page_read",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "page_read_statuses",
+            "name": "page_read"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "read_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "page_read_statuses",
+            "name": "read_at"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "block_statuses",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "page_read_statuses",
+            "name": "block_statuses"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "eae9a8da4a8dbbf769a1af6449f82143edf48f3c78fa87375a811c0c458c6338"
+}

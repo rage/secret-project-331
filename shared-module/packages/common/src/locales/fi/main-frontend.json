@@ -2628,6 +2628,7 @@
   "map-disclaimer": "*Kartalla näet opiskelijamäärät maakohtaisesti. Muut opiskelijat näkevät vain kuinka paljon maastasi on opiskelijoita yhteensä.",
   "map-instruction": "Valitse asuinmaasi aloittaaksesi. Kun olet tehnyt valintasi kartta näyttää maat, joissa muut opiskelijat asuvat.",
   "map-tooltip-students-in-country": "{{country}} - {{count}} opiskelijaa",
+  "mark-page-as-read": "Merkitse sivu luetuksi",
   "marketing-consent-checkbox-text": "Hyväksyn, että saan päivityksiä tulevista kieliversioista ja tietoa uusista kursseista. Suostun jakamaan yhteystietoni saadakseni räätälöityjä viestejä kolmansien osapuolten alustoilla. Lue lisää tietosuojakäytännöstämme.",
   "marketing-consent-privacy-policy-checkbox-text": "Hyväksyn tietosuojakäytännön ja käyttöehdot.",
   "max-points": "Maksimipisteet",

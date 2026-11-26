@@ -512,6 +512,7 @@ export const zPageRoutingData = z.object({
 
 export const zPageNavigationInformation = z.object({
   chapter_front_page: zPageRoutingData.nullish(),
+  current_page_read: z.boolean(),
   next_page: zPageRoutingData.nullish(),
   previous_page: zPageRoutingData.nullish(),
 })

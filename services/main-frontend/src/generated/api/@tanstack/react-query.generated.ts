@@ -459,6 +459,7 @@ import {
   unhideCourseFromMyCourses,
   unlinkMyStudentNumber,
   unsetExamCourse,
+  updateBlockStatus,
   updateCertificateConfiguration,
   updateChapter,
   updateChapterImage,
@@ -481,6 +482,7 @@ import {
   updateOrganization,
   updateOrganizationImage,
   updatePageDetails,
+  updatePageReadStatus,
   updatePlaygroundExample,
   updateUserInfo,
   uploadCourseMedia,
@@ -1320,6 +1322,8 @@ import type {
   UnlinkMyStudentNumberData,
   UnlinkMyStudentNumberResponse,
   UnsetExamCourseData,
+  UpdateBlockStatusData,
+  UpdateBlockStatusResponse,
   UpdateCertificateConfigurationData,
   UpdateCertificateConfigurationResponse,
   UpdateChapterData,
@@ -1357,6 +1361,8 @@ import type {
   UpdateOrganizationImageData,
   UpdatePageDetailsData,
   UpdatePageDetailsResponse,
+  UpdatePageReadStatusData,
+  UpdatePageReadStatusResponse,
   UpdatePlaygroundExampleData,
   UpdatePlaygroundExampleResponse,
   UpdateUserInfoData,
@@ -13175,6 +13181,31 @@ export const updatePageDetailsMutation = (
 }
 
 /**
+ * POST `/api/v0/main-frontend/pages/:page_id/page-read-status` - Update if the page is read.
+ */
+export const updatePageReadStatusMutation = (
+  options?: Partial<Options<UpdatePageReadStatusData>>,
+): UseMutationOptions<
+  UpdatePageReadStatusResponse,
+  DefaultError,
+  Options<UpdatePageReadStatusData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdatePageReadStatusResponse,
+    DefaultError,
+    Options<UpdatePageReadStatusData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updatePageReadStatus({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
  * POST /api/v0/main-frontend/pages/:page_id/restore
  */
 export const restorePageHistoryMutation = (
@@ -13191,6 +13222,27 @@ export const restorePageHistoryMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await restorePageHistory({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/pages/:page_id/update-block-status` - Update the block viewing status.
+ */
+export const updateBlockStatusMutation = (
+  options?: Partial<Options<UpdateBlockStatusData>>,
+): UseMutationOptions<UpdateBlockStatusResponse, DefaultError, Options<UpdateBlockStatusData>> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateBlockStatusResponse,
+    DefaultError,
+    Options<UpdateBlockStatusData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateBlockStatus({
         ...options,
         ...fnOptions,
         throwOnError: true,

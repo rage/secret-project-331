@@ -15,12 +15,29 @@ const ALIGN_SELF: Record<string, string> = {
   bottom: "flex-end",
 }
 
-/** One cell of a Columns block; its blocks render like top-level blocks but never break out of it. */
-const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAttributes>>> = (
-  props,
-) => {
+/** Percentage width of a column, or null when it is unset or in another unit. */
+export const columnWidthPercent = (width: string | null | undefined): number | null =>
+  width?.trim().endsWith("%") ? Number(width.trim().slice(0, -1)) : null
+
+interface ColumnBlockProps extends BlockRendererProps<ColumnAttributes> {
+  /** Share of the row for a column without its own width, in the same units as percentage widths. */
+  unsetWidthShare?: number | undefined
+  /** Authors wrap full-width sections in a one-column block, so those may still break out of it. */
+  isOnlyColumn?: boolean | undefined
+}
+
+/** One cell of a Columns block; its blocks render like top-level blocks but break out of it only when it is the only column. */
+const ColumnBlock: React.FC<React.PropsWithChildren<ColumnBlockProps>> = (props) => {
   const { verticalAlignment, width } = props.data.attributes
   const alignSelf = verticalAlignment ? ALIGN_SELF[verticalAlignment] : undefined
+  const percent = columnWidthPercent(width)
+  // Percentages become proportional shares of the space left after the gaps, so 33% + 67% still fit on one row.
+  const flex =
+    percent !== null
+      ? `${percent} 1 0`
+      : width
+        ? `0 1 ${width}`
+        : `${props.unsetWidthShare ?? 1} 1 0`
 
   return (
     <div
@@ -30,7 +47,7 @@ const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAtt
         min-width: min(100%, 10rem);
 
         ${respondToOrLarger.md} {
-          ${width && `flex: 0 1 ${width};`}
+          flex: ${flex};
         }
 
         /* Blocks like images and paragraphs keep their margin on an inner element. */
@@ -44,7 +61,10 @@ const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAtt
         }
       `}
     >
-      <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+      <InnerBlocks
+        parentBlockProps={props}
+        dontAllowInnerBlocksToBeWiderThanParentBlock={!props.isOnlyColumn}
+      />
     </div>
   )
 }

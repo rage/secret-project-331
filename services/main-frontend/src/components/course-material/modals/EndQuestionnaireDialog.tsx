@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useAtomValue, useSetAtom } from "jotai"
+import { useAtomValue } from "jotai"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -80,13 +80,15 @@ const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({
     {
       onSuccess: () => {
         setOpen(false)
-        queryClient.invalidateQueries({
-          queryKey: getCourseMaterialUserCourseProgressQueryKey({
-            path: {
-              course_instance_id: courseInstanceId,
-            },
-          }),
-        })
+        if (courseInstanceId) {
+          queryClient.invalidateQueries({
+            queryKey: getCourseMaterialUserCourseProgressQueryKey({
+              path: {
+                course_instance_id: courseInstanceId,
+              },
+            }),
+          })
+        }
       },
     },
   )

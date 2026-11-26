@@ -20,14 +20,21 @@ const moduleProgress = (overrides: Partial<UserCourseProgress> = {}): UserCourse
   attempted_exercises: 3,
   attempted_exercises_required: 5,
   completion_method: "by_requirements",
+  ending_questionnaire_answered: false,
+  ready_to_answer_ending_questionnaire: false,
+  requires_ending_questionnaire: false,
+  exam_passed: false,
+  completion_attained: false,
   ...overrides,
 })
 
 const location = { courseInstanceId: "instance-1", organizationSlug: "uh-cs", courseSlug: "basics" }
+const courseId = "mock"
 
 const renderProgress = (overrides: Partial<UserCourseProgress> = {}) =>
   render(
     <CourseProgress
+      courseId={courseId}
       userCourseProgress={[moduleProgress(overrides)]}
       courseInstanceLocation={location}
     />,
@@ -76,7 +83,11 @@ describe("CourseProgress", () => {
       screen.getByRole("button", { name: "button-show-all-exercises-in-course" }),
     ).toBeInTheDocument()
     rerender(
-      <CourseProgress userCourseProgress={[moduleProgress()]} courseInstanceLocation={null} />,
+      <CourseProgress
+        courseId={courseId}
+        userCourseProgress={[moduleProgress()]}
+        courseInstanceLocation={null}
+      />,
     )
     expect(screen.queryByRole("button", { name: "button-show-all-exercises-in-course" })).toBeNull()
   })

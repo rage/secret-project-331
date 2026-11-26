@@ -39,7 +39,7 @@ export const paragraphDefaultBlockStyles = `
 
 // flow-root contains a drop cap's float without clipping long words, glossary popovers or citations.
 export const baseParagraphStyles = css`
-  margin: 1.25rem 0;
+  margin: 0;
   min-width: 1px;
   display: flow-root;
   height: auto;
@@ -54,6 +54,8 @@ export const getParagraphStyles = (
   fitText?: boolean,
 ) => css`
   ${paragraphBaseDefaults}
+  /* The renderer spaces blocks apart. */
+  margin: 0;
   display: flow-root;
   color: ${colorMapper(textColor)};
   background-color: ${colorMapper(backgroundColor, UNSET_COLOR)};

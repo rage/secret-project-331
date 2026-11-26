@@ -51,7 +51,7 @@ export const VimeoEmbedBlock: React.FC<
             className={css`
               width: 100%;
               max-width: ${VIMEO_MAX_WIDTH}px;
-              margin: 4rem auto;
+              margin: 0 auto;
             `}
           >
             <div

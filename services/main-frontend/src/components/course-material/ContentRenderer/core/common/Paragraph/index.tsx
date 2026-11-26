@@ -59,7 +59,5 @@ const ParagraphBlock: React.FC<
 }
 
 const exported = withErrorBoundary(ParagraphBlock)
-// @ts-expect-error: Custom property
-exported.dontUseDefaultBlockMargin = true
 
 export default exported

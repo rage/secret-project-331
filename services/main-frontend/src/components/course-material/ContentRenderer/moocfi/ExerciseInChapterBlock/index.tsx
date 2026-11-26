@@ -13,7 +13,7 @@ import type { BlockRendererProps } from "../.."
 import ExercisesInChapter from "./ExercisesInChapter"
 
 const Wrapper = styled.div`
-  margin: 0 0 5rem 0;
+  margin: 0;
 `
 
 const ExerciseInChapterBlock: React.FC<

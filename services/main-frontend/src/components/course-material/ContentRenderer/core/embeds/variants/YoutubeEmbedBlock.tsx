@@ -353,7 +353,7 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
         className={css`
           width: 100%;
           max-width: 1000px;
-          margin: 4rem auto;
+          margin: 0 auto;
         `}
       >
         {!hasValidVideo && (

@@ -49,16 +49,6 @@ const ColumnBlock: React.FC<React.PropsWithChildren<ColumnBlockProps>> = (props)
         ${respondToOrLarger.md} {
           flex: ${flex};
         }
-
-        /* Blocks like images and paragraphs keep their margin on an inner element. */
-        > :first-child,
-        > :first-child > :first-child {
-          margin-top: 0;
-        }
-        > :last-child,
-        > :last-child > :last-child {
-          margin-bottom: 0;
-        }
       `}
     >
       <InnerBlocks

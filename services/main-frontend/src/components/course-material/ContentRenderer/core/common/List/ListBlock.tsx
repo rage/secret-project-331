@@ -48,6 +48,7 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
       ${fontSize && `font-size: ${mobileFontSizeMapper(fontSize)};`}
 
       padding-inline-start: 2.5rem !important;
+      margin-block: 0;
       overflow-wrap: break-word;
 
       ${respondToOrLarger.md} {
@@ -112,7 +113,5 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
 }
 
 const exported = withErrorBoundary(ListBlock)
-// @ts-expect-error: Custom property
-exported.dontUseDefaultBlockMargin = true
 
 export default exported

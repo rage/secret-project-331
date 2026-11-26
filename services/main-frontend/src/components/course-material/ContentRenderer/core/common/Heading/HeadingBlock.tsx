@@ -15,7 +15,6 @@ import {
 } from "@/shared-module/common/utils/headingAnchors"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
-import { marginTopHeadingMapper } from "@/styles/course-material/headerMarginMapper"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import type { BlockRendererProps } from "../../.."
@@ -54,8 +53,7 @@ const HeadingBlock: React.FC<
       css`
         position: relative;
         line-height: ${level === 1 ? 1.1 : 1.2};
-        margin-bottom: 1rem;
-        margin-top: ${marginTopHeadingMapper(level)};
+        margin: 0;
         font-weight: 600;
         ${textAlign && `text-align: ${textAlign};`}
         ${
@@ -95,7 +93,5 @@ const HeadingBlock: React.FC<
 }
 
 const exported = withErrorBoundary(HeadingBlock)
-// @ts-expect-error: Custom property
-exported.dontUseDefaultBlockMargin = true
 
 export default exported

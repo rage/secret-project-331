@@ -124,8 +124,6 @@ const ButtonsBlock: React.FC<
             )} !important;`
           }
           ${fontSize && `font-size: ${fontSizeMapper(fontSize)} !important;`}
-          margin: 0.5rem 0rem;
-          margin-right: 0.5rem;
         `}
       >
         <span
@@ -142,6 +140,7 @@ const ButtonsBlock: React.FC<
       className={css`
         display: flex;
         flex-wrap: wrap;
+        gap: 0.5rem;
         ${orientation === "vertical" ? "flex-direction: column;" : "flex-direction: row;"}
         ${contentJustification && getContentJustification(contentJustification)}
         ${verticalAlignment ? getAlignItems(verticalAlignment) : "align-items: flex-start;"}

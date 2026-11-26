@@ -1,18 +1,20 @@
 import { css } from "@emotion/css"
 
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
-import type { ExerciseFile } from "@/util/stateInterfaces"
+import type { ExerciseFile, PublicSpec } from "@/util/stateInterfaces"
+import { studentFilesInEditorOrder } from "@/util/studentFiles"
 
 interface Props {
   files: ExerciseFile[]
-  /** The files to show; every file when empty. */
-  studentFilePaths: string[]
+  publicSpec: PublicSpec
 }
 
-/** Read-only source files. Whitespace is kept as written: indentation is syntax in Python. */
-const SourceFiles: React.FC<Props> = ({ files, studentFilePaths }) => {
-  const studentPaths = new Set(studentFilePaths)
-  const shown = studentPaths.size > 0 ? files.filter((f) => studentPaths.has(f.filepath)) : files
+/**
+ * The student files among `files`, read-only. Whitespace is kept as written: indentation is syntax
+ * in Python.
+ */
+const SourceFiles: React.FC<Props> = ({ files, publicSpec }) => {
+  const shown = studentFilesInEditorOrder(files, publicSpec)
   return (
     <>
       {shown.map((f) => (

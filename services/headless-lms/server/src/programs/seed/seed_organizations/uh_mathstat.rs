@@ -30,6 +30,7 @@ use crate::{
             seed_metadata_course::seed_metadata_course,
             seed_peer_review_course_without_submissions, seed_sample_course,
             seed_switching_course_instances_course,
+            seed_tmc_browser_exercise::seed_tmc_browser_exercise_course,
         },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::get_seed_spec_fetcher,
@@ -306,6 +307,16 @@ pub async fn seed_organization_uh_mathstat(
         Uuid::parse_str("aff9acac-a4c6-4e24-a7b7-cd9aa0f47f8d")?,
         "Exercise iframe resilience",
         "exercise-iframe-resilience",
+        uh_data.clone(),
+        seed_users_result,
+    )
+    .await?;
+
+    seed_tmc_browser_exercise_course(
+        app_config.clone(),
+        Uuid::parse_str("5d6e1ae3-1c80-4b0b-9a37-0c58b81f2f4e")?,
+        "TMC browser exercise",
+        "tmc-browser-exercise",
         uh_data.clone(),
         seed_users_result,
     )

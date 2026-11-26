@@ -1,5 +1,5 @@
 import { changeLanguage } from "i18next"
-import { cloneDeep } from "lodash"
+import { cloneDeep, isEqual } from "lodash"
 import { orderBy } from "natural-orderby"
 import { useEffect, useRef, useState } from "react"
 import ReactDOM from "react-dom"
@@ -10,8 +10,17 @@ import type { UploadResultMessage } from "@/shared-module/exercise-protocol/core
 import { isMessageToIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "@/shared-module/exercise-react/react/hooks/useExerciseServiceParentConnection"
 import type { RunResult } from "@/tmc/cli"
-import { fetchArchiveFiles, initialEditorFiles, packBrowserAnswer } from "@/util/answerArchive"
+import { fetchStudentFiles, initialEditorFiles } from "@/util/answerArchive"
+import { packAnswerArchive } from "@/util/canonicalArchive"
 import type { ExerciseTaskSubmission } from "@/util/exerciseServiceApi"
+import {
+  clearDraft,
+  draftBasis,
+  draftKey,
+  loadDraft,
+  pruneDrafts,
+  saveDraft,
+} from "@/util/localDraft"
 import type {
   ExerciseFile,
   ExerciseIframeState,
@@ -22,10 +31,13 @@ import type {
 } from "@/util/stateInterfaces"
 
 /**
- * How long the browser editor must be idle before its files are packed and uploaded. Every pack
- * costs a round trip and a stored upload, so keystroke bursts have to collapse into one.
+ * How long the browser editor must be idle before its files are packed, uploaded and saved as a
+ * draft. Every upload is stored, so keystroke bursts have to collapse into one; Submit waits for it.
  */
-const PACK_IDLE_MS = 2500
+const PACK_IDLE_MS = 800
+
+/** Archive prefix for a spec that names none; consumers ignore the prefix. */
+const FALLBACK_ARCHIVE_PREFIX = "exercise"
 
 /**
  * What went wrong with the answer's archive: reading the one the editor starts from, or storing the
@@ -153,26 +165,46 @@ export function useIframeProtocol() {
           } else if (messageData.view_type === "answer-exercise") {
             const newPublicSpec = messageData.data.public_spec as PublicSpec
             const previousArchive = messageData.data.previous_submission_files?.[0] ?? null
+            const previousSubmission = messageData.data
+              .previous_submission as ExerciseTaskSubmission | null
+            const draftLocation =
+              newPublicSpec.type === "browser" && messageData.user_information.signed_in
+                ? {
+                    key: draftKey(
+                      messageData.user_information.pseudonymous_id,
+                      messageData.exercise_task_id,
+                    ),
+                    basis: draftBasis(newPublicSpec.checksum, previousArchive?.id ?? null),
+                  }
+                : null
             const requestToken = ++latestPublicSpecRequestRef.current
             const seed = async () => {
               try {
-                const editorFiles = await initialEditorFiles(
+                const { files, startingFiles } = await initialEditorFiles(
                   newPublicSpec,
                   previousArchive?.url ?? null,
                 )
                 if (requestToken !== latestPublicSpecRequestRef.current) {
                   return
                 }
+                if (draftLocation !== null) {
+                  pruneDrafts()
+                }
+                const draft = draftLocation === null ? null : loadDraft(draftLocation.key)
+                const restoreDraft = draft !== null && draft.basis === draftLocation?.basis
+                if (draftLocation !== null && draft !== null && !restoreDraft) {
+                  clearDraft(draftLocation.key)
+                }
                 const publicSpecClone = cloneDeep(newPublicSpec)
-                const previousSubmission = messageData.data
-                  .previous_submission as ExerciseTaskSubmission | null
                 setStateAndSend(messagePort, () => ({
                   view_type: "answer-exercise" as const,
                   public_spec: publicSpecClone,
-                  editor_files: editorFiles,
+                  editor_files: restoreDraft ? draft.files : files,
+                  starting_files: startingFiles,
+                  draft: draftLocation,
                   // The previous archive is already a complete answer, so adopting it lets the
                   // student resubmit unchanged prior work in both modes.
-                  uploaded_archive_id: previousArchive?.id ?? null,
+                  uploaded_archive_id: restoreDraft ? null : (previousArchive?.id ?? null),
                   previous_submission: previousSubmission,
                 }))
               } catch (error) {
@@ -209,7 +241,7 @@ export function useIframeProtocol() {
               field: "submitted_files" | "model_solution_files",
             ) => {
               try {
-                const files = await fetchArchiveFiles(url)
+                const files = await fetchStudentFiles(url, publicSpec)
                 if (requestToken !== latestSubmissionRequestRef.current) {
                   return
                 }
@@ -282,20 +314,30 @@ export function useIframeProtocol() {
     }
   })
 
-  const filesToPack =
-    state?.view_type === "answer-exercise" && state.uploaded_archive_id === null
-      ? state.editor_files
-      : null
+  const answerToPack =
+    state?.view_type === "answer-exercise" && state.uploaded_archive_id === null ? state : null
+  const filesToPack = answerToPack?.editor_files ?? null
   const [debouncedFilesToPack] = useDebounce(filesToPack, PACK_IDLE_MS)
+  const archivePrefix = answerToPack?.public_spec.archive_prefix ?? FALLBACK_ARCHIVE_PREFIX
+  const draftTarget = answerToPack?.draft ?? null
+  const startingFiles = answerToPack?.starting_files ?? null
 
   useEffect(() => {
     if (debouncedFilesToPack === null || debouncedFilesToPack.length === 0) {
       return
     }
+    if (draftTarget !== null) {
+      // A stale copy of the starting code would outlive a template update.
+      if (isEqual(debouncedFilesToPack, startingFiles)) {
+        clearDraft(draftTarget.key)
+      } else {
+        saveDraft(draftTarget.key, debouncedFilesToPack, draftTarget.basis)
+      }
+    }
     const packToken = ++latestPackRequestRef.current
     const packAndUpload = async () => {
       try {
-        const archive = await packBrowserAnswer(debouncedFilesToPack)
+        const archive = await packAnswerArchive(archivePrefix, debouncedFilesToPack)
         if (packToken !== latestPackRequestRef.current) {
           return
         }

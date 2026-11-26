@@ -1,51 +1,53 @@
 /**
- * Prepares self-hosted Pyodide assets under `public/pyodide/v<version>/full/`.
+ * Copies the Pyodide runtime from the installed npm package to `public/pyodide/<version>/`, with
+ * gzip and brotli siblings that server.mjs serves to browsers that accept them.
  *
- * We copy from the `pyodide` npm package (already installed) into `tmc/public`
- * so browser/worker runtime can fetch from our own server instead of CDN.
+ * The directory is named after the installed package's version, so a bump moves the assets to a new
+ * URL and long-lived caches of the old files cannot mix versions.
  */
-
 const fs = require("fs")
 const path = require("path")
+const zlib = require("zlib")
 
 const root = path.resolve(__dirname, "..")
-const configPath = path.join(root, "src/util/pyodide-version.json")
+const pyodidePackageDir = path.join(root, "node_modules", "pyodide")
+const { version } = JSON.parse(
+  fs.readFileSync(path.join(pyodidePackageDir, "package.json"), "utf8"),
+)
+const assetsRoot = path.join(root, "public", "pyodide")
+const targetDir = path.join(assetsRoot, version)
 
-const { version } = JSON.parse(fs.readFileSync(configPath, "utf8"))
+// What a worker loads at startup; console pages, maps and typings stay out of the image.
+const RUNTIME_FILES = [
+  "pyodide.mjs",
+  "pyodide.asm.mjs",
+  "pyodide.asm.wasm",
+  "python_stdlib.zip",
+  "pyodide-lock.json",
+]
 
-const pyodidePkgDir = path.join(root, "node_modules", "pyodide")
-if (!fs.existsSync(pyodidePkgDir)) {
-  throw new Error(`pyodide npm package not found at: ${pyodidePkgDir}`)
-}
-
-const targetDir = path.join(root, "public", "pyodide", `v${version}`, "full")
+fs.rmSync(assetsRoot, { recursive: true, force: true })
 fs.mkdirSync(targetDir, { recursive: true })
 
-const entries = fs.readdirSync(pyodidePkgDir, { withFileTypes: true })
-
-let copied = 0
-let skipped = 0
-
-for (const entry of entries) {
-  if (!entry.isFile()) {
+for (const name of RUNTIME_FILES) {
+  const contents = fs.readFileSync(path.join(pyodidePackageDir, name))
+  const target = path.join(targetDir, name)
+  fs.writeFileSync(target, contents)
+  // The stdlib is already a zip.
+  if (name.endsWith(".zip")) {
     continue
   }
-
-  const src = path.join(pyodidePkgDir, entry.name)
-  const dest = path.join(targetDir, entry.name)
-
-  const srcStat = fs.statSync(src)
-  const destStat = fs.existsSync(dest) ? fs.statSync(dest) : null
-
-  if (destStat && destStat.size === srcStat.size) {
-    skipped++
-    continue
-  }
-
-  fs.copyFileSync(src, dest)
-  copied++
+  fs.writeFileSync(`${target}.gz`, zlib.gzipSync(contents, { level: 9 }))
+  // Quality 11 saves another 10% on the wasm but takes half a minute on every install.
+  fs.writeFileSync(
+    `${target}.br`,
+    zlib.brotliCompressSync(contents, {
+      params: {
+        [zlib.constants.BROTLI_PARAM_QUALITY]: 9,
+        [zlib.constants.BROTLI_PARAM_SIZE_HINT]: contents.length,
+      },
+    }),
+  )
 }
 
-console.log(
-  `Prepared Pyodide assets v${version} -> ${targetDir} (copied: ${copied}, skipped: ${skipped}).`,
-)
+console.log(`Prepared Pyodide ${version} assets in ${targetDir}.`)

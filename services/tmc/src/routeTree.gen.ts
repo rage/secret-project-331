@@ -8,167 +8,155 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root"
-import { Route as ApiGradeRouteImport } from "./routes/api/grade"
-import { Route as ApiModelSolutionRouteImport } from "./routes/api/model-solution"
-import { Route as ApiPackBrowserAnswerRouteImport } from "./routes/api/pack-browser-answer"
-import { Route as ApiPrepareRepositoryRouteImport } from "./routes/api/prepare-repository"
-import { Route as ApiPublicSpecRouteImport } from "./routes/api/public-spec"
-import { Route as ApiSandboxResultsRouteImport } from "./routes/api/sandbox-results"
-import { Route as ApiServiceInfoRouteImport } from "./routes/api/service-info"
-import { Route as ApiStatusUpRouteImport } from "./routes/api/status/up"
-import { Route as ApiTestRouteImport } from "./routes/api/test"
-import { Route as ApiTestrunRouteImport } from "./routes/api/testrun"
-import { Route as IframeRouteImport } from "./routes/iframe"
-import { Route as IndexRouteImport } from "./routes/index"
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as IframeRouteImport } from './routes/iframe'
+import { Route as ApiGradeRouteImport } from './routes/api/grade'
+import { Route as ApiModelSolutionRouteImport } from './routes/api/model-solution'
+import { Route as ApiPrepareRepositoryRouteImport } from './routes/api/prepare-repository'
+import { Route as ApiPublicSpecRouteImport } from './routes/api/public-spec'
+import { Route as ApiSandboxResultsRouteImport } from './routes/api/sandbox-results'
+import { Route as ApiServiceInfoRouteImport } from './routes/api/service-info'
+import { Route as ApiTestRouteImport } from './routes/api/test'
+import { Route as ApiTestrunRouteImport } from './routes/api/testrun'
+import { Route as ApiStatusUpRouteImport } from './routes/api/status/up'
 
-const IframeRoute = IframeRouteImport.update({
-  id: "/iframe",
-  path: "/iframe",
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiTestrunRoute = ApiTestrunRouteImport.update({
-  id: "/api/testrun",
-  path: "/api/testrun",
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiTestRoute = ApiTestRouteImport.update({
-  id: "/api/test",
-  path: "/api/test",
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiServiceInfoRoute = ApiServiceInfoRouteImport.update({
-  id: "/api/service-info",
-  path: "/api/service-info",
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiSandboxResultsRoute = ApiSandboxResultsRouteImport.update({
-  id: "/api/sandbox-results",
-  path: "/api/sandbox-results",
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicSpecRoute = ApiPublicSpecRouteImport.update({
-  id: "/api/public-spec",
-  path: "/api/public-spec",
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPackBrowserAnswerRoute = ApiPackBrowserAnswerRouteImport.update({
-  id: "/api/pack-browser-answer",
-  path: "/api/pack-browser-answer",
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPrepareRepositoryRoute = ApiPrepareRepositoryRouteImport.update({
-  id: "/api/prepare-repository",
-  path: "/api/prepare-repository",
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiModelSolutionRoute = ApiModelSolutionRouteImport.update({
-  id: "/api/model-solution",
-  path: "/api/model-solution",
+const IframeRoute = IframeRouteImport.update({
+  id: '/iframe',
+  path: '/iframe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGradeRoute = ApiGradeRouteImport.update({
-  id: "/api/grade",
-  path: "/api/grade",
+  id: '/api/grade',
+  path: '/api/grade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiModelSolutionRoute = ApiModelSolutionRouteImport.update({
+  id: '/api/model-solution',
+  path: '/api/model-solution',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPrepareRepositoryRoute = ApiPrepareRepositoryRouteImport.update({
+  id: '/api/prepare-repository',
+  path: '/api/prepare-repository',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSpecRoute = ApiPublicSpecRouteImport.update({
+  id: '/api/public-spec',
+  path: '/api/public-spec',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSandboxResultsRoute = ApiSandboxResultsRouteImport.update({
+  id: '/api/sandbox-results',
+  path: '/api/sandbox-results',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiServiceInfoRoute = ApiServiceInfoRouteImport.update({
+  id: '/api/service-info',
+  path: '/api/service-info',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTestRoute = ApiTestRouteImport.update({
+  id: '/api/test',
+  path: '/api/test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTestrunRoute = ApiTestrunRouteImport.update({
+  id: '/api/testrun',
+  path: '/api/testrun',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiStatusUpRoute = ApiStatusUpRouteImport.update({
-  id: "/api/status/up",
-  path: "/api/status/up",
+  id: '/api/status/up',
+  path: '/api/status/up',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute
-  "/iframe": typeof IframeRoute
-  "/api/grade": typeof ApiGradeRoute
-  "/api/model-solution": typeof ApiModelSolutionRoute
-  "/api/pack-browser-answer": typeof ApiPackBrowserAnswerRoute
-  "/api/prepare-repository": typeof ApiPrepareRepositoryRoute
-  "/api/public-spec": typeof ApiPublicSpecRoute
-  "/api/sandbox-results": typeof ApiSandboxResultsRoute
-  "/api/service-info": typeof ApiServiceInfoRoute
-  "/api/test": typeof ApiTestRoute
-  "/api/testrun": typeof ApiTestrunRoute
-  "/api/status/up": typeof ApiStatusUpRoute
+  '/': typeof IndexRoute
+  '/iframe': typeof IframeRoute
+  '/api/grade': typeof ApiGradeRoute
+  '/api/model-solution': typeof ApiModelSolutionRoute
+  '/api/prepare-repository': typeof ApiPrepareRepositoryRoute
+  '/api/public-spec': typeof ApiPublicSpecRoute
+  '/api/sandbox-results': typeof ApiSandboxResultsRoute
+  '/api/service-info': typeof ApiServiceInfoRoute
+  '/api/test': typeof ApiTestRoute
+  '/api/testrun': typeof ApiTestrunRoute
+  '/api/status/up': typeof ApiStatusUpRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute
-  "/iframe": typeof IframeRoute
-  "/api/grade": typeof ApiGradeRoute
-  "/api/model-solution": typeof ApiModelSolutionRoute
-  "/api/pack-browser-answer": typeof ApiPackBrowserAnswerRoute
-  "/api/prepare-repository": typeof ApiPrepareRepositoryRoute
-  "/api/public-spec": typeof ApiPublicSpecRoute
-  "/api/sandbox-results": typeof ApiSandboxResultsRoute
-  "/api/service-info": typeof ApiServiceInfoRoute
-  "/api/test": typeof ApiTestRoute
-  "/api/testrun": typeof ApiTestrunRoute
-  "/api/status/up": typeof ApiStatusUpRoute
+  '/': typeof IndexRoute
+  '/iframe': typeof IframeRoute
+  '/api/grade': typeof ApiGradeRoute
+  '/api/model-solution': typeof ApiModelSolutionRoute
+  '/api/prepare-repository': typeof ApiPrepareRepositoryRoute
+  '/api/public-spec': typeof ApiPublicSpecRoute
+  '/api/sandbox-results': typeof ApiSandboxResultsRoute
+  '/api/service-info': typeof ApiServiceInfoRoute
+  '/api/test': typeof ApiTestRoute
+  '/api/testrun': typeof ApiTestrunRoute
+  '/api/status/up': typeof ApiStatusUpRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  "/": typeof IndexRoute
-  "/iframe": typeof IframeRoute
-  "/api/grade": typeof ApiGradeRoute
-  "/api/model-solution": typeof ApiModelSolutionRoute
-  "/api/pack-browser-answer": typeof ApiPackBrowserAnswerRoute
-  "/api/prepare-repository": typeof ApiPrepareRepositoryRoute
-  "/api/public-spec": typeof ApiPublicSpecRoute
-  "/api/sandbox-results": typeof ApiSandboxResultsRoute
-  "/api/service-info": typeof ApiServiceInfoRoute
-  "/api/test": typeof ApiTestRoute
-  "/api/testrun": typeof ApiTestrunRoute
-  "/api/status/up": typeof ApiStatusUpRoute
+  '/': typeof IndexRoute
+  '/iframe': typeof IframeRoute
+  '/api/grade': typeof ApiGradeRoute
+  '/api/model-solution': typeof ApiModelSolutionRoute
+  '/api/prepare-repository': typeof ApiPrepareRepositoryRoute
+  '/api/public-spec': typeof ApiPublicSpecRoute
+  '/api/sandbox-results': typeof ApiSandboxResultsRoute
+  '/api/service-info': typeof ApiServiceInfoRoute
+  '/api/test': typeof ApiTestRoute
+  '/api/testrun': typeof ApiTestrunRoute
+  '/api/status/up': typeof ApiStatusUpRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/"
-    | "/iframe"
-    | "/api/grade"
-    | "/api/model-solution"
-    | "/api/pack-browser-answer"
-    | "/api/prepare-repository"
-    | "/api/public-spec"
-    | "/api/sandbox-results"
-    | "/api/service-info"
-    | "/api/test"
-    | "/api/testrun"
-    | "/api/status/up"
+    | '/'
+    | '/iframe'
+    | '/api/grade'
+    | '/api/model-solution'
+    | '/api/prepare-repository'
+    | '/api/public-spec'
+    | '/api/sandbox-results'
+    | '/api/service-info'
+    | '/api/test'
+    | '/api/testrun'
+    | '/api/status/up'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | "/"
-    | "/iframe"
-    | "/api/grade"
-    | "/api/model-solution"
-    | "/api/pack-browser-answer"
-    | "/api/prepare-repository"
-    | "/api/public-spec"
-    | "/api/sandbox-results"
-    | "/api/service-info"
-    | "/api/test"
-    | "/api/testrun"
-    | "/api/status/up"
+    | '/'
+    | '/iframe'
+    | '/api/grade'
+    | '/api/model-solution'
+    | '/api/prepare-repository'
+    | '/api/public-spec'
+    | '/api/sandbox-results'
+    | '/api/service-info'
+    | '/api/test'
+    | '/api/testrun'
+    | '/api/status/up'
   id:
-    | "__root__"
-    | "/"
-    | "/iframe"
-    | "/api/grade"
-    | "/api/model-solution"
-    | "/api/pack-browser-answer"
-    | "/api/prepare-repository"
-    | "/api/public-spec"
-    | "/api/sandbox-results"
-    | "/api/service-info"
-    | "/api/test"
-    | "/api/testrun"
-    | "/api/status/up"
+    | '__root__'
+    | '/'
+    | '/iframe'
+    | '/api/grade'
+    | '/api/model-solution'
+    | '/api/prepare-repository'
+    | '/api/public-spec'
+    | '/api/sandbox-results'
+    | '/api/service-info'
+    | '/api/test'
+    | '/api/testrun'
+    | '/api/status/up'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -176,7 +164,6 @@ export interface RootRouteChildren {
   IframeRoute: typeof IframeRoute
   ApiGradeRoute: typeof ApiGradeRoute
   ApiModelSolutionRoute: typeof ApiModelSolutionRoute
-  ApiPackBrowserAnswerRoute: typeof ApiPackBrowserAnswerRoute
   ApiPrepareRepositoryRoute: typeof ApiPrepareRepositoryRoute
   ApiPublicSpecRoute: typeof ApiPublicSpecRoute
   ApiSandboxResultsRoute: typeof ApiSandboxResultsRoute
@@ -186,89 +173,82 @@ export interface RootRouteChildren {
   ApiStatusUpRoute: typeof ApiStatusUpRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/iframe": {
-      id: "/iframe"
-      path: "/iframe"
-      fullPath: "/iframe"
-      preLoaderRoute: typeof IframeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/": {
-      id: "/"
-      path: "/"
-      fullPath: "/"
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/api/testrun": {
-      id: "/api/testrun"
-      path: "/api/testrun"
-      fullPath: "/api/testrun"
-      preLoaderRoute: typeof ApiTestrunRouteImport
+    '/iframe': {
+      id: '/iframe'
+      path: '/iframe'
+      fullPath: '/iframe'
+      preLoaderRoute: typeof IframeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/api/test": {
-      id: "/api/test"
-      path: "/api/test"
-      fullPath: "/api/test"
-      preLoaderRoute: typeof ApiTestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/api/service-info": {
-      id: "/api/service-info"
-      path: "/api/service-info"
-      fullPath: "/api/service-info"
-      preLoaderRoute: typeof ApiServiceInfoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/api/sandbox-results": {
-      id: "/api/sandbox-results"
-      path: "/api/sandbox-results"
-      fullPath: "/api/sandbox-results"
-      preLoaderRoute: typeof ApiSandboxResultsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/api/public-spec": {
-      id: "/api/public-spec"
-      path: "/api/public-spec"
-      fullPath: "/api/public-spec"
-      preLoaderRoute: typeof ApiPublicSpecRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/api/pack-browser-answer": {
-      id: "/api/pack-browser-answer"
-      path: "/api/pack-browser-answer"
-      fullPath: "/api/pack-browser-answer"
-      preLoaderRoute: typeof ApiPackBrowserAnswerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/api/prepare-repository": {
-      id: "/api/prepare-repository"
-      path: "/api/prepare-repository"
-      fullPath: "/api/prepare-repository"
-      preLoaderRoute: typeof ApiPrepareRepositoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/api/model-solution": {
-      id: "/api/model-solution"
-      path: "/api/model-solution"
-      fullPath: "/api/model-solution"
-      preLoaderRoute: typeof ApiModelSolutionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    "/api/grade": {
-      id: "/api/grade"
-      path: "/api/grade"
-      fullPath: "/api/grade"
+    '/api/grade': {
+      id: '/api/grade'
+      path: '/api/grade'
+      fullPath: '/api/grade'
       preLoaderRoute: typeof ApiGradeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    "/api/status/up": {
-      id: "/api/status/up"
-      path: "/api/status/up"
-      fullPath: "/api/status/up"
+    '/api/model-solution': {
+      id: '/api/model-solution'
+      path: '/api/model-solution'
+      fullPath: '/api/model-solution'
+      preLoaderRoute: typeof ApiModelSolutionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/prepare-repository': {
+      id: '/api/prepare-repository'
+      path: '/api/prepare-repository'
+      fullPath: '/api/prepare-repository'
+      preLoaderRoute: typeof ApiPrepareRepositoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public-spec': {
+      id: '/api/public-spec'
+      path: '/api/public-spec'
+      fullPath: '/api/public-spec'
+      preLoaderRoute: typeof ApiPublicSpecRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/sandbox-results': {
+      id: '/api/sandbox-results'
+      path: '/api/sandbox-results'
+      fullPath: '/api/sandbox-results'
+      preLoaderRoute: typeof ApiSandboxResultsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/service-info': {
+      id: '/api/service-info'
+      path: '/api/service-info'
+      fullPath: '/api/service-info'
+      preLoaderRoute: typeof ApiServiceInfoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/test': {
+      id: '/api/test'
+      path: '/api/test'
+      fullPath: '/api/test'
+      preLoaderRoute: typeof ApiTestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/testrun': {
+      id: '/api/testrun'
+      path: '/api/testrun'
+      fullPath: '/api/testrun'
+      preLoaderRoute: typeof ApiTestrunRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/status/up': {
+      id: '/api/status/up'
+      path: '/api/status/up'
+      fullPath: '/api/status/up'
       preLoaderRoute: typeof ApiStatusUpRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -280,7 +260,6 @@ const rootRouteChildren: RootRouteChildren = {
   IframeRoute: IframeRoute,
   ApiGradeRoute: ApiGradeRoute,
   ApiModelSolutionRoute: ApiModelSolutionRoute,
-  ApiPackBrowserAnswerRoute: ApiPackBrowserAnswerRoute,
   ApiPrepareRepositoryRoute: ApiPrepareRepositoryRoute,
   ApiPublicSpecRoute: ApiPublicSpecRoute,
   ApiSandboxResultsRoute: ApiSandboxResultsRoute,
@@ -293,10 +272,9 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
-import type { createStart } from "@tanstack/react-start"
-
-import type { getRouter } from "./router.tsx"
-declare module "@tanstack/react-start" {
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>

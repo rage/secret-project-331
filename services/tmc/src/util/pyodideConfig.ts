@@ -1,23 +1,18 @@
+import { version as pyodideVersion } from "pyodide/package.json"
+
 import basePath from "@/lib/basePath"
 
 /**
- * Pyodide version and base URL. Single source of truth: pyodide-version.json.
- * Workers get the same URL injected at build time via scripts/inject-pyodide-version.cjs.
+ * Where the self-hosted Pyodide runtime is served, ending in a slash. Named after the installed
+ * package's version, as scripts/prepare-pyodide-assets.cjs lays it out.
  */
-import config from "./pyodide-version.json"
-
-export const PYODIDE_VERSION = config.version
-
-function normalizeBasePath(base: string) {
-  if (!base) {
-    return ""
-  }
-  return base.endsWith("/") ? base.slice(0, -1) : base
+export function pyodideIndexUrl(): string {
+  return `${basePath()}/pyodide/${pyodideVersion}/`
 }
 
-// PUBLIC_BASE_PATH is set to "/tmc" in production (see Dockerfile.production.slim.dockerfile).
-// Static files in `public/` are served under that base path too.
-const pyodideBaseUrl = `${normalizeBasePath(basePath())}${config.baseUrl}`
-
-export const PYODIDE_INDEX_URL = `${pyodideBaseUrl}${config.version}/full/`
-export const PYODIDE_SCRIPT_URL = `${PYODIDE_INDEX_URL}pyodide.js`
+/** URL of the module worker that runs Python for both Run and Test. */
+export function pythonWorkerUrl(): string {
+  const url = new URL(`${basePath()}/pythonWorker.js`, window.location.href)
+  url.searchParams.set("indexURL", new URL(pyodideIndexUrl(), window.location.href).href)
+  return url.href
+}

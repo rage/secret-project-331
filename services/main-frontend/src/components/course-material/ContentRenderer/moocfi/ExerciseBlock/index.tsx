@@ -27,7 +27,9 @@ import type {
   CourseMaterialExerciseTask,
   StudentExerciseSlideSubmission,
 } from "@/generated/course-material-api/types.generated"
-import useCourseMaterialExerciseQuery from "@/hooks/course-material/useCourseMaterialExerciseQuery"
+import useCourseMaterialExerciseQuery, {
+  isGradingPending,
+} from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
@@ -222,7 +224,11 @@ const ExerciseBlock: React.FC<
     courseMaterialState.settings.current_course_instance_id !== courseMaterialState.instance?.id
 
   const id = props.data.attributes.id
-  const getCourseMaterialExercise = useCourseMaterialExerciseQuery(id, showExercise)
+  const getCourseMaterialExercise = useCourseMaterialExerciseQuery(
+    id,
+    showExercise,
+    postThisStateToIFrame?.every((state) => state.view_type === "view-submission") ?? false,
+  )
   const courseId =
     courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
   const getUserLocks = useUserChapterLocks(courseId)
@@ -889,7 +895,9 @@ const ExerciseBlock: React.FC<
                               tryAgainMutation.mutate()
                             }}
                             disabled={
-                              getCourseMaterialExercise.isRefetching ||
+                              // Polling for a pending grading refetches every few seconds.
+                              (getCourseMaterialExercise.isRefetching &&
+                                !isGradingPending(getCourseMaterialExercise.data)) ||
                               !courseMaterialExercise.can_post_submission ||
                               tryAgainMutation.isPending
                             }

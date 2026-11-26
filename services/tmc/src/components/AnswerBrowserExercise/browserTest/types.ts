@@ -6,7 +6,6 @@ export interface BrowserTestRunnerAdapter {
   /** User-facing message when canRun returns false (e.g. "Only Python files can be tested."). */
   getCannotRunMessage: () => string
   buildScript: (specScript: string, userCode: string) => string
-  getWorkerUrl: () => string
 }
 
 /** Returns the adapter for the given runtime, or null if unsupported. */

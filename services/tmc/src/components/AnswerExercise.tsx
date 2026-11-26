@@ -12,6 +12,8 @@ interface Props {
   publicSpec: PublicSpec
   /** The browser editor's files; ignored by an editor-mode exercise. */
   files: ExerciseFile[]
+  /** What the browser editor's Reset restores; irrelevant when it is read-only. */
+  startingFiles?: ExerciseFile[]
   /** Called with the edited files; omit to keep the editor read-only. */
   onFilesChange?: ((files: ExerciseFile[]) => void) | undefined
   testRequestResponse: RunResult | null
@@ -23,6 +25,7 @@ interface Props {
 const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
   publicSpec,
   files,
+  startingFiles = [],
   onFilesChange,
   testRequestResponse,
   sendFileUploadMessage,
@@ -34,6 +37,7 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
       <AnswerBrowserExercise
         publicSpec={publicSpec}
         initialState={files}
+        startingFiles={startingFiles}
         testRequestResponse={testRequestResponse}
         onFilesChange={onFilesChange}
         grading={grading}

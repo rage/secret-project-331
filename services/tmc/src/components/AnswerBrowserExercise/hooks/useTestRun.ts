@@ -1,12 +1,14 @@
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useState } from "react"
 
 import type { RunResult } from "@/tmc/cli"
 import type { PublicSpec } from "@/util/stateInterfaces"
 
 import { getBrowserTestAdapter, TEST_TIMEOUT_MS } from "../browserTest"
+import type { PythonWorker } from "./usePythonWorker"
 
-/** Worker response: RunResult on success or error message. */
-type TestWorkerResponse = { runResult: RunResult } | { error: string }
+type TestWorkerResponse =
+  | { type: "test_result"; runResult: RunResult }
+  | { type: "test_error"; message: string }
 
 function runResultFromError(message: string): RunResult {
   return {
@@ -16,22 +18,17 @@ function runResultFromError(message: string): RunResult {
   }
 }
 
-export function useTestRun(publicSpec: PublicSpec) {
+/** Runs the spec's browser tests against the student's file in the shared Python worker. */
+export function useTestRun(publicSpec: PublicSpec, pythonWorker: PythonWorker) {
   const [testResults, setTestResults] = useState<RunResult | null>(null)
   const [testInProgress, setTestInProgress] = useState(false)
-  const workerRef = useRef<Worker | null>(null)
 
   const runTests = useCallback(
     async (filepath: string, contents: string) => {
       const browserTest = publicSpec.browser_test
       const script = browserTest?.script
-      if (!script) {
-        setTestResults(runResultFromError("Tests are not available for this exercise."))
-        return
-      }
-      const adapter =
-        browserTest?.runtime !== undefined ? getBrowserTestAdapter(browserTest.runtime) : null
-      if (!adapter) {
+      const adapter = script ? getBrowserTestAdapter(browserTest.runtime) : null
+      if (!script || !adapter) {
         setTestResults(runResultFromError("Tests are not available for this exercise."))
         return
       }
@@ -44,68 +41,52 @@ export function useTestRun(publicSpec: PublicSpec) {
       setTestResults(null)
 
       const fullScript = adapter.buildScript(script, contents)
+      // The budget covers the tests only: it starts once Python has loaded.
+      const timeoutMs = browserTest.timeout_ms ?? TEST_TIMEOUT_MS
 
-      const runInWorker = (): Promise<TestWorkerResponse> =>
+      const runInWorker = (worker: Worker): Promise<TestWorkerResponse> =>
         new Promise((resolve, reject) => {
-          const worker = workerRef.current ?? new Worker(adapter.getWorkerUrl())
-          workerRef.current = worker
-
           const timeout = setTimeout(() => {
-            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
-            worker.onmessage = null
-            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
-            worker.onerror = null
-            worker.terminate()
-            if (workerRef.current === worker) {
-              workerRef.current = null
-            }
+            settle()
+            pythonWorker.discard()
             reject(new Error("Test run timed out"))
-          }, TEST_TIMEOUT_MS)
-
+          }, timeoutMs)
+          const settle = () => {
+            clearTimeout(timeout)
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
+            worker.onmessage = null
+            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
+            worker.onerror = null
+          }
           // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
           worker.onmessage = (e: MessageEvent<TestWorkerResponse>) => {
-            clearTimeout(timeout)
-            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
-            worker.onmessage = null
-            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
-            worker.onerror = null
+            settle()
             resolve(e.data)
           }
           // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
           worker.onerror = (ev: ErrorEvent) => {
-            clearTimeout(timeout)
-            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
-            worker.onmessage = null
-            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
-            worker.onerror = null
-            worker.terminate()
-            if (workerRef.current === worker) {
-              workerRef.current = null
-            }
-            const message =
-              ev?.message !== undefined && String(ev.message).trim() !== ""
-                ? String(ev.message)
-                : "Worker error"
-            reject(new Error(message))
+            settle()
+            pythonWorker.discard()
+            reject(new Error(ev.message?.trim() ? ev.message : "Worker error"))
           }
           // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
-          worker.postMessage({ script: fullScript })
+          worker.postMessage({ type: "test", script: fullScript })
         })
 
       try {
-        const response = await runInWorker()
-        if ("error" in response) {
-          setTestResults(runResultFromError(response.error))
-        } else {
-          setTestResults(response.runResult)
-        }
+        const response = await runInWorker(await pythonWorker.acquire())
+        setTestResults(
+          response.type === "test_result"
+            ? response.runResult
+            : runResultFromError(response.message),
+        )
       } catch (err) {
         setTestResults(runResultFromError(err instanceof Error ? err.message : String(err)))
       } finally {
         setTestInProgress(false)
       }
     },
-    [publicSpec.browser_test],
+    [publicSpec.browser_test, pythonWorker],
   )
 
   return { testResults, testInProgress, runTests }

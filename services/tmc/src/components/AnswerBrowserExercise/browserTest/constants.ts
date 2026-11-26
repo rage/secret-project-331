@@ -1,2 +1,2 @@
-/** Timeout for a single browser test run (worker execution). Used by the test-run hook. */
+/** Test-run budget for a spec without `browser_test.timeout_ms`. */
 export const TEST_TIMEOUT_MS = 30_000

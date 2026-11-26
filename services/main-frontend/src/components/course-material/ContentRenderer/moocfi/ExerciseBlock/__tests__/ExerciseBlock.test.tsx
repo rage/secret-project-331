@@ -73,6 +73,8 @@ jest.mock("@/hooks/course-material/useCourseMaterialExerciseQuery", () => {
   const { useQuery } = jest.requireActual("@tanstack/react-query")
   return {
     __esModule: true,
+    isGradingPending: jest.requireActual("@/hooks/course-material/useCourseMaterialExerciseQuery")
+      .isGradingPending,
     default: function useCourseMaterialExerciseQuery(exerciseId: string) {
       return useQuery({ queryKey: ["exercise", exerciseId], queryFn: () => mockFetchExercise() })
     },

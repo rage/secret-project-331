@@ -912,6 +912,13 @@ impl From<ModelError> for ControllerError {
                     span_trace,
                 )
             }
+            ModelErrorType::ExerciseServiceRefusedSpec { task_id, .. } => Self::new_with_traces(
+                ControllerErrorType::BadRequestWithData(ErrorMetadata::BlockId(*task_id)),
+                "The exercise service refused the task's private spec.".to_string(),
+                Some(err.into()),
+                backtrace,
+                span_trace,
+            ),
             ModelErrorType::DatabaseConstraint {
                 constraint,
                 description,

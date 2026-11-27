@@ -1,7 +1,7 @@
 //! What the tool handlers share: the database, configuration and the services writes depend on.
 
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 use std::time::{Duration, Instant};
 
 use async_trait::async_trait;
@@ -72,6 +72,18 @@ pub struct PrivateSpecSchema {
     pub examples: Option<Vec<Value>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub notes: Option<String>,
+    #[serde(skip)]
+    validator: OnceLock<Result<jsonschema::Validator, String>>,
+}
+
+impl PrivateSpecSchema {
+    /// The compiled schema, or why it doesn't compile. Compiled once, on first use.
+    pub fn validator(&self) -> Result<&jsonschema::Validator, &str> {
+        self.validator
+            .get_or_init(|| jsonschema::validator_for(&self.schema).map_err(|e| e.to_string()))
+            .as_ref()
+            .map_err(String::as_str)
+    }
 }
 
 /// Everything a tool handler needs besides its request.

@@ -516,6 +516,7 @@ fn saved<T>(
     result.map_err(|error| match error.error_type() {
         ModelErrorType::PreconditionFailed
         | ModelErrorType::PreconditionFailedWithCMSAnchorBlockId { .. }
+        | ModelErrorType::ExerciseServiceRefusedSpec { .. }
         | ModelErrorType::InvalidRequest
         | ModelErrorType::DatabaseConstraint { .. } => {
             WriteStop::Refused(PublishRejection::SaveFailed {
@@ -525,6 +526,48 @@ fn saved<T>(
         }
         _ => WriteStop::Failed(error),
     })
+}
+
+/// An exercise service's refusal of a task's spec, its message naming the task's exercise. Other
+/// errors pass through.
+fn with_refusing_exercise(error: ModelError, page: &PageSnapshot) -> ModelError {
+    let ModelErrorType::ExerciseServiceRefusedSpec {
+        task_id,
+        status_code,
+        response_body,
+    } = error.error_type()
+    else {
+        return error;
+    };
+    let Some(task) = page.exercise_tasks.iter().find(|task| task.id == *task_id) else {
+        return error;
+    };
+    let exercise = page
+        .exercise_slides
+        .iter()
+        .find(|slide| slide.id == task.exercise_slide_id)
+        .and_then(|slide| {
+            page.exercises
+                .iter()
+                .find(|exercise| exercise.id == slide.exercise_id)
+        })
+        .map_or_else(
+            || "an exercise".to_string(),
+            |exercise| format!("exercise \"{}\" ({})", exercise.name, exercise.id),
+        );
+    let message = format!(
+        "The {} exercise service refused the private spec of task {task_id} of {exercise} with status {status_code}: {response_body}",
+        task.exercise_type
+    );
+    ModelError::new(
+        ModelErrorType::ExerciseServiceRefusedSpec {
+            task_id: *task_id,
+            status_code: *status_code,
+            response_body: response_body.clone(),
+        },
+        message,
+        None,
+    )
 }
 
 fn entity_ref<T: ContentEntity>(snapshot: &T) -> Option<EntityRef> {
@@ -611,7 +654,8 @@ where
             spec_fetcher,
             fetch_service_info,
         )
-        .await;
+        .await
+        .map_err(|error| with_refusing_exercise(error, page));
         redirects.extend(saved(|| entity_ref(&**page), saved_page)?);
     }
 

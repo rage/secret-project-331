@@ -2099,7 +2099,6 @@ RETURNING id,
     .await?;
     let final_tasks = upsert_exercise_tasks(
         &mut tx,
-        &remapped_exercises,
         &remapped_exercise_slides,
         &existing_exercise_task_specs,
         &cms_page_update.exercise_tasks,
@@ -2507,14 +2506,9 @@ RETURNING id,
     Ok(remapped_exercise_slides)
 }
 
-/// A spec derivation the exercise service answered with an error status, as a refusal of the
-/// task's private spec naming the exercise, the task and the service. Other errors pass through.
-fn spec_refused_by_service(
-    error: ModelError,
-    remapped_exercises: &HashMap<Uuid, Exercise>,
-    remapped_slides: &HashMap<Uuid, CmsPageExerciseSlide>,
-    task: &CmsPageExerciseTask,
-) -> ModelError {
+/// A spec derivation the exercise service answered with an error status, as its refusal of the
+/// task's private spec. Other errors pass through.
+fn spec_refused_by_service(error: ModelError, task: &CmsPageExerciseTask) -> ModelError {
     let ModelErrorType::HttpRequest {
         status_code,
         response_body,
@@ -2522,24 +2516,14 @@ fn spec_refused_by_service(
     else {
         return error;
     };
-    let exercise = remapped_slides
-        .get(&task.exercise_slide_id)
-        .and_then(|slide| {
-            remapped_exercises
-                .values()
-                .find(|exercise| exercise.id == slide.exercise_id)
-        });
-    let exercise = exercise.map_or_else(
-        || "an exercise".to_string(),
-        |exercise| format!("exercise \"{}\" ({})", exercise.name, exercise.id),
-    );
     model_err!(
-        PreconditionFailedWithCMSAnchorBlockId {
-            id: task.id,
-            description: "The exercise service refused the task's private spec.",
+        ExerciseServiceRefusedSpec {
+            task_id: task.id,
+            status_code: *status_code,
+            response_body: response_body.clone(),
         },
         format!(
-            "The {} exercise service refused the private spec of task {} of {exercise} with status {status_code}: {response_body}",
+            "The {} exercise service refused the private spec of task {} with status {status_code}: {response_body}",
             task.exercise_type, task.id
         )
     )
@@ -2549,7 +2533,6 @@ fn spec_refused_by_service(
 #[allow(clippy::too_many_arguments)]
 async fn upsert_exercise_tasks(
     conn: &mut PgConnection,
-    remapped_exercises: &HashMap<Uuid, Exercise>,
     remapped_slides: &HashMap<Uuid, CmsPageExerciseSlide>,
     existing_task_specs: &[ExerciseTaskIdAndSpec],
     task_updates: &[CmsPageExerciseTask],
@@ -2639,9 +2622,7 @@ async fn upsert_exercise_tasks(
         let declares_spec_files = exercise_service_hashmap
             .get(&task_update.exercise_type)
             .is_some_and(|(_service, info)| info.declares_spec_files);
-        let refused_spec = |error: ModelError| {
-            spec_refused_by_service(error, remapped_exercises, remapped_slides, task_update)
-        };
+        let refused_spec = |error: ModelError| spec_refused_by_service(error, task_update);
         let model_solution = fetch_derived_spec(
             existing_exercise_task,
             &normalized_task,

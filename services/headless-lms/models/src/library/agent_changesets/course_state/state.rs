@@ -288,19 +288,7 @@ impl CourseState {
         for bundle in page.exercise_bundles() {
             self.exercise_task_layouts.insert(
                 bundle.exercise.id,
-                bundle
-                    .tasks
-                    .iter()
-                    .map(|task| {
-                        TaskLayout::new(
-                            task.id,
-                            task.exercise_slide_id,
-                            task.exercise_type.clone(),
-                            task.private_spec.as_ref(),
-                            task.repository_exercise_id,
-                        )
-                    })
-                    .collect(),
+                bundle.tasks.iter().map(TaskLayout::from).collect(),
             );
         }
     }
@@ -707,13 +695,7 @@ pub async fn load_live_course(
                 .exercise_task_layouts
                 .entry(task.exercise_id)
                 .or_default()
-                .push(TaskLayout::new(
-                    task.id,
-                    task.exercise_slide_id,
-                    task.exercise_type,
-                    task.private_spec.as_ref(),
-                    task.repository_exercise_id,
-                ));
+                .push(TaskLayout::from(task));
         }
     }
     if parts.includes(ContentEntityType::GlossaryTerm) {

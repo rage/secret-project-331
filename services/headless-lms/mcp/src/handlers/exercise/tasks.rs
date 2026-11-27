@@ -20,7 +20,7 @@ use crate::access::connection;
 use crate::engine::{EditError, EditErrorCode, Warning, WarningCode};
 use crate::ids::{IdGenerator, RandomIds};
 use crate::staging::{self, WriteMode, WriteRequest};
-use crate::state::McpState;
+use crate::state::{McpState, PrivateSpecSchema};
 use crate::tools::args::{AnswerType, PatchExerciseTasksArgs, TaskOp, TaskOpKind};
 use crate::tools::{RequestContext, ToolError, ToolHandler, ToolOutcome};
 
@@ -37,8 +37,11 @@ fn op_error(index: usize, code: EditErrorCode, message: impl Into<String>) -> Ed
 /// What the ops of one call work on and leave behind.
 struct TaskEdit<'a> {
     record: &'a mut ExerciseRecord,
+    course_id: Uuid,
+    /// The service whose tasks use repository exercises, if any.
+    repository_slug: Option<String>,
     labels: BTreeMap<String, Uuid>,
-    /// Tasks whose private spec the call wrote, with the op that wrote it last.
+    /// By task: the last op that wrote its private spec.
     written_specs: BTreeMap<Uuid, usize>,
     ids: RandomIds,
 }
@@ -165,6 +168,156 @@ impl TaskEdit<'_> {
         self.record.sort_tasks_by_slide();
         Ok(())
     }
+
+    fn repository_slug(&self, index: usize) -> Result<String, EditError> {
+        self.repository_slug.clone().ok_or_else(|| {
+            op_error(
+                index,
+                EditErrorCode::InvalidValue,
+                "no exercise service handles exercise repositories",
+            )
+        })
+    }
+
+    /// The spec and repository exercise to store for a task of `exercise_type` given `spec`: for
+    /// the repository service, the spec rebuilt from the repository exercise it names.
+    async fn stored_spec(
+        &self,
+        conn: &mut PgConnection,
+        index: usize,
+        exercise_type: &str,
+        spec: Option<&Value>,
+    ) -> Result<(Option<Value>, Option<Uuid>), ToolError> {
+        if self.repository_slug.as_deref() == Some(exercise_type)
+            && let Some((spec, id)) =
+                rebuilt_repository_spec(conn, index, self.course_id, spec).await?
+        {
+            return Ok((Some(spec), Some(id)));
+        }
+        Ok((spec.cloned(), None))
+    }
+
+    async fn link_repository_exercise(
+        &mut self,
+        conn: &mut PgConnection,
+        index: usize,
+        op: &TaskOp,
+    ) -> Result<(), ToolError> {
+        let task = self.task_index(index, op)?;
+        let id = op.repository_exercise.ok_or_else(|| {
+            op_error(
+                index,
+                EditErrorCode::MissingField,
+                "link_repository_exercise needs repository_exercise",
+            )
+        })?;
+        let exercise = course_repository_exercise(conn, index, self.course_id, id.id()).await?;
+        let spec = repository_spec(
+            index,
+            &exercise,
+            op.answer_type.unwrap_or(AnswerType::Editor),
+        )?;
+        let exercise_type = self.repository_slug(index)?;
+        let task = &mut self.record.tasks[task];
+        set_task_spec(task, exercise_type, Some(spec), Some(exercise.id));
+        self.written_specs.insert(task.id, index);
+        Ok(())
+    }
+
+    /// `unlink_repository_exercise` and `replace_task`.
+    async fn replace_task(
+        &mut self,
+        conn: &mut PgConnection,
+        index: usize,
+        op: &TaskOp,
+    ) -> Result<(), ToolError> {
+        let task = self.task_index(index, op)?;
+        let exercise_type = op.exercise_type.clone().ok_or_else(|| {
+            op_error(
+                index,
+                EditErrorCode::MissingField,
+                "this op needs exercise_type, the service the task switches to",
+            )
+        })?;
+        if op.op == TaskOpKind::UnlinkRepositoryExercise
+            && Some(&exercise_type) == self.repository_slug.as_ref()
+        {
+            return Err(op_error(
+                index,
+                EditErrorCode::InvalidValue,
+                format!("unlink_repository_exercise switches the task away from {exercise_type}; link_repository_exercise links another repository exercise"),
+            )
+            .into());
+        }
+        let (spec, repository_exercise_id) = self
+            .stored_spec(conn, index, &exercise_type, op.private_spec.as_ref())
+            .await?;
+        let task = &mut self.record.tasks[task];
+        set_task_spec(task, exercise_type, spec, repository_exercise_id);
+        self.written_specs.insert(task.id, index);
+        Ok(())
+    }
+
+    async fn add_task(
+        &mut self,
+        conn: &mut PgConnection,
+        index: usize,
+        op: &TaskOp,
+    ) -> Result<(), ToolError> {
+        let slide_id = match op.before.as_deref() {
+            Some(before) => {
+                let before = self.resolve(index, "before", Some(before))?;
+                self.record
+                    .tasks
+                    .iter()
+                    .find(|t| t.id == before)
+                    .map(|t| t.slide_id)
+                    .ok_or_else(|| {
+                        op_error(
+                            index,
+                            EditErrorCode::NotFound,
+                            format!("the exercise has no task {before}"),
+                        )
+                    })?
+            }
+            None => self.slide(index, op.slide.as_deref())?,
+        };
+        let (exercise_type, private_spec, repository_exercise_id) = match op.repository_exercise {
+            Some(id) => {
+                let exercise =
+                    course_repository_exercise(conn, index, self.course_id, id.id()).await?;
+                let spec = repository_spec(
+                    index,
+                    &exercise,
+                    op.answer_type.unwrap_or(AnswerType::Editor),
+                )?;
+                (self.repository_slug(index)?, Some(spec), Some(exercise.id))
+            }
+            None => {
+                let exercise_type = op.exercise_type.clone().ok_or_else(|| {
+                    op_error(index, EditErrorCode::MissingField, "add_task needs exercise_type, or repository_exercise for a task using a repository exercise")
+                })?;
+                let (spec, repository_exercise_id) = self
+                    .stored_spec(conn, index, &exercise_type, op.private_spec.as_ref())
+                    .await?;
+                (exercise_type, spec, repository_exercise_id)
+            }
+        };
+        let task = ExerciseTaskRecord {
+            id: self.ids.new_id(),
+            slide_id,
+            exercise_type,
+            assignment: Arc::new(json!([])),
+            private_spec: private_spec.map(Arc::new),
+            private_spec_files: Vec::new(),
+            repository_exercise_id,
+        };
+        let task_id = task.id;
+        self.insert_task(index, task, op.before.as_deref())?;
+        self.label(index, op.label.as_deref(), task_id)?;
+        self.written_specs.insert(task_id, index);
+        Ok(())
+    }
 }
 
 /// The exercise service that prepares exercise repositories, whose tasks use repository
@@ -277,9 +430,10 @@ fn set_task_spec(
 }
 
 /// The errors of `spec` against `schema`, at most 20.
-fn schema_errors(schema: &Value, spec: &Value) -> Result<Vec<String>, String> {
-    let validator = jsonschema::validator_for(schema).map_err(|e| e.to_string())?;
-    Ok(validator
+fn schema_errors(schema: &PrivateSpecSchema, spec: &Value) -> Result<Vec<String>, String> {
+    Ok(schema
+        .validator()
+        .map_err(str::to_string)?
         .iter_errors(spec)
         .take(20)
         .map(|error| format!("{}: {error}", error.instance_path()))
@@ -327,17 +481,10 @@ impl ToolHandler<McpState> for PatchExerciseTasks {
             .ok_or_else(|| missing_exercise(&view, exercise_id))?;
         let mut conn = connection(state).await?;
         let repository_slug = repository_service_slug(&mut conn).await?;
-        let repository_slug_or_error = |index: usize| {
-            repository_slug.clone().ok_or_else(|| {
-                op_error(
-                    index,
-                    EditErrorCode::InvalidValue,
-                    "no exercise service handles exercise repositories",
-                )
-            })
-        };
         let mut edit = TaskEdit {
             record,
+            course_id,
+            repository_slug,
             labels: BTreeMap::new(),
             written_specs: BTreeMap::new(),
             ids: RandomIds,
@@ -345,125 +492,15 @@ impl ToolHandler<McpState> for PatchExerciseTasks {
         for (index, op) in args.ops.iter().enumerate() {
             match op.op {
                 TaskOpKind::LinkRepositoryExercise => {
-                    let task = edit.task_index(index, op)?;
-                    let id = op.repository_exercise.ok_or_else(|| {
-                        op_error(
-                            index,
-                            EditErrorCode::MissingField,
-                            "link_repository_exercise needs repository_exercise",
-                        )
-                    })?;
-                    let exercise =
-                        course_repository_exercise(&mut conn, index, course_id, id.id()).await?;
-                    let spec = repository_spec(
-                        index,
-                        &exercise,
-                        op.answer_type.unwrap_or(AnswerType::Editor),
-                    )?;
-                    let exercise_type = repository_slug_or_error(index)?;
-                    let task = &mut edit.record.tasks[task];
-                    set_task_spec(task, exercise_type, Some(spec), Some(exercise.id));
-                    let task_id = task.id;
-                    edit.written_specs.insert(task_id, index);
+                    edit.link_repository_exercise(&mut conn, index, op).await?;
                 }
                 TaskOpKind::UnlinkRepositoryExercise | TaskOpKind::ReplaceTask => {
-                    let task = edit.task_index(index, op)?;
-                    let exercise_type = op.exercise_type.clone().ok_or_else(|| {
-                        op_error(
-                            index,
-                            EditErrorCode::MissingField,
-                            "this op needs exercise_type, the service the task switches to",
-                        )
-                    })?;
-                    let is_repository_type = Some(&exercise_type) == repository_slug.as_ref();
-                    if op.op == TaskOpKind::UnlinkRepositoryExercise && is_repository_type {
-                        return Err(op_error(
-                            index,
-                            EditErrorCode::InvalidValue,
-                            format!("unlink_repository_exercise switches the task away from {exercise_type}; link_repository_exercise links another repository exercise"),
-                        )
-                        .into());
-                    }
-                    let rebuilt = if is_repository_type {
-                        rebuilt_repository_spec(
-                            &mut conn,
-                            index,
-                            course_id,
-                            op.private_spec.as_ref(),
-                        )
-                        .await?
-                    } else {
-                        None
-                    };
-                    let (spec, repository_exercise_id) = match rebuilt {
-                        Some((spec, id)) => (Some(spec), Some(id)),
-                        None => (op.private_spec.clone(), None),
-                    };
-                    let task = &mut edit.record.tasks[task];
-                    let has_spec = spec.is_some();
-                    set_task_spec(task, exercise_type, spec, repository_exercise_id);
-                    let task_id = task.id;
-                    if has_spec {
-                        edit.written_specs.insert(task_id, index);
-                    } else {
-                        edit.written_specs.remove(&task_id);
-                    }
+                    edit.replace_task(&mut conn, index, op).await?;
                 }
-                TaskOpKind::AddTask => {
-                    let slide_id = match &op.before {
-                        Some(_) => edit.record.slides.first().copied().unwrap_or_default(),
-                        None => edit.slide(index, op.slide.as_deref())?,
-                    };
-                    let mut task = ExerciseTaskRecord {
-                        id: edit.ids.new_id(),
-                        slide_id,
-                        exercise_type: String::new(),
-                        assignment: Arc::new(json!([])),
-                        private_spec: None,
-                        private_spec_files: Vec::new(),
-                        repository_exercise_id: None,
-                    };
-                    if let Some(id) = op.repository_exercise {
-                        let exercise =
-                            course_repository_exercise(&mut conn, index, course_id, id.id())
-                                .await?;
-                        task.private_spec = Some(Arc::new(repository_spec(
-                            index,
-                            &exercise,
-                            op.answer_type.unwrap_or(AnswerType::Editor),
-                        )?));
-                        task.exercise_type = repository_slug_or_error(index)?;
-                        task.repository_exercise_id = Some(exercise.id);
-                    } else {
-                        task.exercise_type = op.exercise_type.clone().ok_or_else(|| {
-                            op_error(index, EditErrorCode::MissingField, "add_task needs exercise_type, or repository_exercise for a task using a repository exercise")
-                        })?;
-                        task.private_spec = op.private_spec.clone().map(Arc::new);
-                        if Some(&task.exercise_type) == repository_slug.as_ref()
-                            && let Some((spec, id)) = rebuilt_repository_spec(
-                                &mut conn,
-                                index,
-                                course_id,
-                                op.private_spec.as_ref(),
-                            )
-                            .await?
-                        {
-                            task.private_spec = Some(Arc::new(spec));
-                            task.repository_exercise_id = Some(id);
-                        }
-                    }
-                    let has_spec = task.private_spec.is_some();
-                    let task_id = task.id;
-                    edit.insert_task(index, task, op.before.as_deref())?;
-                    edit.label(index, op.label.as_deref(), task_id)?;
-                    if has_spec {
-                        edit.written_specs.insert(task_id, index);
-                    }
-                }
+                TaskOpKind::AddTask => edit.add_task(&mut conn, index, op).await?,
                 TaskOpKind::RemoveTask => {
                     let task = edit.task_index(index, op)?;
-                    let removed = edit.record.tasks.remove(task);
-                    edit.written_specs.remove(&removed.id);
+                    edit.record.tasks.remove(task);
                 }
                 TaskOpKind::MoveTask => {
                     let position = edit.task_index(index, op)?;
@@ -495,15 +532,7 @@ impl ToolHandler<McpState> for PatchExerciseTasks {
                 TaskOpKind::RemoveSlide => {
                     let slide_id = edit.slide(index, op.slide.as_deref())?;
                     edit.record.slides.retain(|id| *id != slide_id);
-                    let removed: HashSet<Uuid> = edit
-                        .record
-                        .tasks
-                        .iter()
-                        .filter(|t| t.slide_id == slide_id)
-                        .map(|t| t.id)
-                        .collect();
-                    edit.record.tasks.retain(|t| !removed.contains(&t.id));
-                    edit.written_specs.retain(|id, _| !removed.contains(id));
+                    edit.record.tasks.retain(|t| t.slide_id != slide_id);
                 }
             }
         }
@@ -534,7 +563,7 @@ impl ToolHandler<McpState> for PatchExerciseTasks {
                 .with_details(json!({"exercise_types": services}))
                 .into());
             }
-            if Some(&task.exercise_type) == repository_slug.as_ref()
+            if Some(&task.exercise_type) == edit.repository_slug.as_ref()
                 && task.repository_exercise_id.is_none()
             {
                 return Err(invariant(format!(
@@ -547,48 +576,36 @@ impl ToolHandler<McpState> for PatchExerciseTasks {
         drop(conn);
 
         let mut warnings = Vec::new();
-        let written: Vec<(Uuid, usize, String, Arc<Value>)> = edit
-            .written_specs
-            .iter()
-            .filter_map(|(task_id, op)| {
-                let task = edit.record.tasks.iter().find(|t| t.id == *task_id)?;
-                Some((
-                    *task_id,
-                    *op,
-                    task.exercise_type.clone(),
-                    task.private_spec.clone()?,
-                ))
-            })
-            .collect();
-        for (task_id, op, exercise_type, spec) in written {
-            let schema = match state.private_spec_schema(&exercise_type).await {
-                Ok(schema) => schema,
+        // Removed tasks and tasks replaced without a spec drop out here.
+        let written = edit.written_specs.iter().filter_map(|(task_id, op)| {
+            let task = edit.record.tasks.iter().find(|t| t.id == *task_id)?;
+            Some((*op, task, task.private_spec.as_ref()?))
+        });
+        for (op, task, spec) in written {
+            let (task_id, exercise_type) = (task.id, &task.exercise_type);
+            let not_checked = |message: String| {
+                let mut warning = Warning::new(WarningCode::PrivateSpecNotChecked, message);
+                warning.op = Some(op);
+                warning
+            };
+            let schema = match state.private_spec_schema(exercise_type).await {
+                Ok(Some(schema)) => schema,
+                Ok(None) => {
+                    warnings.push(not_checked(format!(
+                        "{exercise_type} serves no private spec schema; it checks task {task_id}'s spec when the changeset is published"
+                    )));
+                    continue;
+                }
                 Err(ToolError::Internal(message))
                 | Err(ToolError::InvalidArguments { message }) => {
-                    let mut warning = Warning::new(
-                        WarningCode::PrivateSpecNotChecked,
-                        format!(
-                            "couldn't get the {exercise_type} private spec schema ({message}); the service checks task {task_id}'s spec when the changeset is published"
-                        ),
-                    );
-                    warning.op = Some(op);
-                    warnings.push(warning);
+                    warnings.push(not_checked(format!(
+                        "couldn't get the {exercise_type} private spec schema ({message}); the service checks task {task_id}'s spec when the changeset is published"
+                    )));
                     continue;
                 }
                 Err(other) => return Err(other),
             };
-            let Some(schema) = schema else {
-                let mut warning = Warning::new(
-                    WarningCode::PrivateSpecNotChecked,
-                    format!(
-                        "{exercise_type} serves no private spec schema; it checks task {task_id}'s spec when the changeset is published"
-                    ),
-                );
-                warning.op = Some(op);
-                warnings.push(warning);
-                continue;
-            };
-            let errors = schema_errors(&schema.schema, &spec).map_err(|e| {
+            let errors = schema_errors(&schema, spec).map_err(|e| {
                 ToolError::Internal(format!(
                     "the {exercise_type} private spec schema doesn't compile: {e}"
                 ))

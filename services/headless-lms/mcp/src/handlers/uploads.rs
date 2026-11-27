@@ -57,18 +57,6 @@ async fn decode(content_base64: String) -> Result<Vec<u8>, ToolError> {
     })
 }
 
-/// The file name without directories; errors without one.
-fn checked_file_name(raw: &str) -> Result<String, ToolError> {
-    Path::new(raw.trim())
-        .file_name()
-        .and_then(|n| n.to_str())
-        .filter(|n| !n.is_empty())
-        .map(str::to_string)
-        .ok_or_else(|| ToolError::InvalidArguments {
-            message: "file_name must be a file name with an extension, e.g. diagram.png".into(),
-        })
-}
-
 fn is_heif(mime: &str) -> bool {
     matches!(
         mime,
@@ -86,60 +74,8 @@ fn top_level(mime: &str) -> &str {
     mime.split('/').next().unwrap_or_default()
 }
 
-/// The MIME type to store the file under: its content's type where a binary signature shows it,
-/// else its extension's. Refuses HEIF, which browsers can't show, and content whose kind (image or
-/// not) contradicts the extension.
-fn content_mime(file_name: &str, contents: &[u8]) -> Result<String, ToolError> {
-    let by_name = mime_guess::from_path(file_name).first_or_octet_stream();
-    // infer's text matchers guess from a prefix, e.g. `<!--` as HTML, so they would mislabel SVGs
-    // and plain text.
-    let detected = infer::get(contents)
-        .filter(|kind| kind.matcher_type() != infer::MatcherType::Text)
-        .map(|kind| kind.mime_type());
-    if detected.is_some_and(is_heif) || is_heif(by_name.essence_str()) {
-        return Err(heif_refused());
-    }
-    let is_named_image = by_name.type_() == "image";
-    let is_svg = by_name.essence_str() == "image/svg+xml";
-    let refuse = |message: String| Err(ToolError::InvalidArguments { message });
-    match detected {
-        Some(detected) if detected.starts_with("image/") != is_named_image => refuse(format!(
-            "{file_name} is named as {} but its content is {detected}; give it a file name that matches its content",
-            by_name.essence_str()
-        )),
-        Some(detected) => Ok(detected.to_string()),
-        None if is_svg && !contents.windows(4).any(|window| window == b"<svg") => refuse(format!(
-            "{file_name} is named as an SVG image, but its content has no <svg> element"
-        )),
-        None if is_named_image && !is_svg => refuse(format!(
-            "{file_name} is named as an image, but its content isn't an image format this server recognises; upload a JPEG, PNG, GIF, WebP or SVG"
-        )),
-        None => Ok(by_name.essence_str().to_string()),
-    }
-}
-
 fn size_limit(mime: &str) -> usize {
     media_uploads::size_limit_bytes(Some(top_level(mime))) as usize
-}
-
-/// Checks the content against the file name and its size limit, and returns its MIME type.
-fn checked_content(file_name: &str, contents: &[u8]) -> Result<String, ToolError> {
-    if contents.is_empty() {
-        return Err(ToolError::InvalidArguments {
-            message: "the file is empty".into(),
-        });
-    }
-    let mime = content_mime(file_name, contents)?;
-    let limit = size_limit(&mime);
-    if contents.len() > limit {
-        return Err(ToolError::InvalidArguments {
-            message: format!(
-                "the file is {} bytes; {mime} files may be at most {limit} bytes",
-                contents.len()
-            ),
-        });
-    }
-    Ok(mime)
 }
 
 fn course_media_path(course_id: Uuid, file_name: &str, mime: &str) -> PathBuf {
@@ -148,6 +84,91 @@ fn course_media_path(course_id: Uuid, file_name: &str, mime: &str) -> PathBuf {
         MediaKind::from_mime_top_level(top_level(mime)),
         &media_uploads::stored_file_name(file_name),
     )
+}
+
+/// A file name accepted for upload, with the MIME type its extension names.
+struct NamedFile {
+    name: String,
+    mime: mime_guess::Mime,
+}
+
+impl NamedFile {
+    /// The file name without directories; refuses names without one and HEIF names.
+    fn new(raw: &str) -> Result<Self, ToolError> {
+        let name = Path::new(raw.trim())
+            .file_name()
+            .and_then(|n| n.to_str())
+            .filter(|n| !n.is_empty())
+            .ok_or_else(|| ToolError::InvalidArguments {
+                message: "file_name must be a file name with an extension, e.g. diagram.png".into(),
+            })?
+            .to_string();
+        let mime = mime_guess::from_path(&name).first_or_octet_stream();
+        if is_heif(mime.essence_str()) {
+            return Err(heif_refused());
+        }
+        Ok(Self { name, mime })
+    }
+
+    /// The most bytes a file of this name may have.
+    fn size_limit_bytes(&self) -> usize {
+        size_limit(self.mime.essence_str())
+    }
+
+    /// The MIME type to store `contents` under: its type where a binary signature shows it, else
+    /// the name's. Refuses HEIF, which browsers can't show, and content whose kind (image or not)
+    /// contradicts the name.
+    fn content_mime(&self, contents: &[u8]) -> Result<String, ToolError> {
+        let file_name = &self.name;
+        let by_name = &self.mime;
+        // infer's text matchers guess from a prefix, e.g. `<!--` as HTML, so they would mislabel
+        // SVGs and plain text.
+        let detected = infer::get(contents)
+            .filter(|kind| kind.matcher_type() != infer::MatcherType::Text)
+            .map(|kind| kind.mime_type());
+        if detected.is_some_and(is_heif) {
+            return Err(heif_refused());
+        }
+        let is_named_image = by_name.type_() == "image";
+        let is_svg = by_name.essence_str() == "image/svg+xml";
+        let refuse = |message: String| Err(ToolError::InvalidArguments { message });
+        match detected {
+            Some(detected) if detected.starts_with("image/") != is_named_image => refuse(format!(
+                "{file_name} is named as {} but its content is {detected}; give it a file name that matches its content",
+                by_name.essence_str()
+            )),
+            Some(detected) => Ok(detected.to_string()),
+            None if is_svg && !contents.windows(4).any(|window| window == b"<svg") => {
+                refuse(format!(
+                    "{file_name} is named as an SVG image, but its content has no <svg> element"
+                ))
+            }
+            None if is_named_image && !is_svg => refuse(format!(
+                "{file_name} is named as an image, but its content isn't an image format this server recognises; upload a JPEG, PNG, GIF, WebP or SVG"
+            )),
+            None => Ok(by_name.essence_str().to_string()),
+        }
+    }
+
+    /// Checks `contents` against the name and its size limit, and returns its MIME type.
+    fn checked_content(&self, contents: &[u8]) -> Result<String, ToolError> {
+        if contents.is_empty() {
+            return Err(ToolError::InvalidArguments {
+                message: "the file is empty".into(),
+            });
+        }
+        let mime = self.content_mime(contents)?;
+        let limit = size_limit(&mime);
+        if contents.len() > limit {
+            return Err(ToolError::InvalidArguments {
+                message: format!(
+                    "the file is {} bytes; {mime} files may be at most {limit} bytes",
+                    contents.len()
+                ),
+            });
+        }
+        Ok(mime)
+    }
 }
 
 fn new_upload<'a>(
@@ -207,9 +228,10 @@ impl ToolHandler<McpState> for UploadFile {
         args: UploadFileArgs,
     ) -> Result<ToolOutcome, ToolError> {
         let course_id = args.course.id();
-        let file_name = checked_file_name(&args.file_name)?;
+        let file = NamedFile::new(&args.file_name)?;
         let contents = Bytes::from(decode(args.content_base64).await?);
-        let mime = checked_content(&file_name, &contents)?;
+        let mime = file.checked_content(&contents)?;
+        let file_name = file.name;
         let user_id = ctx.principal.actor.user_id;
         let mut conn = connection(state).await?;
         authorize_course(&mut conn, user_id, course_id).await?;
@@ -252,22 +274,18 @@ impl ToolHandler<McpState> for CreateUploadLink {
         args: CreateUploadLinkArgs,
     ) -> Result<ToolOutcome, ToolError> {
         let course_id = args.course.id();
-        let file_name = checked_file_name(&args.file_name)?;
-        let named_mime = mime_guess::from_path(&file_name).first_or_octet_stream();
-        if is_heif(named_mime.essence_str()) {
-            return Err(heif_refused());
-        }
+        let file = NamedFile::new(&args.file_name)?;
         let user_id = ctx.principal.actor.user_id;
         let mut conn = connection(state).await?;
         authorize_course(&mut conn, user_id, course_id).await?;
         drop(conn);
-        let path = course_media_path(course_id, &file_name, named_mime.essence_str());
+        let path = course_media_path(course_id, &file.name, file.mime.essence_str());
         let now = Utc::now();
         let expires_at = now + Duration::minutes(UPLOAD_LINK_LIFETIME_MINUTES);
         let claim = UploadLinkClaim {
             user_id,
             course_id,
-            file_name: file_name.clone(),
+            file_name: file.name.clone(),
             path: path.to_string_lossy().into_owned(),
             exp: expires_at.timestamp().max(0) as usize,
             iat: now.timestamp().max(0) as usize,
@@ -281,7 +299,7 @@ impl ToolHandler<McpState> for CreateUploadLink {
             "upload_url": upload_url,
             "url": state.file_store.get_download_url(&path, &state.app_conf),
             "expires_at": expires_at,
-            "size_limit_bytes": size_limit(named_mime.essence_str()),
+            "size_limit_bytes": file.size_limit_bytes(),
             "how": format!("Send the file's raw bytes to upload_url with one PUT before expires_at, e.g. curl -sS -T '<local file>' '{upload_url}'. The answer is JSON with url, mime_type and size_bytes, or an error. The link works once; url shows the file after the upload succeeds."),
         }))
         .into())
@@ -311,28 +329,28 @@ impl From<ToolError> for UploadLinkError {
 }
 
 /// A validated upload link, read before its body is.
-pub struct UploadLink(UploadLinkClaim);
+pub struct UploadLink {
+    claim: UploadLinkClaim,
+    file: NamedFile,
+}
 
 impl UploadLink {
     /// Validates `token`, which the link's URL carries.
     pub fn open(state: &McpState, token: &str) -> Result<Self, UploadLinkError> {
-        validate_hs256_claim(token, &state.jwt_key)
-            .map(Self)
-            .map_err(|_| UploadLinkError {
+        let claim: UploadLinkClaim =
+            validate_hs256_claim(token, &state.jwt_key).map_err(|_| UploadLinkError {
                 status: 403,
                 message:
                     "the upload link is invalid or expired; make a new one with create_upload_link"
                         .into(),
-            })
+            })?;
+        let file = NamedFile::new(&claim.file_name)?;
+        Ok(Self { claim, file })
     }
 
     /// The most bytes a file of the link's name may have.
     pub fn size_limit_bytes(&self) -> usize {
-        size_limit(
-            mime_guess::from_path(&self.0.file_name)
-                .first_or_octet_stream()
-                .essence_str(),
-        )
+        self.file.size_limit_bytes()
     }
 }
 
@@ -342,17 +360,16 @@ pub async fn upload_with_link(
     link: UploadLink,
     contents: Bytes,
 ) -> Result<Value, UploadLinkError> {
-    let UploadLink(claim) = link;
-    let mime = checked_content(&claim.file_name, &contents)?;
+    let UploadLink { claim, file } = link;
+    let mime = file.checked_content(&contents)?;
     // The path's folder was picked from the file name when the link was made.
-    let named_mime = mime_guess::from_path(&claim.file_name).first_or_octet_stream();
     if MediaKind::from_mime_top_level(top_level(&mime))
-        != MediaKind::from_mime_top_level(named_mime.type_().as_str())
+        != MediaKind::from_mime_top_level(file.mime.type_().as_str())
     {
         return Err(ToolError::InvalidArguments {
             message: format!(
                 "the content is {mime}, which doesn't match {}; make a link for a file name that matches the content",
-                claim.file_name
+                file.name
             ),
         }
         .into());

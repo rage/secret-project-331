@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use headless_lms_utils::{document_schema_processor::GutenbergBlock, stable_digest::stable_digest};
+use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use utoipa::ToSchema;
 
 use crate::{
+    exercise_tasks::ExerciseTaskLayoutRow,
     library::entity_snapshots::{ContentEntityType, EntityRef, ExerciseBundle, PageSnapshot},
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
     peer_or_self_review_configs::CmsPeerOrSelfReviewConfiguration,
@@ -151,13 +152,17 @@ impl ExerciseTaskRecord {
         }
     }
 
-    fn write_to(&self, task: &mut CmsPageExerciseTask) {
-        task.exercise_slide_id = self.slide_id;
-        task.exercise_type.clone_from(&self.exercise_type);
-        task.assignment = (*self.assignment).clone();
-        task.private_spec = self.private_spec.as_deref().cloned();
-        task.private_spec_files.clone_from(&self.private_spec_files);
-        task.repository_exercise_id = self.repository_exercise_id;
+    fn to_task(&self, order_number: i32) -> CmsPageExerciseTask {
+        CmsPageExerciseTask {
+            id: self.id,
+            exercise_slide_id: self.slide_id,
+            assignment: (*self.assignment).clone(),
+            exercise_type: self.exercise_type.clone(),
+            private_spec: self.private_spec.as_deref().cloned(),
+            order_number,
+            private_spec_files: self.private_spec_files.clone(),
+            repository_exercise_id: self.repository_exercise_id,
+        }
     }
 }
 
@@ -298,28 +303,17 @@ impl ExerciseRecord {
                 order_number,
             })
             .collect();
-        bundle.tasks.clear();
-        for slide_id in &self.slides {
-            for (task, order_number) in self
-                .tasks
-                .iter()
-                .filter(|task| task.slide_id == *slide_id)
-                .zip(0..)
-            {
-                let mut bundle_task = CmsPageExerciseTask {
-                    id: task.id,
-                    exercise_slide_id: task.slide_id,
-                    assignment: serde_json::Value::Null,
-                    exercise_type: String::new(),
-                    private_spec: None,
-                    order_number,
-                    private_spec_files: Vec::new(),
-                    repository_exercise_id: None,
-                };
-                task.write_to(&mut bundle_task);
-                bundle.tasks.push(bundle_task);
-            }
-        }
+        bundle.tasks = self
+            .slides
+            .iter()
+            .flat_map(|slide_id| {
+                self.tasks
+                    .iter()
+                    .filter(move |task| task.slide_id == *slide_id)
+                    .zip(0..)
+                    .map(|(task, order_number)| task.to_task(order_number))
+            })
+            .collect();
     }
 
     /// Whether the exercise has peer or self reviews, whose instructions it then shows.
@@ -347,7 +341,7 @@ impl ExerciseRecord {
                 if before_task != Some(task)
                     && let Some(bundle_task) = bundle.tasks.iter_mut().find(|t| t.id == task.id)
                 {
-                    task.write_to(bundle_task);
+                    *bundle_task = task.to_task(bundle_task.order_number);
                 }
             }
         } else {
@@ -457,28 +451,30 @@ pub struct TaskLayout {
     pub id: Uuid,
     pub slide_id: Uuid,
     pub exercise_type: String,
-    pub private_spec_digest: Option<String>,
+    pub private_spec: Option<Arc<serde_json::Value>>,
     pub repository_exercise_id: Option<Uuid>,
 }
 
-impl TaskLayout {
-    /// The layout of a task, keeping only a digest of its private spec.
-    pub fn new(
-        id: Uuid,
-        slide_id: Uuid,
-        exercise_type: String,
-        private_spec: Option<&serde_json::Value>,
-        repository_exercise_id: Option<Uuid>,
-    ) -> Self {
+impl From<ExerciseTaskLayoutRow> for TaskLayout {
+    fn from(task: ExerciseTaskLayoutRow) -> Self {
         Self {
-            id,
-            slide_id,
-            exercise_type,
-            // serde_json's maps are sorted, so equal specs serialise to equal bytes.
-            private_spec_digest: private_spec.map(|spec| {
-                stable_digest(&[serde_json::to_string(spec).unwrap_or_default().as_bytes()])
-            }),
-            repository_exercise_id,
+            id: task.id,
+            slide_id: task.exercise_slide_id,
+            exercise_type: task.exercise_type,
+            private_spec: task.private_spec.map(Arc::new),
+            repository_exercise_id: task.repository_exercise_id,
+        }
+    }
+}
+
+impl From<&CmsPageExerciseTask> for TaskLayout {
+    fn from(task: &CmsPageExerciseTask) -> Self {
+        Self {
+            id: task.id,
+            slide_id: task.exercise_slide_id,
+            exercise_type: task.exercise_type.clone(),
+            private_spec: task.private_spec.clone().map(Arc::new),
+            repository_exercise_id: task.repository_exercise_id,
         }
     }
 }

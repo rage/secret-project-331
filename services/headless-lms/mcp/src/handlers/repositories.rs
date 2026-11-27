@@ -35,8 +35,9 @@ fn plugin(exercise: &RepositoryExercise) -> Option<&str> {
     exercise.details.as_ref()?.get("plugin")?.as_str()
 }
 
-fn repository_summary(repository: &ExerciseRepository, exercise_count: usize) -> Value {
-    json!({
+/// The repository as the tools show it; `exercise_count` is left out when `None`.
+fn repository_summary(repository: &ExerciseRepository, exercise_count: Option<usize>) -> Value {
+    let mut summary = json!({
         "id": repository.id,
         "url": repository.url,
         "branch": repository.branch,
@@ -47,9 +48,17 @@ fn repository_summary(repository: &ExerciseRepository, exercise_count: usize) ->
         "last_sync_report": repository.last_sync_report,
         "has_deploy_key": repository.has_deploy_key,
         "public_key": repository.public_key,
-        "exercise_count": exercise_count,
         "exercise_task_count": repository.exercise_task_count,
-    })
+    });
+    if let Some(exercise_count) = exercise_count {
+        summary["exercise_count"] = json!(exercise_count);
+    }
+    summary
+}
+
+/// The trimmed value, `None` when blank.
+fn non_blank(value: Option<&str>) -> Option<&str> {
+    value.map(str::trim).filter(|value| !value.is_empty())
 }
 
 /// The repository, checked to belong to the course.
@@ -92,7 +101,9 @@ impl ToolHandler<McpState> for GetExerciseRepositories {
             }
             let repositories: Vec<Value> = repositories
                 .iter()
-                .map(|r| repository_summary(r, counts.get(&r.id).copied().unwrap_or_default()))
+                .map(|r| {
+                    repository_summary(r, Some(counts.get(&r.id).copied().unwrap_or_default()))
+                })
                 .collect();
             return Ok(ToolResult::success(json!({
                 "repositories": repositories,
@@ -132,7 +143,7 @@ impl ToolHandler<McpState> for GetExerciseRepositories {
             })
             .collect();
         let result = json!({
-            "repository": repository_summary(&repository, exercises.len()),
+            "repository": repository_summary(&repository, Some(exercises.len())),
             "exercises": listed,
             "note": "used_by lists published tasks only; staged links show in get_exercise.",
         });
@@ -182,24 +193,22 @@ impl ToolHandler<McpState> for ManageExerciseRepository {
             }
         };
         let generate_key = || -> Result<_, ToolError> {
-            args.generate_deploy_key
+            Ok(args
+                .generate_deploy_key
                 .then(|| rules.generate_deploy_key())
                 .transpose()
-                .map_err(ToolError::Internal)
+                .map_err(ToolError::Internal)?
+                .unzip())
         };
         let (repository_id, generated) = match (args.action, existing) {
             (RepositoryAction::Add, _) => {
-                let url = args
-                    .url
-                    .as_deref()
-                    .map(str::trim)
-                    .filter(|url| !url.is_empty())
+                let url = non_blank(args.url.as_deref())
                     .ok_or_else(|| refused("add needs url".into()))?;
                 let branch = rules
                     .check_url_and_branch(url, args.branch.flatten().as_deref())
                     .await
                     .map_err(refused)?;
-                let keys = generate_key()?;
+                let (public_key, deploy_key) = generate_key()?;
                 let id = Uuid::new_v4();
                 exercise_repositories::new(
                     &mut conn,
@@ -207,19 +216,14 @@ impl ToolHandler<McpState> for ManageExerciseRepository {
                     CourseOrExamId::Course(course_id),
                     url,
                     branch.as_deref(),
-                    keys.as_ref().map(|(public, _)| public.as_str()),
-                    keys.as_ref().map(|(_, private)| private),
+                    public_key.as_deref(),
+                    deploy_key.as_ref(),
                 )
                 .await?;
-                (id, keys.map(|(public, _)| public))
+                (id, public_key)
             }
             (RepositoryAction::Update, Some(repository)) => {
-                let url = args
-                    .url
-                    .as_deref()
-                    .map(str::trim)
-                    .filter(|url| !url.is_empty())
-                    .unwrap_or(&repository.url);
+                let url = non_blank(args.url.as_deref()).unwrap_or(&repository.url);
                 let branch = match &args.branch {
                     Some(branch) => branch.as_deref(),
                     None => repository.branch.as_deref(),
@@ -228,12 +232,7 @@ impl ToolHandler<McpState> for ManageExerciseRepository {
                     .check_url_and_branch(url, branch)
                     .await
                     .map_err(refused)?;
-                let keys = generate_key()?;
-                let public_key = keys.as_ref().map(|(public, _)| public.clone());
-                let (public_key_update, deploy_key) = match keys {
-                    Some((public, private)) => (Some(public), Some(private)),
-                    None => (None, None),
-                };
+                let (public_key, deploy_key) = generate_key()?;
                 exercise_repositories::update(
                     &mut conn,
                     repository.id,
@@ -241,7 +240,7 @@ impl ToolHandler<McpState> for ManageExerciseRepository {
                         url: url.to_string(),
                         branch,
                         deploy_key,
-                        public_key: public_key_update,
+                        public_key: public_key.clone(),
                     },
                 )
                 .await?;
@@ -282,7 +281,7 @@ impl ToolHandler<McpState> for ManageExerciseRepository {
         };
         let repository = exercise_repositories::get(&mut conn, repository_id).await?;
         let mut result = json!({
-            "repository": repository_summary(&repository, 0),
+            "repository": repository_summary(&repository, None),
             "note": format!("{IMMEDIATE} {SYNC_QUEUED}"),
         });
         if let Some(public_key) = generated {
@@ -290,9 +289,6 @@ impl ToolHandler<McpState> for ManageExerciseRepository {
                 "public_key": public_key,
                 "next_step": "Ask someone with admin rights on the repository to add this public key as a read-only deploy key (GitHub: Settings > Deploy keys), then sync. The private key stays on the server.",
             });
-        }
-        if let Value::Object(summary) = &mut result["repository"] {
-            summary.remove("exercise_count");
         }
         Ok(ToolResult::success(result).into())
     }

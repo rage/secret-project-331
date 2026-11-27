@@ -50,26 +50,20 @@ const spanOf = (value: string | undefined | null): number | undefined => {
   return value && Number.isInteger(n) && n > 0 ? n : undefined
 }
 
+const NUMERIC_COLUMN_ALIGN = "right"
+
 const fetchAlignment = (align: string | undefined, isNumericColumn = false) => {
   // Doubled class: must beat the table's own cell rule.
-  if (align) {
-    return css`
+  const textAlign = align ? align : isNumericColumn ? NUMERIC_COLUMN_ALIGN : undefined
+  return (
+    textAlign &&
+    css`
       && {
-        text-align: ${align};
+        text-align: ${textAlign};
       }
     `
-  }
-  if (isNumericColumn) {
-    return numericCellStyles
-  }
-  return undefined
+  )
 }
-
-const numericCellStyles = css`
-  && {
-    text-align: right;
-  }
-`
 
 const NUMBER = /^[-+−]?[\d\s.,:/%€$£]*\d[\d\s.,:/%€$£]*$/
 

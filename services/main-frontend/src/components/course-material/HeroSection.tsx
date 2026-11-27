@@ -140,16 +140,18 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
     backgroundImageLarge,
     backgroundImageXLarge,
   })
+  // Only a centred image sizes the box, and only the image for the current screen width is shown.
+  const measuredImage = (url: string | undefined) => (direction === CENTER ? url : undefined)
   const mediumImageRatio = useImageAspectRatio(
-    backgroundImages.medium,
-    `(min-width: ${BREAKPOINT_REMS.md}rem)`,
+    measuredImage(backgroundImages.medium),
+    `(min-width: ${BREAKPOINT_REMS.md}rem) and (max-width: ${BREAKPOINT_REMS.lg - 0.01}rem)`,
   )
   const largeImageRatio = useImageAspectRatio(
-    backgroundImages.large,
-    `(min-width: ${BREAKPOINT_REMS.lg}rem)`,
+    measuredImage(backgroundImages.large),
+    `(min-width: ${BREAKPOINT_REMS.lg}rem) and (max-width: ${BREAKPOINT_REMS.xl - 0.01}rem)`,
   )
   const xlargeImageRatio = useImageAspectRatio(
-    backgroundImages.xlarge,
+    measuredImage(backgroundImages.xlarge),
     `(min-width: ${BREAKPOINT_REMS.xl}rem)`,
   )
   // A centred image is scaled to fit the box, so a wide image in the default-height box leaves blank bands

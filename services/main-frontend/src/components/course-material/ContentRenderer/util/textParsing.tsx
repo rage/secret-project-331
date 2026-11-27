@@ -317,11 +317,9 @@ const parseText = (
     glossaryEntries = Array.from(uniqueTerms.values())
   }
 
-  const hasCitationsOrGlossary = parsedLatex !== parsedText
-
   // Sanitation always needs to be the last step because otherwise we might accidentally introduce injection attacks with our custom parsing and modifications to the string
   parsedText = sanitizeCourseMaterialHtml(parsedText)
-  return { count, parsedText, hasCitationsOrGlossary, glossaryEntries }
+  return { count, parsedText, glossaryEntries }
 }
 
 export { parseText }

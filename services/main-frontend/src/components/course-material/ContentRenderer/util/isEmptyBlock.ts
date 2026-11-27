@@ -1,4 +1,5 @@
 import type { Block } from "@/types/courseMaterialBlock"
+import { richTextToPlainText } from "@/utils/course-material/richTextToPlainText"
 
 /** Containers that show nothing but their children. */
 const CHILD_ONLY_CONTAINERS = new Set([
@@ -16,11 +17,7 @@ const hasVisibleText = (html: unknown): boolean => {
   if (/<(img|iframe|svg|video|audio)\b/i.test(html)) {
     return true
   }
-  const text = html
-    .replaceAll(/<[^>]*>/g, "")
-    .replaceAll(/&nbsp;|&#160;/g, "")
-    .trim()
-  return text.length > 0
+  return richTextToPlainText(html).length > 0
 }
 
 /**

@@ -14,6 +14,7 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
 ) => {
   const innerBlocks = props.data.innerBlocks as Block<ColumnAttributes>[]
   const { isStackedOnMobile, verticalAlignment } = props.data.attributes
+  const alignItems = verticalAlignment ? FLEX_ALIGNMENT[verticalAlignment] : undefined
   const percents = innerBlocks.map((block) => columnWidthPercent(block.attributes.width))
   const percentTotal = percents.reduce<number>((total, percent) => total + (percent ?? 0), 0)
   const unsetCount = innerBlocks.filter((block) => !block.attributes.width).length
@@ -27,7 +28,7 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
         display: flex;
         flex-wrap: wrap;
         gap: 1.5rem 2rem;
-        ${verticalAlignment && FLEX_ALIGNMENT[verticalAlignment] && `align-items: ${FLEX_ALIGNMENT[verticalAlignment]};`}
+        ${alignItems && `align-items: ${alignItems};`}
       `}
     >
       {innerBlocks.map((block) => (

@@ -222,20 +222,6 @@ describe("parseText", () => {
       expect(parsedText).not.toContain("data-citation-id")
     })
 
-    test("sets hasCitationsOrGlossary to true when citations are present", () => {
-      const { hasCitationsOrGlossary } = parseText("Text with\\cite{key1} citation.", [], {
-        glossary: false,
-      })
-      expect(hasCitationsOrGlossary).toBe(true)
-    })
-
-    test("sets hasCitationsOrGlossary to false when no citations are present", () => {
-      const { hasCitationsOrGlossary } = parseText("Text without citations.", [], {
-        glossary: false,
-      })
-      expect(hasCitationsOrGlossary).toBe(false)
-    })
-
     describe("prenotes and postnotes", () => {
       test("parses citation with prenote only (explicit empty second bracket)", () => {
         const { parsedText } = parseText("Text\\cite[see][]{key1} with prenote.", [], {

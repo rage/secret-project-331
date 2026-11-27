@@ -198,7 +198,8 @@ test.describe("Peer review followed by self review works", () => {
     })
 
     await test.step(`Student 1 reviews student 3's answer`, async () => {
-      await student1Page.getByRole("button", { name: "Refresh" }).click()
+      await refreshUntilPeerReviewCandidate(student1Page, "0 / 2")
+      await student1Page.getByRole("heading", { name: "Answer submitted by another" }).waitFor()
       await student1Page
         .getByRole("textbox", { name: "The answer was hard to read" })
         .fill("Good point. I agree with you.")

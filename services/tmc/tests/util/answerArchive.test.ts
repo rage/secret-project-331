@@ -90,7 +90,7 @@ describe("initialEditorFiles", () => {
       { filepath: "src/name_and_age.py", contents: "print('mine')\n" },
       { filepath: "src/helper.py", contents: "# helper\n" },
     ])
-    expect(seed.startingFiles[0]?.contents).toBe("# Write your solution here\n")
+    expect(seed.startingFiles?.[0]?.contents).toBe("# Write your solution here\n")
   })
 
   it("keeps a source file a VS Code answer added, which the spec cannot name", async () => {
@@ -103,6 +103,20 @@ describe("initialEditorFiles", () => {
     })
     const seed = await initialEditorFiles(BROWSER_SPEC, PREVIOUS_URL)
     expect(seed.files.map((f) => f.filepath)).toEqual(["src/name_and_age.py", "src/extra.py"])
+  })
+
+  it("opens a readable previous answer without Reset when the stub fails to download", async () => {
+    serveArchives({
+      [PREVIOUS_URL]: await tarZstd("name_and_age", { "src/name_and_age.py": "print('mine')\n" }),
+    })
+    const seed = await initialEditorFiles(BROWSER_SPEC, PREVIOUS_URL)
+    expect(seed.files).toEqual([{ filepath: "src/name_and_age.py", contents: "print('mine')\n" }])
+    expect(seed.startingFiles).toBeNull()
+  })
+
+  it("fails when the previous answer cannot be downloaded", async () => {
+    serveArchives({ [STUB_URL]: await tarZstd("stub", STUB_FILES) })
+    await expect(initialEditorFiles(BROWSER_SPEC, PREVIOUS_URL)).rejects.toThrow("404")
   })
 
   it("gives an editor-mode exercise no editor files", async () => {

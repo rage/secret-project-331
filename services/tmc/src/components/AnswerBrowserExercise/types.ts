@@ -5,8 +5,8 @@ import type { ExerciseFile, PublicSpec } from "@/util/stateInterfaces"
 export interface AnswerBrowserExerciseProps {
   publicSpec: PublicSpec
   initialState: ExerciseFile[]
-  /** What Reset restores: the exercise's starting code. */
-  startingFiles: ExerciseFile[]
+  /** What Reset restores: the exercise's starting code. Null hides Reset. */
+  startingFiles: ExerciseFile[] | null
   testRequestResponse: RunResult | null
   /** Called with the edited files; omit when the editor is only displaying them. */
   onFilesChange?: ((files: ExerciseFile[]) => void) | undefined

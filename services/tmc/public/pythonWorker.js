@@ -100,7 +100,8 @@ async function run({ source, filename }) {
   // Probed per Run until it succeeds: Firefox lets the service worker see a worker's requests only
   // once the worker's script has finished evaluating.
   hasServiceWorkerStdin ||= hasStdinServiceWorker()
-  runner.set("input_mode", hasServiceWorkerStdin ? "service-worker" : null)
+  // `undefined` lets run_main pick a mode; JS null would arrive as jsnull, not None.
+  runner.set("input_mode", hasServiceWorkerStdin ? "service-worker" : undefined)
   pyodide.setStdout(streamTo("stdout"))
   pyodide.setStderr(streamTo("stderr"))
   runner.set("source", source)

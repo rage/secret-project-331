@@ -39,6 +39,22 @@ describe("<ViewSubmission />", () => {
     expect(code.textContent).toBe(PYTHON)
     expect(screen.queryByText("test/test_arithfuncs.py")).toBeNull()
   })
+
+  it("shows every file when the spec names no student files", () => {
+    const state = viewSubmissionState({
+      submitted_files: [
+        { filepath: "src/Main.java", contents: "class Main {}\n" },
+        { filepath: "notes.txt", contents: "hi\n" },
+      ],
+    })
+    render(
+      <ViewSubmission
+        state={{ ...state, public_spec: { ...state.public_spec, student_file_paths: [] } }}
+      />,
+    )
+    expect(screen.getByText("src/Main.java")).toBeInTheDocument()
+    expect(screen.getByText("notes.txt")).toBeInTheDocument()
+  })
 })
 
 const GRADING = {

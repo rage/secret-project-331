@@ -5,7 +5,7 @@ import type { ExerciseFile } from "@/util/stateInterfaces"
 
 export function useEditorState(
   initialState: ExerciseFile[],
-  startingFiles: ExerciseFile[],
+  startingFiles: ExerciseFile[] | null,
   onFilesChange?: (files: ExerciseFile[]) => void,
 ) {
   const [editorFiles, setEditorFiles] = useState(initialState)
@@ -17,6 +17,9 @@ export function useEditorState(
   }
 
   const resetToStart = () => {
+    if (startingFiles === null) {
+      return
+    }
     setEditorState(cloneDeep(startingFiles))
     setEditorKey((k) => k + 1)
   }

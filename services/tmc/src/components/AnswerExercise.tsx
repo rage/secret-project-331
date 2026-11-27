@@ -12,8 +12,8 @@ interface Props {
   publicSpec: PublicSpec
   /** The browser editor's files; ignored by an editor-mode exercise. */
   files: ExerciseFile[]
-  /** What the browser editor's Reset restores; irrelevant when it is read-only. */
-  startingFiles?: ExerciseFile[]
+  /** What the browser editor's Reset restores, null for no Reset; irrelevant when it is read-only. */
+  startingFiles?: ExerciseFile[] | null
   /** Called with the edited files; omit to keep the editor read-only. */
   onFilesChange?: ((files: ExerciseFile[]) => void) | undefined
   testRequestResponse: RunResult | null

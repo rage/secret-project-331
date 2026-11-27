@@ -146,7 +146,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
             setLastOutputKind("test")
             await runTests(filepath, contents)
           }}
-          onResetClick={() => setResetConfirmOpen(true)}
+          onResetClick={startingFiles === null ? undefined : () => setResetConfirmOpen(true)}
           testUnavailableReason={publicSpec.browser_test?.error}
         />
       )}

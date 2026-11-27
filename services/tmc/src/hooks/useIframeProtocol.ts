@@ -324,18 +324,23 @@ export function useIframeProtocol() {
   const archivePrefix = answerToPack?.public_spec.archive_prefix ?? FALLBACK_ARCHIVE_PREFIX
   const draftTarget = answerToPack?.draft ?? null
 
+  // Not debounced like the upload: an edit made just before the student leaves must survive.
+  useEffect(() => {
+    if (filesToPack === null || filesToPack.length === 0 || draftTarget === null) {
+      return
+    }
+    // A draft of what the editor opens anyway would outlive a template update. A reset to the
+    // stub after a submission differs from that, so it is kept.
+    if (isEqual(filesToPack, filesOpenedWithoutDraftRef.current)) {
+      clearDraft(draftTarget.key)
+    } else {
+      saveDraft(draftTarget.key, filesToPack, draftTarget.basis)
+    }
+  }, [filesToPack, draftTarget])
+
   useEffect(() => {
     if (debouncedFilesToPack === null || debouncedFilesToPack.length === 0) {
       return
-    }
-    if (draftTarget !== null) {
-      // A draft of what the editor opens anyway would outlive a template update. A reset to the
-      // stub after a submission differs from that, so it is kept.
-      if (isEqual(debouncedFilesToPack, filesOpenedWithoutDraftRef.current)) {
-        clearDraft(draftTarget.key)
-      } else {
-        saveDraft(draftTarget.key, debouncedFilesToPack, draftTarget.basis)
-      }
     }
     const packToken = ++latestPackRequestRef.current
     const packAndUpload = async () => {

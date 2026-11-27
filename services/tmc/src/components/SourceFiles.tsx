@@ -10,11 +10,12 @@ interface Props {
 }
 
 /**
- * The student files among `files`, read-only. Whitespace is kept as written: indentation is syntax
- * in Python.
+ * The student files among `files`, or every file when the spec names none, read-only. Whitespace is
+ * kept as written: indentation is syntax in Python.
  */
 const SourceFiles: React.FC<Props> = ({ files, publicSpec }) => {
-  const shown = studentFilesInEditorOrder(files, publicSpec)
+  const shown =
+    publicSpec.student_file_paths.length > 0 ? studentFilesInEditorOrder(files, publicSpec) : files
   return (
     <>
       {shown.map((f) => (

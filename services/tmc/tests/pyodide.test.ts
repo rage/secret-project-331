@@ -37,7 +37,7 @@ beforeAll(async () => {
 type InputMode = "service-worker" | "jspi" | "none"
 
 /** Runs `source` the way the worker's Run does; returns the error line, or null. */
-async function run(source: string, inputMode: InputMode): Promise<string | null> {
+async function run(source: string, inputMode: InputMode | undefined): Promise<string | null> {
   output = []
   prompts = []
   pyodide.setStdout({ batched: (line) => output.push(line) })
@@ -98,6 +98,12 @@ describe("Run", () => {
       expect(output).toEqual(["Hi Ada"])
     },
   )
+
+  it("reads input() inside a function when the worker leaves the input mode to the runner", async () => {
+    const source = 'def main():\n    print("Hi " + input("Name? "))\n\nmain()\n'
+    expect(await run(source, undefined)).toBeNull()
+    expect(output).toEqual(["Hi Ada"])
+  })
 
   it("explains why input() inside a function fails when input cannot block", async () => {
     const source = "def main():\n    input()\n\nmain()\n"

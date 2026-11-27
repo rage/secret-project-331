@@ -22,8 +22,11 @@ export async function fetchStudentFiles(
 export interface EditorSeed {
   /** What the editor opens: the previous submission's student files, else the stub's. */
   files: ExerciseFile[]
-  /** The stub's student files, which Reset returns to. */
-  startingFiles: ExerciseFile[]
+  /**
+   * The stub's student files, which Reset returns to. Null when the stub failed to download but a
+   * previous answer did, so an unrelated stub failure does not lock the student out of their work.
+   */
+  startingFiles: ExerciseFile[] | null
 }
 
 /** The browser editor's starting point. Empty for an editor-mode exercise, which has no editor. */
@@ -34,11 +37,20 @@ export async function initialEditorFiles(
   if (publicSpec.type !== "browser") {
     return { files: [], startingFiles: [] }
   }
-  const [startingFiles, previousFiles] = await Promise.all([
-    fetchStudentFiles(publicSpec.stub_download_url, publicSpec),
-    previousSubmissionArchiveUrl === null
-      ? null
-      : fetchStudentFiles(previousSubmissionArchiveUrl, publicSpec),
+  const stubDownload = fetchStudentFiles(publicSpec.stub_download_url, publicSpec)
+  if (previousSubmissionArchiveUrl === null) {
+    const startingFiles = await stubDownload
+    return { files: startingFiles, startingFiles }
+  }
+  const [stub, previous] = await Promise.allSettled([
+    stubDownload,
+    fetchStudentFiles(previousSubmissionArchiveUrl, publicSpec),
   ])
-  return { files: previousFiles ?? startingFiles, startingFiles }
+  if (previous.status === "rejected") {
+    throw previous.reason
+  }
+  return {
+    files: previous.value,
+    startingFiles: stub.status === "fulfilled" ? stub.value : null,
+  }
 }

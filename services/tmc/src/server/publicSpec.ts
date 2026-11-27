@@ -5,6 +5,7 @@ import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { buildBrowserTestScript } from "@/tmc/browserTestScript"
 import {
@@ -97,7 +98,7 @@ async function processPublicSpec(
     tempPaths.push(...uploadPaths)
     publicSpec = spec
     if (privateSpec.type === "browser") {
-      const timeout = testsTimeoutMs === undefined ? {} : { timeout_ms: testsTimeoutMs }
+      const timeout = omitUndefined({ timeout_ms: testsTimeoutMs })
       const browserTestResult = await buildBrowserTestScript(templateDir)
       if ("script" in browserTestResult) {
         publicSpec = {
@@ -231,7 +232,7 @@ export async function browserEditorFields(
 
   return {
     student_file_paths: studentFiles,
-    ...(mainFile === undefined ? {} : { main_file: mainFile }),
+    ...omitUndefined({ main_file: mainFile }),
     archive_prefix: exercise.name.replaceAll(/[^\w.-]/g, "_").replace(/^\.+$/, "exercise"),
   }
 }

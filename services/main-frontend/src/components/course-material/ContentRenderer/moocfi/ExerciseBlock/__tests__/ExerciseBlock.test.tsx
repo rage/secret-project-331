@@ -75,6 +75,7 @@ jest.mock("@/hooks/course-material/useCourseMaterialExerciseQuery", () => {
     __esModule: true,
     isGradingPending: jest.requireActual("@/hooks/course-material/useCourseMaterialExerciseQuery")
       .isGradingPending,
+    courseMaterialExerciseQueryKey: (exerciseId: string) => ["exercise", exerciseId],
     default: function useCourseMaterialExerciseQuery(exerciseId: string) {
       return useQuery({ queryKey: ["exercise", exerciseId], queryFn: () => mockFetchExercise() })
     },
@@ -590,6 +591,41 @@ describe("ExerciseBlock try again", () => {
       previous_submission: { a: 1 },
     })
     expectSubmittable()
+  })
+
+  it("stays answering when a pending-grading refetch lands after Try again", async () => {
+    const submission = makeStoredSubmission("sub-1", "task-1", { a: 1 })
+    const pendingTask = {
+      ...makeTask("task-1", 0, submission),
+      previous_submission_grading: { id: "grading-1", grading_progress: "Pending" },
+    } as unknown as CourseMaterialExerciseTask
+    await renderExerciseBlock(makeExercise([pendingTask]))
+    const tryAgain = await screen.findByRole("button", { name: "try-again" })
+    expect(iframeOf("task-1").postThisStateToIFrame.view_type).toBe("view-submission")
+
+    const refetch = createDeferred<CourseMaterialExercise>()
+    mockFetchExercise.mockReturnValueOnce(refetch.promise)
+    await act(async () => {
+      void queryClient.refetchQueries({ queryKey: ["exercise", EXERCISE_ID] })
+      await flushQueryNotifications()
+    })
+    fireEvent.click(tryAgain)
+    await waitFor(() =>
+      expect(iframeOf("task-1").postThisStateToIFrame.view_type).toBe("answer-exercise"),
+    )
+
+    await act(async () => {
+      refetch.resolve(
+        makeExercise([
+          {
+            ...pendingTask,
+            previous_submission_grading: { id: "grading-1", grading_progress: "FullyGraded" },
+          } as unknown as CourseMaterialExerciseTask,
+        ]),
+      )
+      await flushQueryNotifications()
+    })
+    expect(iframeOf("task-1").postThisStateToIFrame.view_type).toBe("answer-exercise")
   })
 })
 

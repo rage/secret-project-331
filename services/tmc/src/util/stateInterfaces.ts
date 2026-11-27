@@ -28,8 +28,11 @@ export interface AnswerExerciseState {
   public_spec: PublicSpec
   /** The student's working copy in browser mode: student files only, main file first. */
   editor_files: ExerciseFile[]
-  /** The stub's student files, which Reset returns to. Empty in editor mode. */
-  starting_files: ExerciseFile[]
+  /**
+   * The stub's student files, which Reset returns to. Empty in editor mode; null when the stub
+   * could not be downloaded, which leaves no Reset.
+   */
+  starting_files: ExerciseFile[] | null
   /** Where {@link editor_files} are kept as a local draft; null when not signed in or in editor mode. */
   draft: { key: string; basis: string } | null
   /**

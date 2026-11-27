@@ -293,6 +293,25 @@ describe("useIframeProtocol drafts", () => {
     await waitFor(() => expect(loadDraft(KEY)?.files).toEqual(stub), { timeout: 3000 })
   })
 
+  it("saves an edit as a draft at once, without waiting for the upload debounce", async () => {
+    await serveArchive()
+    const { result } = renderHook(() => useIframeProtocol())
+    const host = connectAsHost()
+    await act(() => host.postAndSettle(setStateMessage([PREVIOUS_ARCHIVE], BROWSER_SPEC)))
+    await waitFor(() =>
+      expect(result.current.state).toMatchObject({ uploaded_archive_id: PREVIOUS_ARCHIVE.id }),
+    )
+
+    act(() => {
+      result.current.setAnswerFiles(DRAFT)
+    })
+
+    expect(loadDraft(KEY)?.files).toEqual(DRAFT)
+    expect(host.received.some((m) => (m as { message?: string }).message === "file-upload")).toBe(
+      false,
+    )
+  })
+
   it("keeps a newer submission and forgets a draft edited from an older starting point", async () => {
     await serveArchive()
     saveDraft(KEY, DRAFT, draftBasis(BROWSER_SPEC.checksum, null))

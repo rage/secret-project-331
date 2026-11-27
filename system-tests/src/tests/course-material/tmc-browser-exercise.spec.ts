@@ -57,8 +57,10 @@ test("a Python exercise is run, tested and submitted in the browser editor", asy
 
   await test.step("a draft survives a reload", async () => {
     await replaceCode(page, frame, SOLUTION)
-    // The draft is saved once the answer has been packed for submission.
-    await expect(page.getByRole("button", { name: "Submit" })).toBeEnabled()
+    // Blocked first, so the unblock is the edit's upload and not the stub's.
+    const submit = page.getByRole("button", { name: "Submit" })
+    await expect(submit).toHaveAttribute("aria-disabled", "true")
+    await expect(submit).toHaveAttribute("aria-disabled", "false")
     await page.reload()
     await expect(exerciseFrame(page).locator(".monaco-editor")).toContainText("Hello")
   })
@@ -78,6 +80,7 @@ test("a Python exercise is run, tested and submitted in the browser editor", asy
   await test.step("Test runs the exercise's tests in the browser", async () => {
     await frame.getByRole("button", { name: "Test" }).click()
     await expect(frame.getByText(/^Passed: /)).toBeVisible({ timeout: 30_000 })
+    await expect(frame.getByText(/^Failed: /)).toHaveCount(0)
   })
 
   await test.step("the graded result appears without a reload", async () => {

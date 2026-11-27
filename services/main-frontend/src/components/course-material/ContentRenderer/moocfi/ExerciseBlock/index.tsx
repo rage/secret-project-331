@@ -2,6 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, Padlock } from "@vectopus/atlas-icons-react"
 import { useAtomValue } from "jotai"
 import { uniqBy } from "lodash"
@@ -28,6 +29,7 @@ import type {
   StudentExerciseSlideSubmission,
 } from "@/generated/course-material-api/types.generated"
 import useCourseMaterialExerciseQuery, {
+  courseMaterialExerciseQueryKey,
   isGradingPending,
 } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
@@ -201,6 +203,7 @@ const ExerciseBlock: React.FC<
   const returnTo = useCurrentPagePathForReturnTo(
     pathname + (searchParams.toString() ? `?${searchParams.toString()}` : ""),
   )
+  const queryClient = useQueryClient()
   const [answers, setAnswers] = useState<CapturedAnswers>(new Map())
   const previousSubmissionIdsRef = useRef<Map<string, string>>(new Map())
   const [connectionStatuses, setConnectionStatuses] = useState<
@@ -329,6 +332,9 @@ const ExerciseBlock: React.FC<
         chapterLockingEnabled &&
         (chapterStatus?.status === "completed_and_locked" ||
           chapterStatus?.status === "not_unlocked_yet")
+      // Try again is enabled during a pending-grading poll; a poll landing after it would put the
+      // previous submission's view back.
+      await queryClient.cancelQueries({ queryKey: courseMaterialExerciseQueryKey(id) })
       makeSureComponentStaysVisibleAfterChangingView(sectionRef)
       dispatch({
         type: "tryAgain",

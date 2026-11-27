@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next"
 import { BreakFromCenteredDisabledContext } from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
 import { linkWithExtraIconClass } from "@/shared-module/common/styles/constants"
-import { BREAKPOINT_REMS } from "@/shared-module/common/styles/respond"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { Block } from "@/types/courseMaterialBlock"
@@ -353,10 +353,13 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
 
           /* Narrow columns only: there long words leave ragged gaps. Follows the content language set on
           #content, and only splits words of 10+ letters. */
-          @media (max-width: ${BREAKPOINT_REMS.sm}rem) {
+          p {
+            hyphens: auto;
+            hyphenate-limit-chars: 10 4 4;
+          }
+          ${respondToOrLarger.sm} {
             p {
-              hyphens: auto;
-              hyphenate-limit-chars: 10 4 4;
+              hyphens: manual;
             }
           }
           h1,

@@ -64,6 +64,7 @@ const HeadingBlock: React.FC<
         ${
           level >= 5 &&
           !fontSize &&
+          !fitText &&
           `font-size: 0.9375rem; text-transform: uppercase; letter-spacing: 0.06em; color: ${baseTheme.colors.gray[500]};`
         }
 

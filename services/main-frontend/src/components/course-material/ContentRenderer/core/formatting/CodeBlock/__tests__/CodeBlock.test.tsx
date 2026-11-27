@@ -1,6 +1,6 @@
 "use client"
 
-import { fireEvent, render, waitFor } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import "@testing-library/jest-dom"
 
 import { parseHighlightedCode } from "../highlightParser"
@@ -397,13 +397,9 @@ describe("CodeBlock", () => {
 
     it("announces highlighted lines to screen readers when highlights are present", () => {
       const content = "line1 // HIGHLIGHT LINE\nline2\nline3 // HIGHLIGHT LINE"
-      const { container } = renderCodeBlock(content)
-      // The announcement sits next to the scroll region that holds the <pre>.
-      const blockEl = container.querySelector("pre")?.parentElement?.parentElement
-      const srOnlyEl =
-        blockEl?.querySelector(":scope > span") ?? blockEl?.querySelector(":scope > div")
-      expect(srOnlyEl).toBeInTheDocument()
-      expect(srOnlyEl?.textContent?.length).toBeGreaterThan(0)
+      renderCodeBlock(content)
+      // Tests render translation keys as their text.
+      expect(screen.getByText("code-block-highlighted-lines")).toBeInTheDocument()
     })
   })
 })

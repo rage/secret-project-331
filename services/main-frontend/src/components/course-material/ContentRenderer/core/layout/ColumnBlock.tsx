@@ -24,6 +24,8 @@ interface ColumnBlockProps extends BlockRendererProps<ColumnAttributes> {
   unsetWidthShare?: number | undefined
   /** Authors wrap full-width sections in a one-column block, so those may still break out of it. */
   isOnlyColumn?: boolean | undefined
+  /** Below the medium breakpoint, takes the full row instead of sharing it. */
+  isStackedOnMobile?: boolean | undefined
 }
 
 /** One cell of a Columns block; its blocks render like top-level blocks but break out of it only when it is the only column. */
@@ -45,6 +47,7 @@ const ColumnBlock: React.FC<React.PropsWithChildren<ColumnBlockProps>> = (props)
         ${alignSelf && `align-self: ${alignSelf};`}
         flex-grow: 1;
         min-width: min(100%, 10rem);
+        ${props.isStackedOnMobile && `flex-basis: 100%;`}
 
         ${respondToOrLarger.md} {
           flex: ${flex};

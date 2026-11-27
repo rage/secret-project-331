@@ -12,13 +12,11 @@ import { CODE_LANGUAGES } from "./codeLanguages"
 
 const CODE_BLOCK_NAME = "core/code"
 
-/* oxlint-disable i18next/no-literal-string -- stored attribute values, not UI text */
 const DEFAULT_CODE_WIDTH = "column"
 const WIDE_CODE_WIDTH = "wide"
 const SMALL_CODE_FONT_SIZE = "small"
 const DEFAULT_CODE_FONT_SIZE = "normal"
 const LARGE_CODE_FONT_SIZE = "large"
-/* oxlint-enable i18next/no-literal-string */
 
 // Adds a language selector for core/code, both as a block-toolbar dropdown and as a settings-sidebar
 // panel, and width and font size settings in the sidebar. An empty language leaves highlight.js to

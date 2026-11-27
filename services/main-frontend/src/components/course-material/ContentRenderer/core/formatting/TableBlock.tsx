@@ -73,9 +73,20 @@ const numericCellStyles = css`
 
 const NUMBER = /^[-+−]?[\d\s.,:/%€$£]*\d[\d\s.,:/%€$£]*$/
 
-/** Columns whose body cells are all numbers (empty cells allowed) line up on the right. */
-const numericColumns = (body: Cells[]): Set<number> => {
+const hasMergedCells = (rows: Cells[]): boolean =>
+  rows.some((row) =>
+    row.cells?.some((cell) => (spanOf(cell.colspan) ?? 1) > 1 || (spanOf(cell.rowspan) ?? 1) > 1),
+  )
+
+/**
+ * Columns whose body cells are all numbers (empty cells allowed) line up on the right. Tables with
+ * merged cells get none, since a cell's index there isn't its rendered column.
+ */
+const numericColumns = (head: Cells[] | undefined, body: Cells[]): Set<number> => {
   const result = new Set<number>()
+  if (hasMergedCells([...(head ?? []), ...body])) {
+    return result
+  }
   const columnCount = Math.max(0, ...body.map((row) => row.cells?.length ?? 0))
   for (let column = 0; column < columnCount; column++) {
     const values = body
@@ -124,7 +135,7 @@ const TableBlock: React.FC<
   const shouldUseSmallerFont = hasManyColumns && dontAllowBlockToBeWiderThanContainerWidth
 
   const isStriped = className === "is-style-stripes"
-  const numericColumnIndexes = useMemo(() => numericColumns(body), [body])
+  const numericColumnIndexes = useMemo(() => numericColumns(head, body), [head, body])
   // Authors use one-cell tables as framed boxes, so those keep their frame.
   const isFramedBox =
     !head?.length && !foot?.length && body.length === 1 && body[0]?.cells?.length === 1

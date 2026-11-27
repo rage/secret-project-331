@@ -28,13 +28,6 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
         flex-wrap: wrap;
         gap: 1.5rem 2rem;
         ${verticalAlignment && `align-items: ${verticalAlignment};`}
-
-        ${
-          isStackedOnMobile !== false &&
-          `> * {
-          flex-basis: 100%;
-        }`
-        }
       `}
     >
       {innerBlocks.map((block) => (
@@ -45,6 +38,7 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
           isExam={props.isExam}
           unsetWidthShare={unsetWidthShare}
           isOnlyColumn={innerBlocks.length === 1}
+          isStackedOnMobile={isStackedOnMobile !== false}
         />
       ))}
     </div>

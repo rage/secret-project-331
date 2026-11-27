@@ -48,8 +48,12 @@ export function isEmptyBlock(block: Block<unknown>): boolean {
       return block.innerBlocks.length === 0 && !hasVisibleText(attributes.values)
     default:
       if (CHILD_ONLY_CONTAINERS.has(block.name)) {
-        // A quote can carry its text in `value` instead of children.
-        return block.innerBlocks.every(isEmptyBlock) && !hasVisibleText(attributes.value)
+        // A quote can carry its text in `value` instead of children, and shows its citation too.
+        return (
+          block.innerBlocks.every(isEmptyBlock) &&
+          !hasVisibleText(attributes.value) &&
+          !hasVisibleText(attributes.citation)
+        )
       }
       return false
   }

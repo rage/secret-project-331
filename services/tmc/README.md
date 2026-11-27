@@ -44,27 +44,14 @@ On pods, the time a test run may take is the exercise's `tests_timeout_ms` (tmc-
 
 ## Grading sandbox
 
-`TMC_GRADING_SANDBOX` picks where submissions run:
+`TMC_GRADING_SANDBOX` picks where submissions run: `pod` (default; dev and test) or `remote` (the production sandbox). `remote` needs these, checked at startup:
 
-- `pod` (default; dev and test): a Kubernetes pod per submission, which needs the `tmc-account` service account and its pod rights.
-- `remote` (production): the shared sandbox servers tmc.mooc.fi also uses. The service posts the prepared archive to a server's `/tasks.json` and the server calls back `/api/sandbox-results` with the result. Images must be under `eu.gcr.io/moocfi-public/tmc-sandbox-`. `/api/test` and `/api/testrun` answer 501 in this mode.
+| Variable                           | Value                                                   |
+| ---------------------------------- | ------------------------------------------------------- |
+| `TMC_REMOTE_SANDBOX_URLS`          | Comma-separated sandbox URLs                            |
+| `TMC_REMOTE_SANDBOX_NOTIFY_URL`    | This service's public `/api/sandbox-results` URL        |
+| `TMC_REMOTE_SANDBOX_NOTIFY_SECRET` | Optional: secret for signing the notify URL             |
+| `TMC_REMOTE_SANDBOX_TOKEN_KEY`     | Base64 32-byte key(s), comma-separated; the first seals |
+| `TMC_REMOTE_SANDBOX_REDIS_URL`     | Redis URL for pending gradings                          |
 
-`remote` needs these, checked at startup:
-
-| Variable                           | Value                                                                                                  |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `TMC_REMOTE_SANDBOX_URLS`          | Comma-separated sandbox base URLs; `https://user:password@host` credentials are sent as basic auth     |
-| `TMC_REMOTE_SANDBOX_NOTIFY_URL`    | This service's public callback URL, `https://courses.mooc.fi/tmc/api/sandbox-results` in production    |
-| `TMC_REMOTE_SANDBOX_NOTIFY_SECRET` | Optional: the sandboxes' `SANDBOX_CALLBACK_SECRET`, to sign the notify URL                             |
-| `TMC_REMOTE_SANDBOX_TOKEN_KEY`     | Base64 32-byte key(s) sealing the callback token, comma-separated to rotate: the first seals, all open |
-| `TMC_REMOTE_SANDBOX_REDIS_URL`     | `redis://` URL of the Redis that holds pending gradings                                                |
-
-In production they come from the `tmc-remote-sandbox` Secret (`kubernetes/production/tmc/patch-remote-sandbox.yml`), which is created outside this repository. Generate a key with `openssl rand -base64 32`.
-
-Pending gradings live in Redis under `tmc:remote-sandbox:`, so any replica can take a callback, and a grading whose callback never comes is sent again 5 minutes after each send and failed after the third, even across restarts. A grading's result is kept in Redis until the host has taken it, and reported again from any replica when that does not happen within 5 minutes. Every replica sweeps for due gradings, and one claims each. Redis keeps only the grading request: a resend downloads the answer and template from the host again, whose download URLs outlive the grading. Any number of replicas may run.
-
-While Redis is unreachable, gradings are still sent and reported, but not resent or checked for repeats.
-
-Set `TMC_TEST_REDIS_URL` to run the store tests against a real Redis too; they write under a random `tmc:remote-sandbox-test:` prefix and delete it.
-
-`tests/remoteSandbox.live.test.ts` grades real exercises on a running sandbox; see its header for the variables that enable it.
+Set `TMC_TEST_REDIS_URL` to also run the store tests against a real Redis.

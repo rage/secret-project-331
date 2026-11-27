@@ -1,0 +1,7 @@
+# Pod grading creates sandbox pods with this account's rights.
+- op: add
+  path: /spec/template/spec/serviceAccountName
+  value: tmc-account
+- op: replace
+  path: /spec/template/spec/automountServiceAccountToken
+  value: true

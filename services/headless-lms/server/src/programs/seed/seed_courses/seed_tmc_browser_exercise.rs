@@ -19,9 +19,8 @@ use uuid::Uuid;
 use super::super::seed_users::SeedUsersResult;
 
 /// Seeds the course `tmc-browser-exercise.spec.ts` uses: a Python exercise solved in the tmc
-/// service's browser editor. Its repository exercise is in no exercise repository, so the tmc
-/// service downloads the template from the spec's `download_url`, which the seed stores in the file
-/// store.
+/// service's browser editor. The exercise is in no exercise repository, so the service downloads
+/// the template from the spec's `download_url`, which the seed stores in the file store.
 pub async fn seed_tmc_browser_exercise_course(
     app_config: ApplicationConfiguration,
     course_id: Uuid,

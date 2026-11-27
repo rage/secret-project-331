@@ -1,7 +1,7 @@
 /** Where submissions are graded: `pod` in a Kubernetes pod per submission, `remote` on the shared sandbox servers. */
 export type GradingSandboxMode = "pod" | "remote"
 
-/** Why `/api/test` and `/api/testrun` answer 501: they run on pods, which remote mode has no rights to create. */
+/** Why `/api/test` and `/api/testrun` answer 501: they need pods, which remote mode cannot create. */
 export const REMOTE_TEST_RUNS_UNAVAILABLE =
   "Test runs are not available when the service grades on remote sandboxes (TMC_GRADING_SANDBOX=remote)"
 
@@ -114,8 +114,7 @@ export function remoteSandboxConfig(): RemoteSandboxConfig {
 }
 
 /**
- * Checks the grading configuration so a misconfigured service fails to start rather than at its
- * first submission.
+ * Fails startup on a bad grading configuration instead of at the first submission.
  *
  * @throws GradingConfigError
  */

@@ -1,9 +1,10 @@
-# Undoes production/tmc/patch-remote-sandbox.yml: local and CI clusters grade in pods.
+# Test grades in pods like dev, not on the production overlay's remote sandboxes.
 - op: add
   path: /spec/template/spec/serviceAccountName
   value: tmc-account
-- op: remove
+- op: replace
   path: /spec/template/spec/automountServiceAccountToken
+  value: true
 - op: test
   path: /spec/template/spec/containers/0/env/1/name
   value: TMC_GRADING_SANDBOX

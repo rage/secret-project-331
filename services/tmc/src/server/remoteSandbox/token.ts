@@ -20,9 +20,9 @@ const tokenPayloadSchema = z.object({
 })
 
 /**
- * What the sandbox carries back to `/api/sandbox-results`: everything needed to report the result,
- * so a callback still lands after this service restarts. Sealed, because the grading-update claim
- * is a write capability for the submission.
+ * What the sandbox carries back to `/api/sandbox-results`: all that is needed to report the
+ * result, so callbacks survive a restart. Sealed because the grading-update claim is a write
+ * capability.
  */
 export type SandboxTokenPayload = z.infer<typeof tokenPayloadSchema>
 

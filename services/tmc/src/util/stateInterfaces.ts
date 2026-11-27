@@ -33,7 +33,7 @@ export interface AnswerExerciseState {
    * could not be downloaded, which leaves no Reset.
    */
   starting_files: ExerciseFile[] | null
-  /** Where {@link editor_files} are kept as a local draft; null when not signed in or in editor mode. */
+  /** Where {@link editor_files} are drafted locally; null when signed out or in editor mode. */
   draft: { key: string; basis: string } | null
   /**
    * Host file id of the archive the answer consists of, or null while no upload matches
@@ -69,7 +69,7 @@ export interface BrowserTestSpec {
   script: string
   /** Set when script build failed (e.g. template missing test/ or tmc/). */
   error?: string
-  /** The exercise's `tests_timeout_ms`, counted from when Python has loaded. Absent in stored specs that lack it. */
+  /** The exercise's `tests_timeout_ms`, counted from when Python has loaded. Absent in older stored specs. */
   timeout_ms?: number
 }
 

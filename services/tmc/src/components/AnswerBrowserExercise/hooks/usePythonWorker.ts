@@ -33,7 +33,7 @@ function whenLoaded(worker: Worker): Promise<Worker> {
   })
 }
 
-/** Bounds loading Python, so a stalled download or service worker install cannot leave Run or Test waiting for good. */
+/** Stops a stalled download or service worker install from leaving Run and Test waiting forever. */
 const LOAD_TIMEOUT_MS = 3 * 60_000
 
 function startWorker(): LoadingWorker {

@@ -9,7 +9,7 @@ use crate::{
     courses::CourseAiPolicy,
     library::{
         agent_changesets::course_state::{
-            CourseState, ExerciseRecord, PageRecord, ReviewConfigKind,
+            CourseState, ExerciseRecord, ExerciseTaskRecord, PageRecord, ReviewConfigKind,
         },
         entity_snapshots::{
             ChapterSnapshot, ContentEntity, ContentEntityType, CourseDefaultReviewConfigSnapshot,
@@ -76,6 +76,14 @@ pub enum EntityField {
     TaskInstructions,
     /// Whether an exercise uses the course default review config or its own.
     ReviewConfig,
+    /// An exercise's slides and tasks: which there are, in which order.
+    ExerciseTasks,
+    /// The exercise service of one task.
+    TaskExerciseType,
+    /// One task's private spec, as JSON.
+    TaskPrivateSpec,
+    /// The repository exercise one task uses.
+    TaskRepositoryExercise,
 }
 
 impl EntityField {
@@ -118,7 +126,7 @@ pub struct ExerciseFieldOwner {
     pub exercise_id: Uuid,
     /// The exercise's name after the change.
     pub exercise_name: String,
-    /// The task, for [`EntityField::TaskInstructions`].
+    /// The task, for the `Task*` fields.
     pub task_id: Option<Uuid>,
 }
 
@@ -543,6 +551,43 @@ pub fn exercise_field_changes(before: &ExerciseRecord, after: &ExerciseRecord) -
             });
         }
     }
+    if before.slides != after.slides || task_layout(before) != task_layout(after) {
+        changes.push(FieldChange {
+            field: EntityField::ExerciseTasks,
+            exercise: owner(None),
+            before: Some(FieldValue::TextList(task_layout(before))),
+            after: Some(FieldValue::TextList(task_layout(after))),
+        });
+    }
+    for task in &after.tasks {
+        let Some(before_task) = before.tasks.iter().find(|t| t.id == task.id) else {
+            continue;
+        };
+        if before_task.exercise_type != task.exercise_type {
+            changes.push(FieldChange {
+                field: EntityField::TaskExerciseType,
+                exercise: owner(Some(task.id)),
+                before: text(&before_task.exercise_type),
+                after: text(&task.exercise_type),
+            });
+        }
+        if before_task.private_spec != task.private_spec {
+            changes.push(FieldChange {
+                field: EntityField::TaskPrivateSpec,
+                exercise: owner(Some(task.id)),
+                before: before_task.private_spec.as_deref().map(spec_text),
+                after: task.private_spec.as_deref().map(spec_text),
+            });
+        }
+        if before_task.repository_exercise_id != task.repository_exercise_id {
+            changes.push(FieldChange {
+                field: EntityField::TaskRepositoryExercise,
+                exercise: owner(Some(task.id)),
+                before: repository_exercise_label(before_task),
+                after: repository_exercise_label(task),
+            });
+        }
+    }
     let (before_kind, after_kind) = (
         before.review_config.kind().map(FieldValue::ReviewConfig),
         after.review_config.kind().map(FieldValue::ReviewConfig),
@@ -576,6 +621,41 @@ pub fn exercise_field_changes(before: &ExerciseRecord, after: &ExerciseRecord) -
         });
     }
     changes
+}
+
+/// Each task as `<slide number>: <exercise type> (<task id>)`, in order.
+fn task_layout(exercise: &ExerciseRecord) -> Vec<String> {
+    exercise
+        .tasks
+        .iter()
+        .map(|task| {
+            let slide = exercise
+                .slides
+                .iter()
+                .position(|id| *id == task.slide_id)
+                .map_or(0, |index| index + 1);
+            format!("{slide}: {} ({})", task.exercise_type, task.id)
+        })
+        .collect()
+}
+
+fn spec_text(spec: &serde_json::Value) -> FieldValue {
+    FieldValue::Text(spec.to_string())
+}
+
+/// The repository exercise as `part/name` from the task's spec, or its id when the spec doesn't
+/// name it.
+fn repository_exercise_label(task: &ExerciseTaskRecord) -> Option<FieldValue> {
+    let id = task.repository_exercise_id?;
+    let named = task.private_spec.as_deref().and_then(|spec| {
+        let exercise = spec.get("repository_exercise")?;
+        Some(format!(
+            "{}/{}",
+            exercise.get("part")?.as_str()?,
+            exercise.get("name")?.as_str()?
+        ))
+    });
+    text(&named.unwrap_or_else(|| id.to_string()))
 }
 
 impl CourseState {

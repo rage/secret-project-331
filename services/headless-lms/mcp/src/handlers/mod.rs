@@ -8,7 +8,10 @@ mod history;
 mod patches;
 mod public_course;
 mod reads;
+mod repositories;
 mod uploads;
+
+pub use uploads::upload_with_link;
 
 use crate::state::McpState;
 use crate::tools::ToolRegistry;
@@ -24,15 +27,19 @@ pub fn registry() -> ToolRegistry<McpState> {
         catalog::get_course_glossary_and_references(reads::GetGlossaryAndReferences),
         catalog::get_exercise(exercise::GetExercise),
         catalog::list_exercises(exercise::ListExercises),
+        catalog::get_exercise_repositories(repositories::GetExerciseRepositories),
+        catalog::manage_exercise_repository(repositories::ManageExerciseRepository),
         catalog::read_public_course(public_course::ReadPublicCourse),
         catalog::patch_page_content(patches::PatchPageContent),
         catalog::patch_course_structure(patches::PatchCourseStructure),
         catalog::patch_course_settings(patches::PatchCourseSettings),
         catalog::patch_course_glossary_and_references(patches::PatchGlossaryAndReferences),
         catalog::patch_exercise(exercise::PatchExercise),
+        catalog::patch_exercise_tasks(exercise::PatchExerciseTasks),
         catalog::find_replace(bulk::FindReplace),
         catalog::structural_replace(bulk::StructuralReplace),
         catalog::upload_file(uploads::UploadFile),
+        catalog::create_upload_link(uploads::CreateUploadLink),
         catalog::list_changesets(changesets::ListChangesets),
         catalog::publish_changeset(changesets::PublishChangeset),
         catalog::discard_changeset(changesets::DiscardChangeset),

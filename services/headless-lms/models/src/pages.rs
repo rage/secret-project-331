@@ -2086,6 +2086,7 @@ SET deleted_at = now()
 WHERE exercise_slide_id = ANY($1)
 AND deleted_at IS NULL
 RETURNING id,
+  exercise_type,
   private_spec,
   public_spec,
   model_solution_spec,
@@ -2098,6 +2099,7 @@ RETURNING id,
     .await?;
     let final_tasks = upsert_exercise_tasks(
         &mut tx,
+        &remapped_exercises,
         &remapped_exercise_slides,
         &existing_exercise_task_specs,
         &cms_page_update.exercise_tasks,
@@ -2505,10 +2507,49 @@ RETURNING id,
     Ok(remapped_exercise_slides)
 }
 
+/// A spec derivation the exercise service answered with an error status, as a refusal of the
+/// task's private spec naming the exercise, the task and the service. Other errors pass through.
+fn spec_refused_by_service(
+    error: ModelError,
+    remapped_exercises: &HashMap<Uuid, Exercise>,
+    remapped_slides: &HashMap<Uuid, CmsPageExerciseSlide>,
+    task: &CmsPageExerciseTask,
+) -> ModelError {
+    let ModelErrorType::HttpRequest {
+        status_code,
+        response_body,
+    } = error.error_type()
+    else {
+        return error;
+    };
+    let exercise = remapped_slides
+        .get(&task.exercise_slide_id)
+        .and_then(|slide| {
+            remapped_exercises
+                .values()
+                .find(|exercise| exercise.id == slide.exercise_id)
+        });
+    let exercise = exercise.map_or_else(
+        || "an exercise".to_string(),
+        |exercise| format!("exercise \"{}\" ({})", exercise.name, exercise.id),
+    );
+    model_err!(
+        PreconditionFailedWithCMSAnchorBlockId {
+            id: task.id,
+            description: "The exercise service refused the task's private spec.",
+        },
+        format!(
+            "The {} exercise service refused the private spec of task {} of {exercise} with status {status_code}: {response_body}",
+            task.exercise_type, task.id
+        )
+    )
+}
+
 /// Remaps ids from updates to exercise tasks that may have their ids changed.
 #[allow(clippy::too_many_arguments)]
 async fn upsert_exercise_tasks(
     conn: &mut PgConnection,
+    remapped_exercises: &HashMap<Uuid, Exercise>,
     remapped_slides: &HashMap<Uuid, CmsPageExerciseSlide>,
     existing_task_specs: &[ExerciseTaskIdAndSpec],
     task_updates: &[CmsPageExerciseTask],
@@ -2598,6 +2639,9 @@ async fn upsert_exercise_tasks(
         let declares_spec_files = exercise_service_hashmap
             .get(&task_update.exercise_type)
             .is_some_and(|(_service, info)| info.declares_spec_files);
+        let refused_spec = |error: ModelError| {
+            spec_refused_by_service(error, remapped_exercises, remapped_slides, task_update)
+        };
         let model_solution = fetch_derived_spec(
             existing_exercise_task,
             &normalized_task,
@@ -2608,7 +2652,8 @@ async fn upsert_exercise_tasks(
             task_update.id,
             declares_spec_files,
         )
-        .await?;
+        .await
+        .map_err(refused_spec)?;
         let public = fetch_derived_spec(
             existing_exercise_task,
             &normalized_task,
@@ -2619,7 +2664,8 @@ async fn upsert_exercise_tasks(
             task_update.id,
             declares_spec_files,
         )
-        .await?;
+        .await
+        .map_err(refused_spec)?;
         let model_solution_spec = model_solution.spec;
         let public_spec = public.spec;
         let safe_for_db_exercise_slide_id = remapped_slides
@@ -3007,6 +3053,7 @@ WHERE id = $2;
 #[derive(Debug)]
 struct ExerciseTaskIdAndSpec {
     pub id: Uuid,
+    pub exercise_type: String,
     pub private_spec: Option<serde_json::Value>,
     pub public_spec: Option<serde_json::Value>,
     pub model_solution_spec: Option<serde_json::Value>,
@@ -3017,7 +3064,8 @@ struct ExerciseTaskIdAndSpec {
 impl ExerciseTaskIdAndSpec {
     /// Whether a save of `task_update` would derive this task's specs from the same input again.
     fn has_same_spec_input(&self, task_update: &NormalizedCmsExerciseTask) -> bool {
-        self.private_spec == task_update.private_spec
+        self.exercise_type == task_update.exercise_type
+            && self.private_spec == task_update.private_spec
             && self.repository_exercise_id == task_update.repository_exercise_id
     }
 }

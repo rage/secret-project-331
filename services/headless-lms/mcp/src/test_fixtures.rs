@@ -250,6 +250,7 @@ pub fn course() -> CourseState {
         course_default_review_config: None,
         exercises: None,
         exercise_deadlines: Default::default(),
+        exercise_task_types: Default::default(),
     }
 }
 

@@ -264,6 +264,29 @@ pub fn ensure_branch_name_is_valid(branch: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// Checks a clone URL and branch the way saving a repository does. Returns the branch with blank
+/// treated as none.
+pub async fn check_url_and_branch<'a>(
+    url: &str,
+    branch: Option<&'a str>,
+) -> anyhow::Result<Option<&'a str>> {
+    ensure_clone_url_is_allowed(url).await?;
+    let branch = branch.map(str::trim).filter(|b| !b.is_empty());
+    if let Some(branch) = branch {
+        ensure_branch_name_is_valid(branch)?;
+    }
+    Ok(branch)
+}
+
+/// A new ed25519 deploy key pair in OpenSSH format: the public key line and the private key.
+pub fn generate_deploy_key() -> anyhow::Result<(String, SecretString)> {
+    let private_key =
+        ssh_key::PrivateKey::random(&mut ssh_key::rand_core::OsRng, ssh_key::Algorithm::Ed25519)?;
+    let public_key = private_key.public_key().to_openssh()?;
+    let private_key = private_key.to_openssh(ssh_key::LineEnding::LF)?;
+    Ok((public_key, SecretString::from(private_key.to_string())))
+}
+
 /// Syncs started for a repository before it is marked failed.
 const MAX_SYNC_ATTEMPTS: i32 = 3;
 /// A sync running longer than this is assumed dead, for example with the server that ran it.

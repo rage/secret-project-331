@@ -156,6 +156,17 @@
             "name": "repository_preparation_endpoint_path"
           }
         }
+      },
+      {
+        "ordinal": 14,
+        "name": "private_spec_schema_endpoint_path",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "private_spec_schema_endpoint_path"
+          }
+        }
       }
     ],
     "parameters": {
@@ -177,6 +188,7 @@
       false,
       false,
       false,
+      true,
       true
     ]
   },

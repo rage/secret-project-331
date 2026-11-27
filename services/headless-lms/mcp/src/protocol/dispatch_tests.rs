@@ -115,6 +115,7 @@ fn principal(scopes: &[McpScope]) -> McpPrincipal {
             client_name: "Claude Code".into(),
         },
         scopes: scopes.to_vec(),
+        is_global_admin: false,
     }
 }
 

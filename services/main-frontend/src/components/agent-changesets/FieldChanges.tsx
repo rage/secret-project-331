@@ -78,6 +78,10 @@ function fieldLabels(t: TFunction): Record<EntityField, string> {
     exercise_deadline: t("agent-field-exercise-deadline"),
     task_instructions: t("agent-field-task-instructions"),
     review_config: t("agent-field-review-config"),
+    exercise_tasks: t("agent-field-exercise-tasks"),
+    task_exercise_type: t("agent-field-task-exercise-type"),
+    task_private_spec: t("agent-field-task-private-spec"),
+    task_repository_exercise: t("agent-field-task-repository-exercise"),
   }
 }
 

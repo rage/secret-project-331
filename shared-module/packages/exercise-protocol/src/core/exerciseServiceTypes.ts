@@ -48,6 +48,22 @@ export interface ExerciseServiceInfoApi {
    * service to declare it.
    */
   repository_preparation_endpoint_path?: string
+  /**
+   * Where AI agents fetch the JSON Schema of this service's private spec with GET
+   * (`PrivateSpecSchemaResponse`), to validate a spec before staging it. Optional: the host treats
+   * a missing path or a 404 as "no schema".
+   */
+  private_spec_schema_endpoint_path?: string
+}
+
+/** Response of `private_spec_schema_endpoint_path`. */
+export interface PrivateSpecSchemaResponse {
+  /** JSON Schema of the private spec. */
+  schema: Record<string, unknown>
+  /** Valid private specs, for agents to imitate. */
+  examples?: unknown[]
+  /** Constraints the schema cannot express. */
+  notes?: string
 }
 
 /** Sent to `repository_preparation_endpoint_path`. */

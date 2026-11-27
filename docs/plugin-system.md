@@ -251,6 +251,18 @@ The backend communicates with the plugin via REST to grade answers and generate 
 > whatever metadata the plugin put in the answer, and may be absent when the files are the whole
 > answer.
 
+#### 6. Private Spec Schema Endpoint (optional)
+
+- **Method**: GET
+- **Purpose**: Serves the JSON Schema of the plugin's private spec, so AI agents can validate a
+  private spec they write before staging it.
+- **Declared by**: `private_spec_schema_endpoint_path` in service info.
+- **Outputs**: `{ "schema": <JSON Schema>, "examples"?: [...], "notes"?: "..." }`. `examples` are
+  valid private specs to imitate; `notes` holds constraints the schema cannot express.
+
+A plugin that omits the path, or answers 404, simply has no schema: the host treats both as "no
+schema" and the plugin is otherwise unaffected.
+
 ## Input and Output Types Summary
 
 ### Views

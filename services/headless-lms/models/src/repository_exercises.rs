@@ -255,6 +255,46 @@ WHERE et.repository_exercise_id = ANY($1)
     Ok(in_use)
 }
 
+/// A live exercise task that uses a repository exercise.
+#[derive(Debug, Clone)]
+pub struct RepositoryExerciseUse {
+    pub repository_exercise_id: Uuid,
+    pub exercise_task_id: Uuid,
+    pub exercise_id: Uuid,
+    pub exercise_name: String,
+    pub course_id: Option<Uuid>,
+}
+
+/// The live exercise tasks that use any of `ids`.
+pub async fn get_uses(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<RepositoryExerciseUse>> {
+    let uses = sqlx::query_as!(
+        RepositoryExerciseUse,
+        r#"
+SELECT et.repository_exercise_id AS "repository_exercise_id!",
+  et.id AS exercise_task_id,
+  e.id AS exercise_id,
+  e.name AS exercise_name,
+  e.course_id
+FROM exercise_tasks et
+  JOIN exercise_slides es ON es.id = et.exercise_slide_id
+  AND es.deleted_at IS NULL
+  JOIN exercises e ON e.id = es.exercise_id
+  AND e.deleted_at IS NULL
+WHERE et.repository_exercise_id = ANY($1)
+  AND et.deleted_at IS NULL
+ORDER BY e.name,
+  et.id
+"#,
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(uses)
+}
+
 /// The current version of the repository exercise the exercise task uses, also when the exercise
 /// has since been removed from its repository. `None` for a task that uses none.
 pub async fn get_for_exercise_task(

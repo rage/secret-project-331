@@ -18,10 +18,11 @@ pub enum GuideTopic {
     CitationsAndGlossary,
     RichText,
     Exercises,
+    Uploads,
 }
 
 impl GuideTopic {
-    pub const ALL: [GuideTopic; 8] = [
+    pub const ALL: [GuideTopic; 9] = [
         GuideTopic::Editing,
         GuideTopic::CourseStructure,
         GuideTopic::CourseSettings,
@@ -30,6 +31,7 @@ impl GuideTopic {
         GuideTopic::CitationsAndGlossary,
         GuideTopic::RichText,
         GuideTopic::Exercises,
+        GuideTopic::Uploads,
     ];
 
     fn text(self) -> &'static str {
@@ -42,6 +44,7 @@ impl GuideTopic {
             GuideTopic::CitationsAndGlossary => CITATIONS_AND_GLOSSARY,
             GuideTopic::RichText => RICH_TEXT,
             GuideTopic::Exercises => EXERCISES,
+            GuideTopic::Uploads => UPLOADS,
         }
     }
 }
@@ -107,6 +110,22 @@ An exercise block on a page holds only the exercise id (exercise_id in reads). g
 - Switching review settings is allowed after students have given reviews, but the result and the review page warn about it.
 - Name and instruction edits are never risky; a deadline change is risky as in publishing-and-risk.
 - find_replace and structural_replace include instructions by default (include_exercise_instructions) and find_replace exercise names with include_exercise_names; matches in the course default review instructions are listed once and change every exercise using it. Bulk tools never fork. Regexes (find_replace regex: true, structural_replace text_regex) use Rust regex syntax: no backreferences or lookaround; (?i) for case-insensitive.";
+
+const UPLOADS: &str = "\
+Ways to get an image or file into the course, best first:
+- Agents that can run a shell: create_upload_link {course, file_name} returns upload_url and url. Send the file with one PUT before expires_at: curl -sS -T <local file> '<upload_url>'. Each link takes one upload.
+- Tiny files of a few kilobytes, such as a small SVG you wrote: upload_file with content_base64. Base64 is too slow and error-prone for real photos and screenshots.
+- Chat clients that can't read the file's bytes: ask the teacher to upload the image in the course editor and give you its URL.
+Then add a core/image block with url set to the returned url and alt saying what the image shows for someone who can't see it (alt \"\" only for purely decorative images), and check it with get_preview_link.
+The file type comes from its content and must match the file name's extension. HEIC/HEIF photos are refused because browsers can't show them: convert them to JPEG, PNG or WebP first. Images may be at most 10 MiB.";
+
+/// Appended to the exercises topic for global admins, who see the admin-only tools.
+pub const EXERCISES_FOR_ADMINS: &str = "\
+You are a global admin, so you also have:
+- patch_exercise_tasks: an exercise's slides and tasks, staged like other edits. link_repository_exercise makes a task use a repository exercise: it sets the exercise type and builds the private spec as the editor does. A TMC task can't be published without a repository exercise. replace_task switches a task to another exercise service or replaces its private spec; add_task, remove_task, move_task, add_slide and remove_slide change the structure, and every slide keeps at least one task. New tasks have empty instructions; patch_exercise edits them. Changing the tasks of an exercise with submissions is risky.
+- get_exercise_repositories: the course's repositories, and with repository their exercises with ids, parts and the published tasks using each.
+- manage_exercise_repository: add, update, sync or delete a repository. It takes effect immediately and isn't staged, so it can't be discarded or reverted. A private repository needs a deploy key: generate_deploy_key returns a public key to add to the repository; private keys are never taken. A sync runs in the background; read its outcome with get_exercise_repositories.
+- guide exercise_types [\"<type>\"] returns the JSON Schema, examples and notes of a type's private spec, where the service serves one. patch_exercise_tasks checks the private specs it writes against it; specs of other types are checked by their service at publish, and a refusal there names the exercise, task and service.";
 
 /// The `guide` tool's result: the guide of each block type and topic asked for, or with neither
 /// asked for, the index of both. `schemas` may be `None` only when only topics are asked for.
@@ -193,6 +212,12 @@ fn block_guide(schemas: &BlockSchemas, name: &str) -> Result<Value, EditError> {
         .collect();
     let mut example_op =
         json!({"op": "add", "path": "", "position": "end", "value": schema.example});
+    if name == "core/image" {
+        // The schema export fills rich-text attributes only; an image is useless without these.
+        example_op["value"]["attributes"]["url"] =
+            json!("<url from create_upload_link or upload_file>");
+        example_op["value"]["attributes"]["alt"] = json!("<what the image shows>");
+    }
     if schema
         .allowed_parents
         .as_ref()
@@ -273,7 +298,7 @@ mod tests {
     #[test]
     fn index_blocks_and_topics() {
         let index = index(&schemas());
-        assert_eq!(index["topics"].as_array().unwrap().len(), 8);
+        assert_eq!(index["topics"].as_array().unwrap().len(), 9);
         assert_eq!(index["topics"][1], json!("course-structure"));
         let guide = blocks_guide(
             &schemas(),

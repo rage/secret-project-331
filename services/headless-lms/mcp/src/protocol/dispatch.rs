@@ -366,7 +366,21 @@ impl<S: Send + Sync + 'static> McpServer<S> {
     ) -> Result<Value, RpcError> {
         let name = tool.definition.name;
         if !principal.has_scope(tool.definition.scope) {
+            tracing::info!(
+                tool = name,
+                code = "insufficient_scope",
+                "MCP tool call failed"
+            );
             return Err(self.insufficient_scope(principal, tool.definition.scope));
+        }
+        if tool.definition.is_admin_only && !principal.is_global_admin {
+            return Ok(self.failed(
+                name,
+                ToolError::Forbidden {
+                    message: format!("{name} is only for global admins"),
+                }
+                .into_result(),
+            ));
         }
         let mut arguments = match params.remove("arguments") {
             None | Some(Value::Null) => Map::new(),
@@ -381,12 +395,12 @@ impl<S: Send + Sync + 'static> McpServer<S> {
         let skill_version = arguments.remove("skill_version");
         let skill_version = skill_version.as_ref().and_then(Value::as_str);
         if skill_version.is_none() && tool.definition.requires_skill {
-            return Ok(self.tool_result(ToolError::from(hints::skill_missing()).into_result()));
+            return Ok(self.failed(name, ToolError::from(hints::skill_missing()).into_result()));
         }
         let skill_hint = match hints::skill_version(skill_version) {
             Ok(hint) => hint,
             Err(outdated) => {
-                return Ok(self.tool_result(ToolError::from(outdated).into_result()));
+                return Ok(self.failed(name, ToolError::from(outdated).into_result()));
             }
         };
         let binding = confirmation_binding(principal, name, &arguments)?;
@@ -410,6 +424,9 @@ impl<S: Send + Sync + 'static> McpServer<S> {
             progress,
         };
         match tool.handler.call_with_json(state, &ctx, arguments).await {
+            Ok(ToolOutcome::Complete(result)) if result.is_error => {
+                Ok(self.failed(name, result.with_hints(skill_hint)))
+            }
             Ok(ToolOutcome::Complete(result)) => {
                 Ok(self.tool_result(result.with_hints(skill_hint)))
             }
@@ -417,13 +434,18 @@ impl<S: Send + Sync + 'static> McpServer<S> {
                 Ok(self.confirmation(&ctx, request, sealing_binding, skill_hint))
             }
             Err(ToolError::InsufficientScope { required }) => {
+                tracing::info!(
+                    tool = name,
+                    code = "insufficient_scope",
+                    "MCP tool call failed"
+                );
                 Err(self.insufficient_scope(principal, required))
             }
             Err(ToolError::Internal(message)) => {
                 tracing::error!(tool = %ctx.tool_name, %message, "MCP tool failed");
                 Err(RpcError::internal())
             }
-            Err(error) => Ok(self.tool_result(error.into_result().with_hints(skill_hint))),
+            Err(error) => Ok(self.failed(name, error.into_result().with_hints(skill_hint))),
         }
     }
 
@@ -452,6 +474,19 @@ impl<S: Send + Sync + 'static> McpServer<S> {
             ),
         ));
         error
+    }
+
+    /// [`Self::tool_result`] of a failed call, logged by tool and error code only: arguments can
+    /// hold course content and file data.
+    fn failed(&self, tool: &str, result: ToolResult) -> Value {
+        let code = result
+            .structured
+            .get("error")
+            .and_then(|error| error.get("code"))
+            .and_then(Value::as_str)
+            .unwrap_or("unknown");
+        tracing::info!(tool, code, "MCP tool call failed");
+        self.tool_result(result)
     }
 
     fn tool_result(&self, result: ToolResult) -> Value {

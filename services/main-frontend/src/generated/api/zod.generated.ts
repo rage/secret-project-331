@@ -3579,6 +3579,10 @@ export const zEntityField = z.enum([
   "exercise_deadline",
   "task_instructions",
   "review_config",
+  "exercise_tasks",
+  "task_exercise_type",
+  "task_private_spec",
+  "task_repository_exercise",
 ])
 
 /**
@@ -6731,6 +6735,10 @@ export const zReviewingStage = z.enum([
 export const zRiskReason = z.union([
   z.object({
     code: z.enum(["exercise_with_submissions_removed"]),
+    exercise_id: z.uuid(),
+  }),
+  z.object({
+    code: z.enum(["exercise_tasks_changed_with_submissions"]),
     exercise_id: z.uuid(),
   }),
   z.object({

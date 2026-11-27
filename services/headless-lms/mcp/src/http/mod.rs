@@ -61,6 +61,35 @@ pub fn configure(cfg: &mut ServiceConfig) {
         .route("/", web::route().to(handle));
 }
 
+/// Adds the route upload links point to, `PUT /{token}` with the file as the body, to a scope
+/// mounted at `/api/v0/mcp-uploads` without [`auth::authenticate`]: the signed
+/// link is the credential. The scope needs an [`McpEndpoint`] in its app data.
+pub fn configure_upload_links(cfg: &mut ServiceConfig) {
+    cfg.app_data(web::PayloadConfig::new(MAX_UPLOAD_BYTES))
+        .route("/{token}", web::put().to(upload_with_link))
+        .route("/{token}", web::post().to(upload_with_link));
+}
+
+/// The largest media size limit.
+const MAX_UPLOAD_BYTES: usize = 100 * 1024 * 1024;
+
+async fn upload_with_link(
+    endpoint: web::Data<McpEndpoint>,
+    token: web::Path<String>,
+    body: Bytes,
+) -> HttpResponse {
+    match crate::handlers::upload_with_link(&endpoint.state, &token, body.to_vec()).await {
+        Ok(stored) => HttpResponse::Ok().json(stored),
+        Err(error) => {
+            tracing::info!(status = error.status, "MCP upload link refused");
+            HttpResponse::build(
+                StatusCode::from_u16(error.status).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
+            )
+            .json(serde_json::json!({ "error": error.message }))
+        }
+    }
+}
+
 fn into_actix(response: dispatch::HttpResponse) -> HttpResponse {
     let mut builder = HttpResponse::build(
         StatusCode::from_u16(response.status).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),

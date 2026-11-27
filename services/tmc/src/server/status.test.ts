@@ -32,6 +32,7 @@ describe("GET /api/service-info", () => {
     expect(info.grade_endpoint_path.endsWith("/api/grade")).toBe(true)
     expect(info.public_spec_endpoint_path.endsWith("/api/public-spec")).toBe(true)
     expect(info.model_solution_spec_endpoint_path.endsWith("/api/model-solution")).toBe(true)
+    expect(info.private_spec_schema_endpoint_path.endsWith("/api/private-spec-schema")).toBe(true)
     // Declaring this is what makes tmc visible to the exercise-services client API.
     expect(info.supports_native_client).toBe(true)
     // Answers are uploaded project archives, which is what makes the answer-file export meaningful.

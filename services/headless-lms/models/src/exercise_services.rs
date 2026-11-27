@@ -244,6 +244,19 @@ pub fn get_internal_public_spec_url(
     Ok(url)
 }
 
+/// Where the service serves the JSON Schema of its private specs; `None` when it declares none.
+pub fn get_internal_private_spec_schema_url(
+    exercise_service: &ExerciseService,
+    exercise_service_info: &ExerciseServiceInfo,
+) -> ModelResult<Option<Url>> {
+    let Some(path) = &exercise_service_info.private_spec_schema_endpoint_path else {
+        return Ok(None);
+    };
+    let mut url = get_exercise_service_internally_preferred_baseurl(exercise_service)?;
+    url.set_path(path);
+    Ok(Some(url))
+}
+
 /**
 Slugs of the exercise services that declare they can serve a native (non-browser) client.
 
@@ -438,6 +451,7 @@ mod test {
                 csv_export_definitions_endpoint_path: None,
                 csv_export_answers_endpoint_path: None,
                 repository_preparation_endpoint_path: None,
+                private_spec_schema_endpoint_path: None,
                 supports_native_client: true,
                 produces_file_answers: false,
                 declares_spec_files: false,

@@ -38,6 +38,9 @@ impl AgentChangesetEntityOperation {
 pub enum RiskReason {
     /// The page loses an exercise that has submissions.
     ExerciseWithSubmissionsRemoved { exercise_id: Uuid },
+    /// Tasks of the exercise on the page, which has submissions, are added, removed or switched
+    /// to another exercise service.
+    ExerciseTasksChangedWithSubmissions { exercise_id: Uuid },
     /// The page is removed, with exercises that have submissions.
     PageWithSubmissionsRemoved,
     /// The chapter is removed, with exercises that have submissions.

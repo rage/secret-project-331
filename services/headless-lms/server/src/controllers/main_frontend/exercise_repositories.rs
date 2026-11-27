@@ -68,20 +68,13 @@ async fn new(
     token.authorized_ok(web::Json(new_repository_id))
 }
 
-/// Returns the branch with blank treated as none.
 async fn validate_url_and_branch<'a>(
     url: &str,
     branch: Option<&'a str>,
 ) -> Result<Option<&'a str>, ControllerError> {
-    domain::exercise_repositories::ensure_clone_url_is_allowed(url)
+    domain::exercise_repositories::check_url_and_branch(url, branch)
         .await
-        .map_err(|err| controller_err!(BadRequest, err.to_string()))?;
-    let branch = branch.map(str::trim).filter(|b| !b.is_empty());
-    if let Some(branch) = branch {
-        domain::exercise_repositories::ensure_branch_name_is_valid(branch)
-            .map_err(|err| controller_err!(BadRequest, err.to_string()))?;
-    }
-    Ok(branch)
+        .map_err(|err| controller_err!(BadRequest, err.to_string()))
 }
 
 /**

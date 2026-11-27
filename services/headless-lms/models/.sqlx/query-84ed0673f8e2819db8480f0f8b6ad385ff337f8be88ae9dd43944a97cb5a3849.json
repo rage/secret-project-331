@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO exercise_service_info(\n    exercise_service_id,\n    user_interface_iframe_path,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_spec_endpoint_path,\n    has_custom_view,\n    csv_export_definitions_endpoint_path,\n    csv_export_answers_endpoint_path,\n    supports_native_client,\n    produces_file_answers,\n    declares_spec_files,\n    repository_preparation_endpoint_path\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nON CONFLICT(exercise_service_id) DO UPDATE\nSET user_interface_iframe_path = $2,\n  grade_endpoint_path = $3,\n  public_spec_endpoint_path = $4,\n  model_solution_spec_endpoint_path = $5,\n  has_custom_view = $6,\n  csv_export_definitions_endpoint_path = $7,\n  csv_export_answers_endpoint_path = $8,\n  supports_native_client = $9,\n  produces_file_answers = $10,\n  declares_spec_files = $11,\n  repository_preparation_endpoint_path = $12\nRETURNING *\n    ",
+  "query": "\nINSERT INTO exercise_service_info(\n    exercise_service_id,\n    user_interface_iframe_path,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_spec_endpoint_path,\n    has_custom_view,\n    csv_export_definitions_endpoint_path,\n    csv_export_answers_endpoint_path,\n    supports_native_client,\n    produces_file_answers,\n    declares_spec_files,\n    repository_preparation_endpoint_path,\n    private_spec_schema_endpoint_path\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)\nON CONFLICT(exercise_service_id) DO UPDATE\nSET user_interface_iframe_path = $2,\n  grade_endpoint_path = $3,\n  public_spec_endpoint_path = $4,\n  model_solution_spec_endpoint_path = $5,\n  has_custom_view = $6,\n  csv_export_definitions_endpoint_path = $7,\n  csv_export_answers_endpoint_path = $8,\n  supports_native_client = $9,\n  produces_file_answers = $10,\n  declares_spec_files = $11,\n  repository_preparation_endpoint_path = $12,\n  private_spec_schema_endpoint_path = $13\nRETURNING *\n    ",
   "describe": {
     "columns": [
       {
@@ -156,6 +156,17 @@
             "name": "repository_preparation_endpoint_path"
           }
         }
+      },
+      {
+        "ordinal": 14,
+        "name": "private_spec_schema_endpoint_path",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "private_spec_schema_endpoint_path"
+          }
+        }
       }
     ],
     "parameters": {
@@ -171,6 +182,7 @@
         "Bool",
         "Bool",
         "Bool",
+        "Text",
         "Text"
       ]
     },
@@ -188,8 +200,9 @@
       false,
       false,
       false,
+      true,
       true
     ]
   },
-  "hash": "fec4fd509b98f3f951e5e01f3a3620c9ba2bdb63899eebd45deef082904dd180"
+  "hash": "84ed0673f8e2819db8480f0f8b6ad385ff337f8be88ae9dd43944a97cb5a3849"
 }

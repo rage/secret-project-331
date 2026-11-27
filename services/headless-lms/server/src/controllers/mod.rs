@@ -82,6 +82,10 @@ pub fn configure_controllers(
         .service(web::scope("/health").configure(health::_add_routes))
         .service(web::scope("/tmc-server").configure(tmc_server::_add_routes))
         .service(web::scope("/moocfi").configure(moocfi::_add_routes))
+        // Signed upload links are their own credential. Must match the MCP crate's UPLOAD_LINK_ROUTE.
+        .service(
+            web::scope("/mcp-uploads").configure(headless_lms_mcp::http::configure_upload_links),
+        )
         .service({
             let [per_grant, per_user] = mcp_rate_limits(app_conf.test_mode);
             // Registered inside out: authentication runs first and gives the limits their key.

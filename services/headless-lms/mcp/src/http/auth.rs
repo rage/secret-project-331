@@ -9,6 +9,7 @@ use actix_web::{
     middleware::Next,
     web,
 };
+use headless_lms_authorization::is_user_global_admin;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::library::oauth::{
     bearer::{BearerTokenError, TokenSubject, bearer_token},
@@ -64,7 +65,7 @@ pub async fn authenticate(
         .acquire()
         .await
         .map_err(actix_web::error::ErrorInternalServerError)?;
-    let principal = match authenticate_mcp_access_token(
+    let mut principal = match authenticate_mcp_access_token(
         &mut conn,
         &token,
         &app_conf.oauth_server_configuration.oauth_token_hmac_key,
@@ -84,6 +85,9 @@ pub async fn authenticate(
             return Err(actix_web::error::ErrorInternalServerError(err));
         }
     };
+    principal.is_global_admin = is_user_global_admin(&mut conn, principal.actor.user_id)
+        .await
+        .map_err(actix_web::error::ErrorInternalServerError)?;
     drop(conn);
     req.extensions_mut().insert(TokenSubject {
         user_id: principal.actor.user_id,

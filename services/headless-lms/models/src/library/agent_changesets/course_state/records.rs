@@ -6,7 +6,7 @@ use utoipa::ToSchema;
 
 use crate::{
     library::entity_snapshots::{ContentEntityType, EntityRef, ExerciseBundle, PageSnapshot},
-    pages::CmsPageExercise,
+    pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
     peer_or_self_review_configs::CmsPeerOrSelfReviewConfiguration,
     peer_or_self_review_questions::normalize_cms_peer_or_self_review_questions,
     prelude::*,
@@ -117,7 +117,9 @@ pub struct ExerciseRecord {
     pub deadline: Option<DateTime<Utc>>,
     pub needs_peer_review: bool,
     pub needs_self_review: bool,
-    /// In slide order, then task order.
+    /// Slide ids in slide order.
+    pub slides: Vec<Uuid>,
+    /// In slide order, then task order; see [`Self::sort_tasks_by_slide`].
     pub tasks: Vec<ExerciseTaskRecord>,
     pub review_config: ExerciseReviewConfig,
 }
@@ -126,9 +128,37 @@ pub struct ExerciseRecord {
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExerciseTaskRecord {
     pub id: Uuid,
+    pub slide_id: Uuid,
     pub exercise_type: String,
     /// The task's instructions: blocks, as the CMS stores them.
     pub assignment: Arc<serde_json::Value>,
+    pub private_spec: Option<Arc<serde_json::Value>>,
+    /// See [`CmsPageExerciseTask::private_spec_files`].
+    pub private_spec_files: Vec<Uuid>,
+    pub repository_exercise_id: Option<Uuid>,
+}
+
+impl ExerciseTaskRecord {
+    fn of_task(task: &CmsPageExerciseTask) -> Self {
+        Self {
+            id: task.id,
+            slide_id: task.exercise_slide_id,
+            exercise_type: task.exercise_type.clone(),
+            assignment: Arc::new(task.assignment.clone()),
+            private_spec: task.private_spec.clone().map(Arc::new),
+            private_spec_files: task.private_spec_files.clone(),
+            repository_exercise_id: task.repository_exercise_id,
+        }
+    }
+
+    fn write_to(&self, task: &mut CmsPageExerciseTask) {
+        task.exercise_slide_id = self.slide_id;
+        task.exercise_type.clone_from(&self.exercise_type);
+        task.assignment = (*self.assignment).clone();
+        task.private_spec = self.private_spec.as_deref().cloned();
+        task.private_spec_files.clone_from(&self.private_spec_files);
+        task.repository_exercise_id = self.repository_exercise_id;
+    }
 }
 
 /// Which review settings an exercise uses.
@@ -200,14 +230,11 @@ impl ExerciseRecord {
             deadline: exercise.deadline,
             needs_peer_review: exercise.needs_peer_review,
             needs_self_review: exercise.needs_self_review,
+            slides: bundle.slides.iter().map(|slide| slide.id).collect(),
             tasks: bundle
                 .tasks
                 .iter()
-                .map(|task| ExerciseTaskRecord {
-                    id: task.id,
-                    exercise_type: task.exercise_type.clone(),
-                    assignment: Arc::new(task.assignment.clone()),
-                })
+                .map(ExerciseTaskRecord::of_task)
                 .collect(),
             review_config,
         }
@@ -230,6 +257,7 @@ impl ExerciseRecord {
             deadline,
             needs_peer_review,
             needs_self_review,
+            slides,
             tasks,
             review_config,
         } = self;
@@ -238,8 +266,60 @@ impl ExerciseRecord {
             && *deadline == other.deadline
             && *needs_peer_review == other.needs_peer_review
             && *needs_self_review == other.needs_self_review
+            && *slides == other.slides
             && *tasks == other.tasks
             && *review_config == other.review_config
+    }
+
+    /// Each task's id and slide, in order.
+    fn task_layout(&self) -> impl Iterator<Item = (Uuid, Uuid)> + '_ {
+        self.tasks.iter().map(|task| (task.id, task.slide_id))
+    }
+
+    /// Restores the task order invariant after tasks were added or moved between slides: slide
+    /// order first, the order within a slide kept.
+    pub fn sort_tasks_by_slide(&mut self) {
+        let position = |slide_id: Uuid| self.slides.iter().position(|id| *id == slide_id);
+        let mut tasks = std::mem::take(&mut self.tasks);
+        tasks.sort_by_key(|task| position(task.slide_id));
+        self.tasks = tasks;
+    }
+
+    /// Replaces the bundle's slides and tasks with the record's, numbered in order.
+    fn rebuild_slides_and_tasks(&self, bundle: &mut ExerciseBundle) {
+        let exercise_id = bundle.exercise.id;
+        bundle.slides = self
+            .slides
+            .iter()
+            .zip(0..)
+            .map(|(id, order_number)| CmsPageExerciseSlide {
+                id: *id,
+                exercise_id,
+                order_number,
+            })
+            .collect();
+        bundle.tasks.clear();
+        for slide_id in &self.slides {
+            for (task, order_number) in self
+                .tasks
+                .iter()
+                .filter(|task| task.slide_id == *slide_id)
+                .zip(0..)
+            {
+                let mut bundle_task = CmsPageExerciseTask {
+                    id: task.id,
+                    exercise_slide_id: task.slide_id,
+                    assignment: serde_json::Value::Null,
+                    exercise_type: String::new(),
+                    private_spec: None,
+                    order_number,
+                    private_spec_files: Vec::new(),
+                    repository_exercise_id: None,
+                };
+                task.write_to(&mut bundle_task);
+                bundle.tasks.push(bundle_task);
+            }
+        }
     }
 
     /// Whether the exercise has peer or self reviews, whose instructions it then shows.
@@ -261,20 +341,24 @@ impl ExerciseRecord {
         if current != *before {
             return Err(ExerciseEditError::ChangedSinceRead);
         }
+        if self.slides == before.slides && self.task_layout().eq(before.task_layout()) {
+            for task in &self.tasks {
+                let before_task = before.tasks.iter().find(|t| t.id == task.id);
+                if before_task != Some(task)
+                    && let Some(bundle_task) = bundle.tasks.iter_mut().find(|t| t.id == task.id)
+                {
+                    task.write_to(bundle_task);
+                }
+            }
+        } else {
+            self.rebuild_slides_and_tasks(bundle);
+        }
         let exercise = &mut bundle.exercise;
         if self.name != before.name {
             exercise.name = self.name.clone();
         }
         if self.deadline != before.deadline {
             exercise.deadline = self.deadline;
-        }
-        for task in &self.tasks {
-            let before_task = before.tasks.iter().find(|t| t.id == task.id);
-            if before_task.is_some_and(|before_task| before_task.assignment != task.assignment)
-                && let Some(bundle_task) = bundle.tasks.iter_mut().find(|t| t.id == task.id)
-            {
-                bundle_task.assignment = (*task.assignment).clone();
-            }
         }
         match (&before.review_config, &self.review_config) {
             (before_config, after_config) if before_config == after_config => {}

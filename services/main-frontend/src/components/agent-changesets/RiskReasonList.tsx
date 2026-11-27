@@ -40,6 +40,10 @@ function riskReasonCopy(reason: RiskReason, t: TFunction): RiskReasonCopy {
       change: t("agent-risk-exercise-with-submissions-removed"),
       consequence: t("agent-risk-exercise-with-submissions-removed-consequence"),
     },
+    exercise_tasks_changed_with_submissions: {
+      change: t("agent-risk-exercise-tasks-changed-with-submissions"),
+      consequence: t("agent-risk-exercise-tasks-changed-with-submissions-consequence"),
+    },
     page_with_submissions_removed: {
       change: t("agent-risk-page-with-submissions-removed"),
       consequence: t("agent-risk-page-with-submissions-removed-consequence"),

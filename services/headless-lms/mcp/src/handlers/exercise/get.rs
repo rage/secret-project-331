@@ -205,9 +205,12 @@ impl ToolHandler<McpState> for GetExercise {
             "name": exercise.name,
             "page": page_id,
             "deadline": ExerciseDeadline::of(&view.staged, exercise_id),
+            "slides": exercise.slides,
             "tasks": exercise.tasks.iter().map(|task| json!({
                 "id": task.id,
+                "slide": task.slide_id,
                 "exercise_type": task.exercise_type,
+                "repository_exercise_id": task.repository_exercise_id,
                 "path": format!("/tasks/{}", task.id),
                 "specs_path": format!("/tasks/{}/specs", task.id),
             })).collect::<Vec<_>>(),

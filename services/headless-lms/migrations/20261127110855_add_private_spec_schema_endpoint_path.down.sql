@@ -1,0 +1,1 @@
+ALTER TABLE exercise_service_info DROP COLUMN private_spec_schema_endpoint_path;

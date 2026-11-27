@@ -33,6 +33,9 @@ pub struct CourseState {
     pub exercises: Option<BTreeMap<Uuid, ExerciseRecord>>,
     /// By exercise id; loaded with the pages. Entries of exercises no page holds any more stay.
     pub exercise_deadlines: BTreeMap<Uuid, ExerciseDeadline>,
+    /// By exercise id: its tasks' exercise types by task id. Loaded and kept like
+    /// `exercise_deadlines`, so that risk sees task changes without the records loaded.
+    pub exercise_task_types: BTreeMap<Uuid, BTreeMap<Uuid, String>>,
 }
 
 /// The state one entity has after an agent write call.
@@ -233,6 +236,10 @@ impl CourseState {
                     if let Some(deadline) = source.exercise_deadlines.get(&exercise_id) {
                         self.exercise_deadlines.insert(exercise_id, *deadline);
                     }
+                    if let Some(task_types) = source.exercise_task_types.get(&exercise_id) {
+                        self.exercise_task_types
+                            .insert(exercise_id, task_types.clone());
+                    }
                 }
                 put_by_id(&mut self.pages, page.clone(), |p| p.id)
             }
@@ -272,6 +279,20 @@ impl CourseState {
                     own: exercise.deadline,
                     chapter_id: page.chapter_id,
                 },
+            );
+        }
+    }
+
+    /// Sets the task types of the page's exercises from its snapshot.
+    pub fn set_page_exercise_task_types(&mut self, page: &PageSnapshot) {
+        for bundle in page.exercise_bundles() {
+            self.exercise_task_types.insert(
+                bundle.exercise.id,
+                bundle
+                    .tasks
+                    .iter()
+                    .map(|task| (task.id, task.exercise_type.clone()))
+                    .collect(),
             );
         }
     }
@@ -537,6 +558,7 @@ impl InCourseState for PageSnapshot {
         put_by_id(&mut state.pages, PageRecord::from(self), |page| page.id);
         state.set_page_exercises(self.id, Some(self));
         state.set_page_exercise_deadlines(self);
+        state.set_page_exercise_task_types(self);
     }
 
     fn remove_from(state: &mut CourseState, id: Uuid) {
@@ -620,6 +642,7 @@ pub async fn load_live_course(
         course_default_review_config: None,
         exercises: None,
         exercise_deadlines: BTreeMap::new(),
+        exercise_task_types: BTreeMap::new(),
     };
     if parts.includes(ContentEntityType::CourseDefaultReviewConfig) {
         state.course_default_review_config =
@@ -671,6 +694,13 @@ pub async fn load_live_course(
                 (exercise.id, deadline)
             })
             .collect();
+        for task in crate::exercise_tasks::get_types_by_course_id(conn, course.id).await? {
+            state
+                .exercise_task_types
+                .entry(task.exercise_id)
+                .or_default()
+                .insert(task.id, task.exercise_type);
+        }
     }
     if parts.includes(ContentEntityType::GlossaryTerm) {
         state.glossary = glossary::fetch_for_course(conn, course.id)

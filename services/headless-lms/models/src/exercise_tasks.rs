@@ -457,6 +457,40 @@ WHERE s.exercise_id = $1
     Ok(exercise_tasks)
 }
 
+/// A live task's exercise and service.
+#[derive(Debug, Clone)]
+pub struct ExerciseTaskType {
+    pub exercise_id: Uuid,
+    pub id: Uuid,
+    pub exercise_type: String,
+}
+
+/// The live tasks of the course's exercises.
+pub async fn get_types_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<ExerciseTaskType>> {
+    let tasks = sqlx::query_as!(
+        ExerciseTaskType,
+        "
+SELECT s.exercise_id,
+  t.id,
+  t.exercise_type
+FROM exercise_tasks t
+  JOIN exercise_slides s ON s.id = t.exercise_slide_id
+  JOIN exercises e ON e.id = s.exercise_id
+WHERE e.course_id = $1
+  AND e.deleted_at IS NULL
+  AND s.deleted_at IS NULL
+  AND t.deleted_at IS NULL
+",
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(tasks)
+}
+
 pub async fn delete_exercise_tasks_by_slide_ids(
     conn: &mut PgConnection,
     exercise_slide_ids: &[Uuid],

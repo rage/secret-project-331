@@ -98,7 +98,7 @@ impl<S> ToolRegistry<S> {
     pub fn listings_for(&self, principal: &McpPrincipal) -> Vec<rmcp::model::Tool> {
         self.tools
             .values()
-            .filter(|tool| principal.has_scope(tool.definition.scope))
+            .filter(|tool| tool.definition.is_available_to(principal))
             .map(|tool| tool.definition.listing.clone())
             .collect()
     }

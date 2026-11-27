@@ -7,7 +7,8 @@ use headless_lms_mcp::{
     protocol::{dispatch, headers::RequestHeaders},
     state::{ExerciseServiceClients, McpState},
     test_support::{
-        CURRENT_SKILL_VERSION, StubValidator, call_body, request_headers, request_meta,
+        CURRENT_SKILL_VERSION, NoRepositoryRules, StubValidator, call_body, request_headers,
+        request_meta,
     },
 };
 use headless_lms_models::{
@@ -92,6 +93,7 @@ fn exercise_services() -> ExerciseServiceClients {
     ExerciseServiceClients {
         spec_fetcher: Arc::new(|| Box::new(no_spec)),
         fetch_service_info: Arc::new(no_service_info),
+        fetch_private_spec_schema: Arc::new(|_| Box::pin(async { Ok(None) })),
     }
 }
 
@@ -263,6 +265,7 @@ impl Fixture {
             }),
             Arc::new(StubValidator::default()),
             exercise_services(),
+            Arc::new(NoRepositoryRules),
         );
         let endpoint = McpEndpoint::new(state);
         Self {
@@ -473,6 +476,7 @@ impl Fixture {
         McpPrincipal {
             actor: self.actor(),
             scopes: scopes.to_vec(),
+            is_global_admin: false,
         }
     }
 

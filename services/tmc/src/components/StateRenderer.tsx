@@ -101,6 +101,7 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
         <AnswerExercise
           publicSpec={state.public_spec}
           files={state.editor_files}
+          startingFiles={state.starting_files}
           onFilesChange={setAnswerFiles}
           testRequestResponse={testRequestResponse}
           sendFileUploadMessage={sendFileUploadMessage}

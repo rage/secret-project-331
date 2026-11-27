@@ -5,14 +5,9 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { LangsError } from "@/tmc/langs"
 
-import {
-  answerCompression,
-  gradingFailureFeedback,
-  gradingFailureKey,
-  handleGrade,
-  runScore,
-  TemplateError,
-} from "./grade"
+import { gradingFailureFeedback, gradingFailureKey, handleGrade } from "./grade"
+import { runScore } from "./gradingResult"
+import { answerCompression, TemplateError } from "./preparedSubmission"
 
 vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
   reportErrorOccurrence: vi.fn(() => Promise.resolve(undefined)),

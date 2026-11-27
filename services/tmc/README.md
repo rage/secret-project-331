@@ -26,7 +26,7 @@ upload url: post project-331.local/api/v0/files/upload
 
 ## Sandbox images
 
-Submissions are tested in a pod running the image tmc-langs picks for the exercise (`prepare-submission` returns it). The images are built outside this repository.
+Submissions are tested in a sandbox running the image tmc-langs picks for the exercise (`prepare-submission` returns it). The images are built outside this repository.
 
 | Exercise type      | Default image                                       |
 | ------------------ | --------------------------------------------------- |
@@ -40,4 +40,18 @@ An exercise overrides its image with `sandbox_image` in its `.tmcproject.yml`, f
 
 A C# exercise builds with the .NET SDK in its image, so its target framework (for example an old `netcoreapp`) must be one that SDK supports; otherwise the build fails and the submission gets a compile or generic error. Point `sandbox_image` at an image with the SDK the exercise needs.
 
-The time a test run may take is the exercise's `tests_timeout_ms` (tmc-langs' default when unset) plus build overhead, at most 15 minutes.
+On pods, the time a test run may take is the exercise's `tests_timeout_ms` (tmc-langs' default when unset) plus build overhead, at most 15 minutes. The remote sandboxes stop every run after 180 seconds.
+
+## Grading sandbox
+
+`TMC_GRADING_SANDBOX` picks where submissions run: `pod` (default; dev and test) or `remote` (the production sandbox). `remote` needs these, checked at startup:
+
+| Variable                           | Value                                                   |
+| ---------------------------------- | ------------------------------------------------------- |
+| `TMC_REMOTE_SANDBOX_URLS`          | Comma-separated sandbox URLs                            |
+| `TMC_REMOTE_SANDBOX_NOTIFY_URL`    | This service's public `/api/sandbox-results` URL        |
+| `TMC_REMOTE_SANDBOX_NOTIFY_SECRET` | Optional: secret for signing the notify URL             |
+| `TMC_REMOTE_SANDBOX_TOKEN_KEY`     | Base64 32-byte key(s), comma-separated; the first seals |
+| `TMC_REMOTE_SANDBOX_REDIS_URL`     | Redis URL for pending gradings                          |
+
+Set `TMC_TEST_REDIS_URL` to also run the store tests against a real Redis.

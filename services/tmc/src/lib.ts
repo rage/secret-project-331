@@ -21,9 +21,17 @@ export interface ExerciseFeedback {
   stderr: string
 }
 
-export const downloadStream = async (url: string, target: string) => {
+/** Bounds a whole download, body included, so a stalled transfer cannot hold a grading slot. */
+const DOWNLOAD_TIMEOUT_MS = 5 * 60_000
+
+export const downloadStream = async (
+  url: string,
+  target: string,
+  timeoutMs: number = DOWNLOAD_TIMEOUT_MS,
+) => {
   console.debug("downloading", url, "to", target)
-  const templateRes = await fetch(url)
+  const signal = AbortSignal.timeout(timeoutMs)
+  const templateRes = await fetch(url, { signal })
   if (!templateRes.ok) {
     throw new Error(`Download failed: ${templateRes.status} ${templateRes.statusText}`)
   }
@@ -31,5 +39,9 @@ export const downloadStream = async (url: string, target: string) => {
     throw new Error("Download failed: empty response body")
   }
   const templateWriter = fs.createWriteStream(target)
-  await pipeline(Readable.fromWeb(templateRes.body as unknown as WebReadableStream), templateWriter)
+  await pipeline(
+    Readable.fromWeb(templateRes.body as unknown as WebReadableStream),
+    templateWriter,
+    { signal },
+  )
 }

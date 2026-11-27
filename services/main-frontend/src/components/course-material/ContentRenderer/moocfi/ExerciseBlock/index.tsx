@@ -2,6 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, Padlock } from "@vectopus/atlas-icons-react"
 import { useAtomValue } from "jotai"
 import { uniqBy } from "lodash"
@@ -27,7 +28,10 @@ import type {
   CourseMaterialExerciseTask,
   StudentExerciseSlideSubmission,
 } from "@/generated/course-material-api/types.generated"
-import useCourseMaterialExerciseQuery from "@/hooks/course-material/useCourseMaterialExerciseQuery"
+import useCourseMaterialExerciseQuery, {
+  courseMaterialExerciseQueryKey,
+  isGradingPending,
+} from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
@@ -199,6 +203,7 @@ const ExerciseBlock: React.FC<
   const returnTo = useCurrentPagePathForReturnTo(
     pathname + (searchParams.toString() ? `?${searchParams.toString()}` : ""),
   )
+  const queryClient = useQueryClient()
   const [answers, setAnswers] = useState<CapturedAnswers>(new Map())
   const previousSubmissionIdsRef = useRef<Map<string, string>>(new Map())
   const [connectionStatuses, setConnectionStatuses] = useState<
@@ -222,7 +227,11 @@ const ExerciseBlock: React.FC<
     courseMaterialState.settings.current_course_instance_id !== courseMaterialState.instance?.id
 
   const id = props.data.attributes.id
-  const getCourseMaterialExercise = useCourseMaterialExerciseQuery(id, showExercise)
+  const getCourseMaterialExercise = useCourseMaterialExerciseQuery(
+    id,
+    showExercise,
+    postThisStateToIFrame?.every((state) => state.view_type === "view-submission") ?? false,
+  )
   const courseId =
     courseMaterialState.status === "ready" ? (courseMaterialState.course?.id ?? null) : null
   const getUserLocks = useUserChapterLocks(courseId)
@@ -323,6 +332,9 @@ const ExerciseBlock: React.FC<
         chapterLockingEnabled &&
         (chapterStatus?.status === "completed_and_locked" ||
           chapterStatus?.status === "not_unlocked_yet")
+      // Try again is enabled during a pending-grading poll; a poll landing after it would put the
+      // previous submission's view back.
+      await queryClient.cancelQueries({ queryKey: courseMaterialExerciseQueryKey(id) })
       makeSureComponentStaysVisibleAfterChangingView(sectionRef)
       dispatch({
         type: "tryAgain",
@@ -889,7 +901,9 @@ const ExerciseBlock: React.FC<
                               tryAgainMutation.mutate()
                             }}
                             disabled={
-                              getCourseMaterialExercise.isRefetching ||
+                              // Polling for a pending grading refetches every few seconds.
+                              (getCourseMaterialExercise.isRefetching &&
+                                !isGradingPending(getCourseMaterialExercise.data)) ||
                               !courseMaterialExercise.can_post_submission ||
                               tryAgainMutation.isPending
                             }

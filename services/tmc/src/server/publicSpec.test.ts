@@ -1,9 +1,13 @@
+import { promises as fs } from "node:fs"
+import path from "path"
+
+import { temporaryDirectory } from "tempy"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { RepositoryExercise } from "@/util/exerciseServiceApi"
 import { buildArchiveName } from "@/util/helpers"
 
-import { handlePublicSpec } from "./publicSpec"
+import { browserEditorFields, handlePublicSpec } from "./publicSpec"
 import { uploadArchive } from "./uploadArchive"
 
 // tmc-langs is a CLI subprocess and the template download hits the network; stub both so the
@@ -182,5 +186,54 @@ describe("POST /api/public-spec editor spec serialization", () => {
     vi.mocked(uploadArchive).mockRejectedValue(new Error("upload exploded"))
 
     await expect(handlePublicSpec(post(specRequest()))).rejects.toThrow(/upload exploded/)
+  })
+})
+
+const exercise = (name: string): RepositoryExercise => ({
+  id: "e48717c3-fd7d-41e9-a2e5-36ce06fcd943",
+  repository_id: "4d24291f-dd61-43cc-83e2-4707a7278425",
+  part: "part01",
+  name,
+  repository_url: "https://example.com/repo",
+  checksum: [1],
+  download_url: "http://files/template.tar.zst",
+})
+
+describe("browserEditorFields", () => {
+  const testsDir = path.join(import.meta.dirname, "..", "..", "tests")
+
+  it("opens the module the tests name and keeps only student files that are in the stub", async () => {
+    const fields = await browserEditorFields(
+      path.join(testsDir, "fixtures", "hello-name"),
+      ["src/hello_name.py", "src/missing.py"],
+      exercise("hello_name"),
+    )
+    expect(fields).toEqual({
+      student_file_paths: ["src/hello_name.py"],
+      main_file: "src/hello_name.py",
+      archive_prefix: "hello_name",
+    })
+  })
+
+  it("falls back to the first student file other than a package marker and makes the exercise name a safe directory", async () => {
+    const fields = await browserEditorFields(
+      path.join(testsDir, "util", "canonical-archive", "python_exercise"),
+      ["src/main.py", "src/a-b.py", "src/a/b.py", "__init__.py"],
+      exercise("part 1/ex:1"),
+    )
+    expect(fields).toEqual({
+      student_file_paths: ["__init__.py", "src/a/b.py", "src/a-b.py", "src/main.py"],
+      main_file: "src/a/b.py",
+      archive_prefix: "part_1_ex_1",
+    })
+  })
+
+  it("leaves out student files that are not text", async () => {
+    const stubDir = temporaryDirectory()
+    await fs.mkdir(path.join(stubDir, "src"))
+    await fs.writeFile(path.join(stubDir, "src", "main.py"), "print(1)\n")
+    await fs.writeFile(path.join(stubDir, "src", "data.bin"), Buffer.from([0xff, 0xfe, 0x00, 0x80]))
+    const fields = await browserEditorFields(stubDir, ["src"], exercise("ex"))
+    expect(fields.student_file_paths).toEqual(["src/main.py"])
   })
 })

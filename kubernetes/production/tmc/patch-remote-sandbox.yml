@@ -1,0 +1,11 @@
+# Settings come from the tmc-remote-sandbox Secret (services/tmc/README.md).
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: TMC_GRADING_SANDBOX
+    value: remote
+- op: add
+  path: /spec/template/spec/containers/0/envFrom
+  value:
+    - secretRef:
+        name: tmc-remote-sandbox

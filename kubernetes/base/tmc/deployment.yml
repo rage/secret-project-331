@@ -45,7 +45,7 @@ spec:
           labelSelector:
             matchLabels:
               app: tmc
-      serviceAccountName: tmc-account
+      automountServiceAccountToken: false
       containers:
         - name: tmc
           image: tmc

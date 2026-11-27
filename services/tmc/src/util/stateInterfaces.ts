@@ -26,8 +26,15 @@ export interface ExerciseEditorState {
 export interface AnswerExerciseState {
   view_type: "answer-exercise"
   public_spec: PublicSpec
-  /** The student's working copy in browser mode; always empty in editor mode. */
+  /** The student's working copy in browser mode: student files only, main file first. */
   editor_files: ExerciseFile[]
+  /**
+   * The stub's student files, which Reset returns to. Empty in editor mode; null when the stub
+   * could not be downloaded, which leaves no Reset.
+   */
+  starting_files: ExerciseFile[] | null
+  /** Where {@link editor_files} are drafted locally; null when signed out or in editor mode. */
+  draft: { key: string; basis: string } | null
   /**
    * Host file id of the archive the answer consists of, or null while no upload matches
    * {@link editor_files}. Null means the answer is not submittable yet.
@@ -62,16 +69,29 @@ export interface BrowserTestSpec {
   script: string
   /** Set when script build failed (e.g. template missing test/ or tmc/). */
   error?: string
+  /** The exercise's `tests_timeout_ms`, counted from when Python has loaded. Absent in older stored specs. */
+  timeout_ms?: number
 }
 
 export interface PublicSpec {
   type: "browser" | "editor"
   archive_name: string
   stub_download_url: string
+  /**
+   * The stub's student files, sorted by path. Stored specs may list them unsorted or name
+   * directories, so read it through `isStudentFile`.
+   */
   student_file_paths: string[]
   checksum: string
   /** In-browser test: script + runtime. Omitted for editor or when no script is built. */
   browser_test?: BrowserTestSpec
+  /** The student file the browser editor opens. Optional: stored specs may lack it. */
+  main_file?: string
+  /**
+   * Top-level directory of the archive a browser answer is packed into, stable per exercise like the
+   * exercise directory of a VS Code answer. Optional: stored specs may lack it.
+   */
+  archive_prefix?: string
 }
 
 /**

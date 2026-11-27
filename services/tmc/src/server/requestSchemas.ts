@@ -38,9 +38,6 @@ export const exerciseFileSchema = z.object({
   contents: z.string(),
 }) satisfies z.ZodType<ExerciseFile>
 
-/** The browser editor's files, as the iframe posts them to be packed into an archive. */
-export const packBrowserAnswerRequestSchema = z.array(exerciseFileSchema).min(1)
-
 /** One file of the graded answer. `size_bytes` is null when the host never recorded a size. */
 export const gradingRequestFileSchema = z.looseObject({
   id: z.string(),

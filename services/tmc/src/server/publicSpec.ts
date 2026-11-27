@@ -1,9 +1,12 @@
 import { promises as fsPromises } from "fs"
+import { isUtf8 } from "node:buffer"
+import path from "path"
 
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { buildBrowserTestScript } from "@/tmc/browserTestScript"
 import {
@@ -17,6 +20,7 @@ import type { DerivedSpecResponse, RepositoryExercise } from "@/util/exerciseSer
 import { buildArchiveName } from "@/util/helpers"
 import { createScopedLogger } from "@/util/logger"
 import type { PublicSpec } from "@/util/stateInterfaces"
+import { comparePaths, isCoveredBy } from "@/util/studentFiles"
 
 import type { ParsedSpecRequest } from "./requestSchemas"
 import { currentRepositoryExercise, privateSpecSchema, specRequestSchema } from "./requestSchemas"
@@ -81,6 +85,7 @@ async function processPublicSpec(
     const {
       spec,
       files,
+      testsTimeoutMs,
       paths: uploadPaths,
     } = await uploadPublicSpec(
       privateSpec.type,
@@ -94,11 +99,12 @@ async function processPublicSpec(
     tempPaths.push(...uploadPaths)
     publicSpec = spec
     if (privateSpec.type === "browser") {
+      const timeout = omitUndefined({ timeout_ms: testsTimeoutMs })
       const browserTestResult = await buildBrowserTestScript(templateDir)
       if ("script" in browserTestResult) {
         publicSpec = {
           ...publicSpec,
-          browser_test: { runtime: "python", script: browserTestResult.script },
+          browser_test: { runtime: "python", script: browserTestResult.script, ...timeout },
         }
       } else {
         debug("browser test script not generated:", browserTestResult.error)
@@ -106,6 +112,10 @@ async function processPublicSpec(
           ...publicSpec,
           browser_test: { runtime: "python", script: "", error: browserTestResult.error },
         }
+      }
+      publicSpec = {
+        ...publicSpec,
+        ...(await browserEditorFields(stubDir, publicSpec.student_file_paths, repositoryExercise)),
       }
     }
     // The envelope, not the bare spec: this service declares `declares_spec_files`, so it has to
@@ -145,7 +155,12 @@ const uploadPublicSpec = async (
   exercise: RepositoryExercise,
   uploadUrl: string,
   uploadClaim: string | null,
-): Promise<{ spec: PublicSpec; files: string[]; paths: string[] }> => {
+): Promise<{
+  spec: PublicSpec
+  files: string[]
+  testsTimeoutMs: number | undefined
+  paths: string[]
+}> => {
   log("editor exercise")
   const stubArchive = temporaryFile()
   debug("compressing stub to", stubArchive)
@@ -166,9 +181,62 @@ const uploadPublicSpec = async (
       archive_name: archiveName,
       stub_download_url: stub.url,
       checksum,
-      student_file_paths: config.student_file_paths,
+      student_file_paths: config.student_file_paths.toSorted(comparePaths),
     },
     files: [stub.id],
+    testsTimeoutMs: config.tests_timeout_ms,
     paths: [stubArchive],
+  }
+}
+
+/** Every file under `dir`, as `/`-separated paths relative to it. */
+async function listFiles(dir: string): Promise<string[]> {
+  const entries = await fsPromises.readdir(dir, { recursive: true, withFileTypes: true })
+  return entries
+    .filter((entry) => entry.isFile())
+    .map((entry) =>
+      path.relative(dir, path.join(entry.parentPath, entry.name)).split(path.sep).join("/"),
+    )
+}
+
+/** `exercise = 'src.module'` in a tmc Python test names the module under test. */
+const TESTED_MODULE_PATTERN = /^\s*exercise\s*=\s*["']([\w.]+)["']/m
+
+/**
+ * The spec fields the browser editor needs to show and pack the stub's student files.
+ * `studentFilePaths` is tmc-langs' packaging configuration for the stub.
+ */
+export async function browserEditorFields(
+  stubDir: string,
+  studentFilePaths: readonly string[],
+  exercise: RepositoryExercise,
+): Promise<Pick<PublicSpec, "student_file_paths" | "main_file" | "archive_prefix">> {
+  const stubFiles = await listFiles(stubDir)
+  const coveredFiles = stubFiles.filter((file) => isCoveredBy(file, studentFilePaths))
+  // The editor holds files as text, so a binary one would be packed corrupted over the template's.
+  const isText = await Promise.all(
+    coveredFiles.map(async (file) => isUtf8(await fsPromises.readFile(path.join(stubDir, file)))),
+  )
+  const studentFiles = coveredFiles.filter((_, i) => isText[i]).toSorted(comparePaths)
+
+  const testSources = await Promise.all(
+    stubFiles
+      .filter((f) => f.startsWith("test/") && f.endsWith(".py"))
+      .toSorted(comparePaths)
+      .map((testFile) => fsPromises.readFile(path.join(stubDir, testFile), "utf8")),
+  )
+  const testedFiles = testSources.flatMap((source) => {
+    const testedModule = TESTED_MODULE_PATTERN.exec(source)?.[1]
+    return testedModule === undefined ? [] : [`${testedModule.replaceAll(".", "/")}.py`]
+  })
+  const mainFile =
+    testedFiles.find((file) => studentFiles.includes(file)) ??
+    studentFiles.find((file) => !file.endsWith("__init__.py")) ??
+    studentFiles[0]
+
+  return {
+    student_file_paths: studentFiles,
+    ...omitUndefined({ main_file: mainFile }),
+    archive_prefix: exercise.name.replaceAll(/[^\w.-]/g, "_").replace(/^\.+$/, "exercise"),
   }
 }

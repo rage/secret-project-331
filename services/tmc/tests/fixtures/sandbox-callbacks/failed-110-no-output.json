@@ -1,0 +1,11 @@
+{
+  "token": "b",
+  "test_output": "",
+  "stdout": "",
+  "stderr": "",
+  "valgrind": "",
+  "validations": "",
+  "vm_log": "User id: uid=1000(user) gid=1000(user) groups=1000(user)\r\nSetting error_msg_locale\r\nRunning tests...\r\n",
+  "status": "failed",
+  "exit_code": "110"
+}

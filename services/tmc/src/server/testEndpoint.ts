@@ -3,9 +3,10 @@ import { v4 } from "uuid"
 import { reportErrorOccurrence } from "@/shared-module/common/errors/reportErrorOccurrence"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import type { RunResult } from "@/tmc/cli"
-import { badRequest, jsonOk } from "@/util/apiResponse"
+import { badRequest, errorResponse, jsonOk } from "@/util/apiResponse"
 import { runTests } from "@/util/test"
 
+import { gradingSandboxMode, REMOTE_TEST_RUNS_UNAVAILABLE } from "./remoteSandbox/config"
 import { testRequestSchema } from "./requestSchemas"
 import { testRuns } from "./testRuns"
 
@@ -56,6 +57,9 @@ function reportBackgroundFailure(err: unknown, request: Request): void {
 }
 
 async function postImpl(req: Request): Promise<Response> {
+  if (gradingSandboxMode() === "remote") {
+    return errorResponse(501, REMOTE_TEST_RUNS_UNAVAILABLE)
+  }
   let rawBody: unknown
   try {
     rawBody = await req.json()

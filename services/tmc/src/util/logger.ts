@@ -1,6 +1,7 @@
 export interface Logger {
   log: (message: string, ...args: unknown[]) => void
   debug: (message: string, ...args: unknown[]) => void
+  warn: (message: string, ...args: unknown[]) => void
   error: (message: string, ...args: unknown[]) => void
 }
 
@@ -8,6 +9,7 @@ export function createLogger(tag: string): Logger {
   return {
     log: (message: string, ...args: unknown[]) => console.log(`[${tag}]`, message, ...args),
     debug: (message: string, ...args: unknown[]) => console.debug(`[${tag}]`, message, ...args),
+    warn: (message: string, ...args: unknown[]) => console.warn(`[${tag}]`, message, ...args),
     error: (message: string, ...args: unknown[]) => console.error(`[${tag}]`, message, ...args),
   }
 }

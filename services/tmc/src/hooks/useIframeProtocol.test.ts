@@ -1,10 +1,13 @@
 import { MessageChannel } from "node:worker_threads"
 
-import { act, renderHook } from "@testing-library/react"
-import { afterEach, describe, expect, it } from "vitest"
+import { Zstd } from "@hpcc-js/wasm-zstd"
+import { act, renderHook, waitFor } from "@testing-library/react"
+import { afterEach, describe, expect, it, vi } from "vitest"
 
 import type { AnswerFileRef } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { tarStudentFiles } from "@/util/canonicalArchive"
 import type { RepositoryExercise } from "@/util/exerciseServiceApi"
+import { draftBasis, draftKey, loadDraft, saveDraft } from "@/util/localDraft"
 import type { AnswerExerciseState, PrivateSpec, PublicSpec } from "@/util/stateInterfaces"
 
 import { currentStateMessage, useIframeProtocol } from "./useIframeProtocol"
@@ -36,6 +39,8 @@ const answerState = (uploadedArchiveId: string | null): AnswerExerciseState => (
   view_type: "answer-exercise",
   public_spec: PUBLIC_SPEC,
   editor_files: [{ filepath: "src/main.py", contents: "print(1)" }],
+  starting_files: [{ filepath: "src/main.py", contents: "" }],
+  draft: null,
   uploaded_archive_id: uploadedArchiveId,
   previous_submission: null,
 })
@@ -154,13 +159,20 @@ function connectAsHost(): {
   }
 }
 
-const setStateMessage = (previousSubmissionFiles: AnswerFileRef[]) => ({
+const TASK_ID = "2c7d2b3a-6f2e-4f1e-9a5e-8f2f5c1a9b01"
+const USER_ID = "6a1c9f2e-4b8d-4a0c-8e1f-2d3c4b5a6f02"
+
+const setStateMessage = (
+  previousSubmissionFiles: AnswerFileRef[],
+  publicSpec: PublicSpec = EDITOR_PUBLIC_SPEC,
+) => ({
   message: "set-state",
   view_type: "answer-exercise",
-  exercise_task_id: "2c7d2b3a-6f2e-4f1e-9a5e-8f2f5c1a9b01",
-  user_information: { pseudonymous_id: "6a1c9f2e-4b8d-4a0c-8e1f-2d3c4b5a6f02", signed_in: true },
+  exercise_task_id: TASK_ID,
+  user_information: { pseudonymous_id: USER_ID, signed_in: true },
   data: {
-    public_spec: EDITOR_PUBLIC_SPEC,
+    public_spec: publicSpec,
+    // A tmc answer has no data of its own; the host passes the answer's data here.
     previous_submission: null,
     previous_submission_files: previousSubmissionFiles,
   },
@@ -195,5 +207,125 @@ describe("useIframeProtocol", () => {
     await act(() => host.postAndSettle(setStateMessage([])))
 
     expect(host.received.at(-1)).toEqual({ message: "current-state", data: null, valid: false })
+  })
+})
+
+/**
+ * Serves an answer archive whose `src/main.py` is `submitted` for the previous submission, and
+ * `stub` (the same by default) for the stub.
+ */
+async function serveArchive(stub = "print('submitted')\n") {
+  const zstd = await Zstd.load()
+  const pack = (contents: string) =>
+    zstd.compress(
+      tarStudentFiles("ex01", [
+        { path: "src/main.py", contents: new TextEncoder().encode(contents) },
+      ]),
+    )
+  const previousArchive = pack("print('submitted')\n")
+  const stubArchive = pack(stub)
+  const realFetch = globalThis.fetch
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (!url.startsWith("http://files.example/")) {
+        return realFetch(input, init)
+      }
+      const archive = url === PUBLIC_SPEC.stub_download_url ? stubArchive : previousArchive
+      return Promise.resolve(new Response(new Uint8Array(archive), { status: 200 }))
+    }),
+  )
+}
+
+describe("useIframeProtocol drafts", () => {
+  const BROWSER_SPEC: PublicSpec = {
+    ...PUBLIC_SPEC,
+    student_file_paths: ["src/main.py"],
+    main_file: "src/main.py",
+    archive_prefix: "ex01",
+  }
+  const KEY = draftKey(USER_ID, TASK_ID)
+  const DRAFT = [{ filepath: "src/main.py", contents: "print('draft')\n" }]
+
+  afterEach(() => {
+    window.localStorage.clear()
+    vi.unstubAllGlobals()
+  })
+
+  it("restores a draft edited from the submission the editor opens, and uploads it", async () => {
+    await serveArchive()
+    saveDraft(KEY, DRAFT, draftBasis(BROWSER_SPEC.checksum, PREVIOUS_ARCHIVE.id))
+    const { result } = renderHook(() => useIframeProtocol())
+    const host = connectAsHost()
+
+    await act(() => host.postAndSettle(setStateMessage([PREVIOUS_ARCHIVE], BROWSER_SPEC)))
+
+    await waitFor(() =>
+      expect(result.current.state).toMatchObject({
+        editor_files: DRAFT,
+        uploaded_archive_id: null,
+      }),
+    )
+    await waitFor(
+      () =>
+        expect(
+          host.received.some((m) => (m as { message?: string }).message === "file-upload"),
+        ).toBe(true),
+      { timeout: 3000 },
+    )
+  })
+
+  it("keeps a reset to the stub after a submission as a draft", async () => {
+    await serveArchive("# write your code here\n")
+    const { result } = renderHook(() => useIframeProtocol())
+    const host = connectAsHost()
+    await act(() => host.postAndSettle(setStateMessage([PREVIOUS_ARCHIVE], BROWSER_SPEC)))
+    await waitFor(() =>
+      expect(result.current.state).toMatchObject({ uploaded_archive_id: PREVIOUS_ARCHIVE.id }),
+    )
+    const stub = [{ filepath: "src/main.py", contents: "# write your code here\n" }]
+
+    act(() => {
+      result.current.setAnswerFiles(stub)
+    })
+
+    await waitFor(() => expect(loadDraft(KEY)?.files).toEqual(stub), { timeout: 3000 })
+  })
+
+  it("saves an edit as a draft at once, without waiting for the upload debounce", async () => {
+    await serveArchive()
+    const { result } = renderHook(() => useIframeProtocol())
+    const host = connectAsHost()
+    await act(() => host.postAndSettle(setStateMessage([PREVIOUS_ARCHIVE], BROWSER_SPEC)))
+    await waitFor(() =>
+      expect(result.current.state).toMatchObject({ uploaded_archive_id: PREVIOUS_ARCHIVE.id }),
+    )
+
+    act(() => {
+      result.current.setAnswerFiles(DRAFT)
+    })
+
+    expect(loadDraft(KEY)?.files).toEqual(DRAFT)
+    expect(host.received.some((m) => (m as { message?: string }).message === "file-upload")).toBe(
+      false,
+    )
+  })
+
+  it("keeps a newer submission and forgets a draft edited from an older starting point", async () => {
+    await serveArchive()
+    saveDraft(KEY, DRAFT, draftBasis(BROWSER_SPEC.checksum, null))
+    const { result } = renderHook(() => useIframeProtocol())
+    const host = connectAsHost()
+
+    await act(() => host.postAndSettle(setStateMessage([PREVIOUS_ARCHIVE], BROWSER_SPEC)))
+
+    await waitFor(() =>
+      expect(result.current.state).toMatchObject({
+        editor_files: [{ filepath: "src/main.py", contents: "print('submitted')\n" }],
+        uploaded_archive_id: PREVIOUS_ARCHIVE.id,
+      }),
+    )
+    expect(loadDraft(KEY)).toBeNull()
   })
 })

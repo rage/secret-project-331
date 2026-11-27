@@ -13,10 +13,7 @@ const ViewSubmission: React.FC<React.PropsWithChildren<Props>> = ({ state }) => 
   const { t } = useTranslation()
   return (
     <>
-      <SourceFiles
-        files={state.submitted_files}
-        studentFilePaths={state.public_spec.student_file_paths}
-      />
+      <SourceFiles files={state.submitted_files} publicSpec={state.public_spec} />
       {state.submitted_archive_url !== null && (
         <div>
           {t("submission-archive-download-label")}:{" "}

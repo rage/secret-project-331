@@ -22,10 +22,7 @@ const ModelSolution: React.FC<Props> = ({ state }) => {
       `}
     >
       <h3>{t("model-solution")}</h3>
-      <SourceFiles
-        files={state.model_solution_files}
-        studentFilePaths={state.public_spec.student_file_paths}
-      />
+      <SourceFiles files={state.model_solution_files} publicSpec={state.public_spec} />
       <div>
         {t("model-solution-download-label")}:{" "}
         <a href={state.model_solution_spec.solution_download_url}>{t("download-button")}</a>

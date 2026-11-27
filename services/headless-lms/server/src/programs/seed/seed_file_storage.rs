@@ -4,6 +4,14 @@ use std::path::Path;
 
 const REPOSITORY_EXERCISE_1: &[u8] = include_bytes!("./data/repository-exercise-1.tar.zst");
 const REPOSITORY_EXERCISE_2: &[u8] = include_bytes!("./data/repository-exercise-2.tar.zst");
+/// A Python exercise template shaped like the intro programming course's, also checked in unpacked
+/// as `services/tmc/tests/fixtures/hello-name`.
+const TMC_BROWSER_EXERCISE: &[u8] = include_bytes!("./data/tmc-browser-exercise.tar.zst");
+const TMC_BROWSER_EXERCISE_PATH: &str = "tmc/browser-exercise.tar.zst";
+/// Where the tmc service downloads [`TMC_BROWSER_EXERCISE`] from; pods resolve the host through the
+/// ingress.
+pub const TMC_BROWSER_EXERCISE_URL: &str =
+    "http://project-331.local/api/v0/files/uploads/tmc/browser-exercise.tar.zst";
 const CERTIFICATE_BACKGROUND: &[u8] = include_bytes!("./data/certificate-background.svg");
 const AUTHOR_IMAGE: &[u8] = include_bytes!("./data/lilo-and-stitch.jpg");
 /// Stands in for a chart data file a teacher would upload, for the seeded chart blocks.
@@ -32,6 +40,13 @@ pub async fn seed_file_storage() -> anyhow::Result<SeedFileStorageResult> {
         .upload(
             Path::new("playground-views/repository-exercise-2.tar.zst"),
             REPOSITORY_EXERCISE_2.to_vec(),
+            "application/octet-stream",
+        )
+        .await?;
+    file_storage
+        .upload(
+            Path::new(TMC_BROWSER_EXERCISE_PATH),
+            TMC_BROWSER_EXERCISE.to_vec(),
             "application/octet-stream",
         )
         .await?;

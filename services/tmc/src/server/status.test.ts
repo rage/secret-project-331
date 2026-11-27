@@ -1,10 +1,18 @@
-import { describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { sandboxResultsHandlers } from "./sandboxResults"
 import { handleServiceInfo } from "./serviceInfo"
 import { handleStatusUp } from "./status"
 import { handleTestrun } from "./testrun"
 import { testRuns } from "./testRuns"
+
+beforeEach(() => {
+  vi.stubEnv("TMC_GRADING_SANDBOX", "pod")
+})
+
+afterEach(() => {
+  vi.unstubAllEnvs()
+})
 
 describe("GET /api/status/up", () => {
   it("returns true", async () => {
@@ -46,9 +54,11 @@ describe("GET /api/testrun", () => {
 })
 
 describe("/api/sandbox-results", () => {
-  it("returns 404 for every method", async () => {
+  it("returns 404 for every method when grading on pods", async () => {
     for (const handler of Object.values(sandboxResultsHandlers)) {
-      const res = await handler()
+      const res = await handler(
+        new Request("http://localhost/api/sandbox-results", { method: "POST", body: "{}" }),
+      )
       expect(res.status).toBe(404)
     }
   })

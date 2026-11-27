@@ -1,16 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import basePath from "@/lib/basePath"
+import { postStdinLine } from "@/util/stdinServiceWorker"
 
-function getRunWorkerUrl(): string {
-  return `${basePath()}/runWorker.js`
-}
+import type { PythonWorker } from "./usePythonWorker"
 
 export type OutputSegment =
   | { type: "stdout"; text: string }
   | { type: "input"; prompt: string; line: string }
 
-export function useRunOutput() {
+export function useRunOutput(pythonWorker: PythonWorker) {
   const [segments, setSegments] = useState<OutputSegment[]>([])
   const [runError, setRunError] = useState<string | null>(null)
   const [pyodideLoading, setPyodideLoading] = useState(false)
@@ -18,6 +16,9 @@ export function useRunOutput() {
   const [waitingForInput, setWaitingForInput] = useState(false)
   const [stdinPrompt, setStdinPrompt] = useState("")
   const workerRef = useRef<Worker | null>(null)
+  /** Set while a blocking input() waits on the stdin service worker for its line. */
+  const stdinRequestIdRef = useRef<string | null>(null)
+  const latestRunRef = useRef(0)
   const runOutputBufferRef = useRef("")
   const flushTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -46,36 +47,45 @@ export function useRunOutput() {
       }
       return prev
     })
-    workerRef.current?.postMessage({ type: "stdin_line", line })
+    setWaitingForInput(false)
+    setStdinPrompt("")
+    const requestId = stdinRequestIdRef.current
+    stdinRequestIdRef.current = null
+    if (requestId === null) {
+      workerRef.current?.postMessage({ type: "stdin_line", line })
+    } else {
+      void postStdinLine(requestId, line)
+    }
   }, [])
 
-  const stopRun = useCallback(() => {
-    const worker = workerRef.current
-    if (!worker) {
-      return
-    }
+  const clearFlushTimer = useCallback(() => {
     if (flushTimerRef.current !== null) {
       clearInterval(flushTimerRef.current)
       flushTimerRef.current = null
     }
-    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
-    worker.onmessage = null
-    // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
-    worker.onerror = null
+  }, [])
+
+  useEffect(() => clearFlushTimer, [clearFlushTimer])
+
+  const stopRun = useCallback(() => {
+    latestRunRef.current++
+    clearFlushTimer()
     setPyodideLoading(false)
     setRunExecuting(false)
     setWaitingForInput(false)
     setStdinPrompt("")
-    worker.terminate()
     workerRef.current = null
-  }, [])
+    stdinRequestIdRef.current = null
+    // Python cannot be interrupted, so stopping costs the worker.
+    pythonWorker.discard()
+  }, [pythonWorker, clearFlushTimer])
 
   const runPython = useCallback(
-    // oxlint-disable-next-line eslint/require-await -- kept async; runPython is a public hook API callers may await
-    async (contents: string) => {
+    async (contents: string, filepath: string) => {
       if (runExecuting) {
         stopRun()
       }
+      const runToken = ++latestRunRef.current
 
       setRunError(null)
       runOutputBufferRef.current = ""
@@ -85,7 +95,7 @@ export function useRunOutput() {
       setPyodideLoading(true)
       setRunExecuting(true)
 
-      const finish = (_output: string, error: string | null) => {
+      const finish = (error: string | null) => {
         setRunError(error)
         setPyodideLoading(false)
         setRunExecuting(false)
@@ -93,18 +103,20 @@ export function useRunOutput() {
         setStdinPrompt("")
       }
 
-      let worker = workerRef.current
-      if (!worker) {
-        try {
-          worker = new Worker(getRunWorkerUrl())
-          workerRef.current = worker
-        } catch (err) {
-          finish("", err instanceof Error ? err.message : String(err))
-          return
+      let worker: Worker
+      try {
+        worker = await pythonWorker.acquire()
+      } catch (err) {
+        if (runToken === latestRunRef.current) {
+          finish(err instanceof Error ? err.message : String(err))
         }
+        return
       }
-      // `worker` is non-null past the guard above; capture it so the closures below don't need `!`.
-      const activeWorker = worker
+      if (runToken !== latestRunRef.current) {
+        return
+      }
+      workerRef.current = worker
+      setPyodideLoading(false)
 
       const flushStdout = () => {
         const pending = runOutputBufferRef.current
@@ -121,7 +133,22 @@ export function useRunOutput() {
         })
       }
 
-      const handleMessage = (e: MessageEvent) => {
+      const end = (error: string | null) => {
+        clearFlushTimer()
+        flushStdout()
+        // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
+        worker.onmessage = null
+        // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
+        worker.onerror = null
+        workerRef.current = null
+        finish(error)
+      }
+
+      clearFlushTimer()
+      flushTimerRef.current = setInterval(flushStdout, 50)
+
+      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
+      worker.onmessage = (e: MessageEvent) => {
         const data = e.data
         switch (data.type) {
           case "stdout":
@@ -134,74 +161,32 @@ export function useRunOutput() {
             break
           }
           case "stdin_request":
+            stdinRequestIdRef.current = typeof data.id === "string" ? data.id : null
             flushStdout()
             setSegments((prev) => [...prev, { type: "input", prompt: data.prompt ?? "", line: "" }])
             setStdinPrompt(data.prompt ?? "")
             setWaitingForInput(true)
             break
           case "run_done":
-            if (flushTimerRef.current !== null) {
-              clearInterval(flushTimerRef.current)
-              flushTimerRef.current = null
-            }
-            flushStdout()
-            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
-            activeWorker.onmessage = null
-            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
-            activeWorker.onerror = null
-            finish(data.output ?? runOutputBufferRef.current, null)
+            end(null)
             break
           case "run_error":
-            if (flushTimerRef.current !== null) {
-              clearInterval(flushTimerRef.current)
-              flushTimerRef.current = null
-            }
-            flushStdout()
-            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
-            activeWorker.onmessage = null
-            // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
-            activeWorker.onerror = null
-            finish(data.output ?? runOutputBufferRef.current, data.message ?? "Unknown error")
+            end(data.message ?? "Unknown error")
             break
           default:
             break
         }
       }
-
-      const handleError = () => {
-        if (flushTimerRef.current !== null) {
-          clearInterval(flushTimerRef.current)
-          flushTimerRef.current = null
-        }
-        flushStdout()
-        // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
-        activeWorker.onmessage = null
-        // oxlint-disable-next-line unicorn/prefer-add-event-listener -- handler cleanup; `= null` has no addEventListener form
-        activeWorker.onerror = null
-        finish(runOutputBufferRef.current, "Worker error")
-      }
-
-      if (flushTimerRef.current !== null) {
-        clearInterval(flushTimerRef.current)
-        flushTimerRef.current = null
-      }
-      flushTimerRef.current = setInterval(flushStdout, 50)
-
       // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
-      worker.onmessage = handleMessage
-      // oxlint-disable-next-line unicorn/prefer-add-event-listener -- intentional property-handler
-      worker.onerror = handleError
+      worker.onerror = () => {
+        end("Worker error")
+        pythonWorker.discard()
+      }
       // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage has no targetOrigin param
-      worker.postMessage({ type: "run", script: contents })
+      worker.postMessage({ type: "run", source: contents, filename: filepath })
     },
-    [runExecuting, stopRun],
+    [runExecuting, stopRun, pythonWorker, clearFlushTimer],
   )
-
-  useEffect(() => {
-    return () => {
-      stopRun()
-    }
-  }, [stopRun])
 
   return {
     segments,

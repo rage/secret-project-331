@@ -11,12 +11,16 @@ export const GRADING_FEEDBACK_KEYS = [
   "generic_error",
   "interrupted",
   "timed_out",
+  "out_of_memory",
   "style_check_failed",
   "no_project_in_archive",
   /** tmc-langs rejected the answer. */
   "langs_error",
   /** The service's own fault. */
   "server_error",
+  /** Every grading server stayed busy for as long as the service waits. */
+  "sandbox_busy",
+  "submission_too_large",
 ] as const
 
 /**
@@ -33,6 +37,8 @@ export interface GradingFeedbackExtras {
   feedback_key: GradingFeedbackKey | null
   /** For `langs_error`: the cause tmc-langs gave, with server paths removed. */
   feedback_detail?: string
+  /** For `timed_out`: the grading server's fixed run limit, when it has one. */
+  time_limit_seconds?: number
   /** Null when the exercise's language has no style check or the sandbox reported none. */
   validations?: StyleValidationResult | null
 }
@@ -41,6 +47,7 @@ export interface GradingFeedbackExtras {
 export interface ParsedFeedback {
   feedbackKey: GradingFeedbackKey | null
   feedbackDetail: string | null
+  timeLimitSeconds: number | null
   /** Null when no run happened or its result is not one tmc-langs wrote. */
   run: RunResult | null
   validations: StyleValidationResult | null
@@ -53,6 +60,7 @@ export function parseFeedback(feedbackJson: unknown): ParsedFeedback | null {
   }
   const key = feedbackJson["feedback_key"]
   const detail = feedbackJson["feedback_detail"]
+  const timeLimitSeconds = feedbackJson["time_limit_seconds"]
   const validations = feedbackJson["validations"]
   return {
     feedbackKey:
@@ -60,6 +68,7 @@ export function parseFeedback(feedbackJson: unknown): ParsedFeedback | null {
         ? (key as GradingFeedbackKey)
         : null,
     feedbackDetail: typeof detail === "string" ? detail : null,
+    timeLimitSeconds: typeof timeLimitSeconds === "number" ? timeLimitSeconds : null,
     run: isRunResult(feedbackJson) ? feedbackJson : null,
     validations: isStyleValidationResult(validations) ? validations : null,
   }
@@ -70,10 +79,13 @@ const FEEDBACK_MESSAGE_KEYS = {
   generic_error: "feedback-generic-error",
   interrupted: "feedback-interrupted",
   timed_out: "feedback-timed-out",
+  out_of_memory: "feedback-out-of-memory",
   style_check_failed: "feedback-style-check-failed",
   no_project_in_archive: "feedback-no-project-in-archive",
   langs_error: "feedback-langs-error",
   server_error: "feedback-server-error",
+  sandbox_busy: "feedback-sandbox-busy",
+  submission_too_large: "feedback-submission-too-large",
 } as const satisfies Record<GradingFeedbackKey, string>
 
 /**
@@ -82,6 +94,9 @@ const FEEDBACK_MESSAGE_KEYS = {
  */
 export function feedbackMessage(t: TFunction, grading: ExerciseTaskGradingResult): string | null {
   const feedback = parseFeedback(grading.feedback_json)
+  if (feedback?.feedbackKey === "timed_out" && feedback.timeLimitSeconds !== null) {
+    return t("feedback-timed-out-limit", { seconds: feedback.timeLimitSeconds })
+  }
   if (feedback?.feedbackKey) {
     return t(FEEDBACK_MESSAGE_KEYS[feedback.feedbackKey], {
       detail: feedback.feedbackDetail ?? "",

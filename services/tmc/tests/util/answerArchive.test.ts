@@ -1,27 +1,49 @@
-import { readFile } from "fs/promises"
-
+import { Zstd } from "@hpcc-js/wasm-zstd"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
-import { initialEditorFiles, packBrowserAnswer } from "@/util/answerArchive"
+import { initialEditorFiles } from "@/util/answerArchive"
+import { tarStudentFiles } from "@/util/canonicalArchive"
 import type { PublicSpec } from "@/util/stateInterfaces"
 
 const ARCHIVE_HOST = "http://files.example/"
+const STUB_URL = `${ARCHIVE_HOST}stub.tar.zst`
+const PREVIOUS_URL = `${ARCHIVE_HOST}previous.tar.zst`
 
 const BROWSER_SPEC: PublicSpec = {
   type: "browser",
-  archive_name: "part01-ex01.tar.zst",
-  stub_download_url: "http://files.example/stub.tar.zst",
-  student_file_paths: [],
+  archive_name: "part01/name_and_age.tar.zst",
+  stub_download_url: STUB_URL,
+  student_file_paths: ["src/helper.py", "src/name_and_age.py"],
   checksum: "abc",
+  main_file: "src/name_and_age.py",
+  archive_prefix: "name_and_age",
+}
+
+/** A course exercise's stub: everything a VS Code download has, tests and tooling included. */
+const STUB_FILES = {
+  ".tmcproject.yml": "tests_timeout_ms: 10000\n",
+  "src/helper.py": "# helper\n",
+  "src/name_and_age.py": "# Write your solution here\n",
+  "test/__init__.py": "",
+  "test/test_name_and_age.py": "exercise = 'src.name_and_age'\n",
+  "tmc/utils.py": "def load_module(): pass\n",
+}
+
+async function tarZstd(prefix: string, files: Record<string, string>): Promise<Uint8Array> {
+  const encoder = new TextEncoder()
+  const tar = tarStudentFiles(
+    prefix,
+    Object.entries(files).map(([path, contents]) => ({ path, contents: encoder.encode(contents) })),
+  )
+  return (await Zstd.load()).compress(tar)
 }
 
 /**
- * Serves the test archive for every `files.example` URL and records which ones were asked for.
- * Anything else falls through to the real fetch: zstddec loads its wasm decoder that way.
+ * Serves the given archives on `files.example` and records which were asked for. Anything else
+ * falls through to the real fetch: zstddec loads its wasm decoder that way.
  */
-async function stubArchiveResponses(): Promise<string[]> {
+function serveArchives(archives: Record<string, Uint8Array>): string[] {
   const requested: string[] = []
-  const archive = await readFile("./tests/util/test.tar.zst")
   const realFetch = globalThis.fetch
   vi.stubGlobal(
     "fetch",
@@ -31,7 +53,12 @@ async function stubArchiveResponses(): Promise<string[]> {
         return realFetch(input, init)
       }
       requested.push(url)
-      return Promise.resolve(new Response(new Uint8Array(archive), { status: 200 }))
+      const archive = archives[url]
+      return Promise.resolve(
+        archive === undefined
+          ? new Response("missing", { status: 404 })
+          : new Response(new Uint8Array(archive), { status: 200 }),
+      )
     }),
   )
   return requested
@@ -42,43 +69,60 @@ afterEach(() => {
 })
 
 describe("initialEditorFiles", () => {
-  it("seeds the editor from the exercise stub", async () => {
-    const requested = await stubArchiveResponses()
-    const files = await initialEditorFiles(BROWSER_SPEC, null)
-    expect(requested).toEqual([BROWSER_SPEC.stub_download_url])
-    expect(files).toHaveLength(1)
+  it("seeds the editor with the stub's student files, main file first", async () => {
+    const requested = serveArchives({ [STUB_URL]: await tarZstd("stub", STUB_FILES) })
+    const seed = await initialEditorFiles(BROWSER_SPEC, null)
+    expect(requested).toEqual([STUB_URL])
+    expect(seed.files.map((f) => f.filepath)).toEqual(["src/name_and_age.py", "src/helper.py"])
+    expect(seed.startingFiles).toEqual(seed.files)
   })
 
-  it("seeds from a previous submission's archive instead of the stub when there is one", async () => {
-    const requested = await stubArchiveResponses()
-    await initialEditorFiles(BROWSER_SPEC, "http://files.example/previous.tar.zst")
-    expect(requested).toEqual(["http://files.example/previous.tar.zst"])
+  it("seeds from a previous answer stored in the old whole-stub layout, keeping only student files", async () => {
+    serveArchives({
+      [STUB_URL]: await tarZstd("stub", STUB_FILES),
+      [PREVIOUS_URL]: await tarZstd("tmp-5f3a9c", {
+        ...STUB_FILES,
+        "src/name_and_age.py": "print('mine')\n",
+      }),
+    })
+    const seed = await initialEditorFiles(BROWSER_SPEC, PREVIOUS_URL)
+    expect(seed.files).toEqual([
+      { filepath: "src/name_and_age.py", contents: "print('mine')\n" },
+      { filepath: "src/helper.py", contents: "# helper\n" },
+    ])
+    expect(seed.startingFiles?.[0]?.contents).toBe("# Write your solution here\n")
+  })
+
+  it("keeps a source file a VS Code answer added, which the spec cannot name", async () => {
+    serveArchives({
+      [STUB_URL]: await tarZstd("stub", STUB_FILES),
+      [PREVIOUS_URL]: await tarZstd("name_and_age", {
+        "src/name_and_age.py": "import extra\n",
+        "src/extra.py": "x = 1\n",
+      }),
+    })
+    const seed = await initialEditorFiles(BROWSER_SPEC, PREVIOUS_URL)
+    expect(seed.files.map((f) => f.filepath)).toEqual(["src/name_and_age.py", "src/extra.py"])
+  })
+
+  it("opens a readable previous answer without Reset when the stub fails to download", async () => {
+    serveArchives({
+      [PREVIOUS_URL]: await tarZstd("name_and_age", { "src/name_and_age.py": "print('mine')\n" }),
+    })
+    const seed = await initialEditorFiles(BROWSER_SPEC, PREVIOUS_URL)
+    expect(seed.files).toEqual([{ filepath: "src/name_and_age.py", contents: "print('mine')\n" }])
+    expect(seed.startingFiles).toBeNull()
+  })
+
+  it("fails when the previous answer cannot be downloaded", async () => {
+    serveArchives({ [STUB_URL]: await tarZstd("stub", STUB_FILES) })
+    await expect(initialEditorFiles(BROWSER_SPEC, PREVIOUS_URL)).rejects.toThrow("404")
   })
 
   it("gives an editor-mode exercise no editor files", async () => {
-    const requested = await stubArchiveResponses()
-    const files = await initialEditorFiles({ ...BROWSER_SPEC, type: "editor" }, null)
-    expect(files).toEqual([])
+    const requested = serveArchives({})
+    const seed = await initialEditorFiles({ ...BROWSER_SPEC, type: "editor" }, null)
+    expect(seed).toEqual({ files: [], startingFiles: [] })
     expect(requested).toEqual([])
-  })
-})
-
-describe("packBrowserAnswer", () => {
-  it("uploads the packed archive bytes under a name the host can serve", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => Promise.resolve(new Response(new Uint8Array([1, 2, 3]), { status: 200 }))),
-    )
-    const archive = await packBrowserAnswer([{ filepath: "src/main.py", contents: "print(1)" }])
-    expect(archive.name).toBe("submission.tar.zst")
-    expect([...new Uint8Array(await archive.arrayBuffer())]).toEqual([1, 2, 3])
-  })
-
-  it("fails rather than uploading nothing when packing fails", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => Promise.resolve(new Response("nope", { status: 500 }))),
-    )
-    await expect(packBrowserAnswer([{ filepath: "a.py", contents: "x" }])).rejects.toThrow("500")
   })
 })

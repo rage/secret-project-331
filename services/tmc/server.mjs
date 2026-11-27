@@ -92,13 +92,54 @@ function isApiRequest(pathname) {
   return rel === "/api" || rel.startsWith("/api/") || rel.startsWith("/_serverFn")
 }
 
-function sendFile(res, filePath, { status = 200, cache = "no-cache" } = {}) {
+// Preferred first. prepare-pyodide-assets.cjs writes these siblings next to the Pyodide runtime.
+const PRECOMPRESSED = [
+  { encoding: "br", extension: ".br" },
+  { encoding: "gzip", extension: ".gz" },
+]
+
+/** The precompressed sibling of `filePath` the client accepts, if one exists. */
+async function precompressedVariant(filePath, acceptEncoding) {
+  const accepted = new Set()
+  for (const part of (acceptEncoding ?? "").split(",")) {
+    const [coding, ...params] = part.split(";").map((piece) => piece.trim().toLowerCase())
+    const refused = params.some((param) => /^q=0(\.0*)?$/.test(param))
+    if (coding && !refused) {
+      accepted.add(coding)
+    }
+  }
+  for (const { encoding, extension } of PRECOMPRESSED) {
+    if (!accepted.has(encoding)) {
+      continue
+    }
+    try {
+      if ((await stat(filePath + extension)).isFile()) {
+        return { encoding, path: filePath + extension }
+      }
+    } catch {
+      /* no such variant */
+    }
+  }
+  return null
+}
+
+async function sendFile(
+  req,
+  res,
+  filePath,
+  { status = 200, cache = "no-cache", precompressed = false } = {},
+) {
+  const variant = precompressed
+    ? await precompressedVariant(filePath, req.headers["accept-encoding"])
+    : null
   res.writeHead(status, {
     ...IFRAME_HEADERS,
     "Content-Type": MIME[extname(filePath).toLowerCase()] ?? "application/octet-stream",
     "Cache-Control": cache,
+    ...(precompressed ? { Vary: "Accept-Encoding" } : {}),
+    ...(variant ? { "Content-Encoding": variant.encoding } : {}),
   })
-  createReadStream(filePath).pipe(res)
+  createReadStream(variant?.path ?? filePath).pipe(res)
 }
 
 const server = createServer(async (req, res) => {
@@ -111,12 +152,12 @@ const server = createServer(async (req, res) => {
       const file = await resolveStatic(url.pathname)
       if (file) {
         const rel = stripBase(url.pathname)
-        // Hashed build assets and the versioned pyodide runtime are immutable.
+        // Hashed build assets and the Pyodide runtime, whose directory is its version, are immutable.
         const cache =
           rel.includes("/assets/") || rel.startsWith("/pyodide/")
             ? "public, max-age=31536000, immutable"
             : "no-cache"
-        sendFile(res, file, { cache })
+        await sendFile(req, res, file, { cache, precompressed: rel.startsWith("/pyodide/") })
         return
       }
     }
@@ -149,7 +190,7 @@ const server = createServer(async (req, res) => {
     // not found in step 1 is a missing asset — return 404, not the shell (the browser would try to
     // parse it as JS/CSS).
     if (isGet && !extname(stripBase(url.pathname))) {
-      sendFile(res, SHELL)
+      await sendFile(req, res, SHELL)
       return
     }
 

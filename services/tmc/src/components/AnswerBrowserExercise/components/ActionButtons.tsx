@@ -22,7 +22,8 @@ interface ActionButtonsProps {
   onRun: (contents: string) => void
   onStop: () => void
   onTest: () => Promise<void>
-  onResetClick: () => void
+  /** Omitted when there is no starting code to reset to. */
+  onResetClick?: (() => void) | undefined
   /** When Test is disabled because the server could not build the test script (e.g. template missing test/tmc). */
   testUnavailableReason?: string | undefined
 }
@@ -61,9 +62,11 @@ export const ActionButtons: React.FC<ActionButtonsProps> = (p) => {
             <TestButtonLabel>{t("test")}</TestButtonLabel>
           </TestButton>
         )}
-        <ResetButton type="button" data-cy="reset-btn" onClick={p.onResetClick}>
-          {t("reset")}
-        </ResetButton>
+        {p.onResetClick !== undefined && (
+          <ResetButton type="button" data-cy="reset-btn" onClick={p.onResetClick}>
+            {t("reset")}
+          </ResetButton>
+        )}
       </ButtonRow>
       {p.testUnavailableReason && (
         <TestUnavailableHint>

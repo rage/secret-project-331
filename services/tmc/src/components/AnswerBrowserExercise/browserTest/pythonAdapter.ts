@@ -1,10 +1,4 @@
-import basePath from "@/lib/basePath"
-
 import type { BrowserTestRunnerAdapter } from "./types"
-
-function getTestWorkerUrl(): string {
-  return `${basePath()}/browserTestWorker.js`
-}
 
 /**
  * Builds the full script for the Python runtime: injects base64-encoded user code
@@ -23,6 +17,5 @@ export function getPythonBrowserTestAdapter(): BrowserTestRunnerAdapter {
     },
     getCannotRunMessage: () => "Only Python files can be tested.",
     buildScript,
-    getWorkerUrl: getTestWorkerUrl,
   }
 }

@@ -80,10 +80,13 @@ impl ToolHandler<McpState> for Guide {
         if !exercise_types.is_empty() {
             let mut served = Vec::new();
             for exercise_type in &exercise_types {
-                let schema = state.private_spec_schema(exercise_type).await?;
-                served.push(match schema {
-                    Some(schema) => json!({"exercise_type": exercise_type, "private_spec_schema": *schema}),
-                    None => json!({"exercise_type": exercise_type, "private_spec_schema": Value::Null, "note": "the service serves no schema; it checks private specs when the changeset is published"}),
+                served.push(match state.private_spec_schema(exercise_type).await {
+                    Ok(Some(schema)) => json!({"exercise_type": exercise_type, "private_spec_schema": *schema}),
+                    Ok(None) => json!({"exercise_type": exercise_type, "private_spec_schema": Value::Null, "note": "the service serves no schema; it checks private specs when the changeset is published"}),
+                    Err(error) => {
+                        tracing::warn!(exercise_type, %error, "private spec schema unavailable");
+                        json!({"exercise_type": exercise_type, "error": error.into_json()})
+                    }
                 });
             }
             answer["exercise_types"] = Value::Array(served);

@@ -358,7 +358,8 @@ impl Classifier<'_> {
         }
     }
 
-    /// Task changes of answered exercises on pages students see.
+    /// Task, slide, private spec and repository exercise changes of answered exercises on pages
+    /// students see.
     fn classify_exercise_tasks(&mut self) {
         let staged_exercises: BTreeMap<Uuid, Uuid> =
             self.staged.exercise_page_ids().into_iter().collect();
@@ -372,8 +373,8 @@ impl Classifier<'_> {
                 continue;
             }
             let (Some(live), Some(staged)) = (
-                self.live.exercise_task_types.get(&exercise_id),
-                self.staged.exercise_task_types.get(&exercise_id),
+                self.live.exercise_task_layouts.get(&exercise_id),
+                self.staged.exercise_task_layouts.get(&exercise_id),
             ) else {
                 continue;
             };

@@ -84,7 +84,9 @@ pub fn configure_controllers(
         .service(web::scope("/moocfi").configure(moocfi::_add_routes))
         // Signed upload links are their own credential. Must match the MCP crate's UPLOAD_LINK_ROUTE.
         .service(
-            web::scope("/mcp-uploads").configure(headless_lms_mcp::http::configure_upload_links),
+            web::scope("/mcp-uploads")
+                .wrap(mcp_upload_rate_limit(app_conf.test_mode))
+                .configure(headless_lms_mcp::http::configure_upload_links),
         )
         .service({
             let [per_grant, per_user] = mcp_rate_limits(app_conf.test_mode);
@@ -131,6 +133,16 @@ fn mcp_rate_limits(test_mode: bool) -> [RateLimit; 2] {
         limit(120, 3000, RateLimitKey::Grant),
         limit(240, 6000, RateLimitKey::User),
     ]
+}
+
+/// Per client IP: upload links carry no user until their token is read.
+fn mcp_upload_rate_limit(test_mode: bool) -> RateLimit {
+    let multiplier = if test_mode { 100 } else { 1 };
+    RateLimit::new(RateLimitConfig {
+        per_minute: Some(30 * multiplier),
+        per_hour: Some(300 * multiplier),
+        ..Default::default()
+    })
 }
 
 async fn not_found(req: HttpRequest) -> HttpResponse {

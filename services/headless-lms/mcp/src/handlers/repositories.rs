@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 
 use async_trait::async_trait;
 use headless_lms_models::{
-    CourseOrExamId,
+    CourseOrExamId, agent_changeset_entities,
     exercise_repositories::{self, ExerciseRepository, ExerciseRepositoryUpdate},
     repository_exercises::{self, RepositoryExercise},
 };
@@ -252,10 +252,18 @@ impl ToolHandler<McpState> for ManageExerciseRepository {
                 (repository.id, None)
             }
             (RepositoryAction::Delete, Some(repository)) => {
-                if repository.exercise_task_count > 0 && !args.even_if_in_use {
+                let staged_task_count =
+                    agent_changeset_entities::count_staged_tasks_using_repository(
+                        &mut conn,
+                        repository.id,
+                    )
+                    .await?;
+                if (repository.exercise_task_count > 0 || staged_task_count > 0)
+                    && !args.even_if_in_use
+                {
                     return Err(ToolError::InvalidArguments {
                         message: format!(
-                            "{} published exercise tasks use this repository's exercises; deleting it leaves them without their exercise files. Ask the teacher, and repeat with even_if_in_use: true only if they agree.",
+                            "{} published exercise tasks and {staged_task_count} tasks in unpublished changesets use this repository's exercises; deleting it leaves them without their exercise files. Ask the teacher, and repeat with even_if_in_use: true only if they agree.",
                             repository.exercise_task_count
                         ),
                     });

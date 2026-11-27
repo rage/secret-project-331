@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use headless_lms_utils::document_schema_processor::GutenbergBlock;
+use headless_lms_utils::{document_schema_processor::GutenbergBlock, stable_digest::stable_digest};
 use utoipa::ToSchema;
 
 use crate::{
@@ -448,6 +448,39 @@ pub fn review_instructions_for_storage(blocks: serde_json::Value) -> Option<serd
         _ => false,
     };
     (!is_empty).then_some(blocks)
+}
+
+/// One task as risk compares it, held in slide and task order for every exercise of a course's
+/// pages so that risk sees task changes without the [`ExerciseRecord`]s loaded.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TaskLayout {
+    pub id: Uuid,
+    pub slide_id: Uuid,
+    pub exercise_type: String,
+    pub private_spec_digest: Option<String>,
+    pub repository_exercise_id: Option<Uuid>,
+}
+
+impl TaskLayout {
+    /// The layout of a task, keeping only a digest of its private spec.
+    pub fn new(
+        id: Uuid,
+        slide_id: Uuid,
+        exercise_type: String,
+        private_spec: Option<&serde_json::Value>,
+        repository_exercise_id: Option<Uuid>,
+    ) -> Self {
+        Self {
+            id,
+            slide_id,
+            exercise_type,
+            // serde_json's maps are sorted, so equal specs serialise to equal bytes.
+            private_spec_digest: private_spec.map(|spec| {
+                stable_digest(&[serde_json::to_string(spec).unwrap_or_default().as_bytes()])
+            }),
+            repository_exercise_id,
+        }
+    }
 }
 
 /// What decides an exercise's deadline, held for every exercise of a course's pages so that risk

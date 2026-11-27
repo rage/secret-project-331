@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(DISTINCT task.value->>'id') AS \"count!\"\nFROM agent_changeset_entities ace\n  JOIN agent_changesets ac ON ac.id = ace.changeset_id\n  CROSS JOIN LATERAL jsonb_array_elements(ace.after_snapshot->'exercise_tasks') AS task\n  JOIN repository_exercises re ON re.id = (task.value->>'repository_exercise_id')::uuid\nWHERE ac.status = 'open'\n  AND ace.entity_type = 'page'\n  AND re.repository_id = $1\n  AND re.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercise_tasks et\n      JOIN repository_exercises live_re ON live_re.id = et.repository_exercise_id\n    WHERE et.id = (task.value->>'id')::uuid\n      AND et.deleted_at IS NULL\n      AND live_re.repository_id = $1\n  )\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "95193868edba603b12eb38b585714cdcb62c614b8789f931202303c7e768949b"
+}

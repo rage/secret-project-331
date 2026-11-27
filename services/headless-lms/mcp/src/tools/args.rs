@@ -435,7 +435,7 @@ pub struct TaskOp {
     pub repository_exercise: Option<IdArgument>,
     /// With a repository exercise; default editor.
     pub answer_type: Option<AnswerType>,
-    /// Exercise service slug, e.g. quizzes.
+    /// Exercise service slug, e.g. quizzes; replace_task's and unlink_repository_exercise's target.
     pub exercise_type: Option<String>,
     /// The new private spec; checked against the service's schema when it serves one.
     pub private_spec: Option<Value>,

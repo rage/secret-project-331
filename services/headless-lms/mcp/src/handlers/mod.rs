@@ -11,7 +11,7 @@ mod reads;
 mod repositories;
 mod uploads;
 
-pub use uploads::upload_with_link;
+pub use uploads::{UploadLink, UploadLinkError, upload_with_link};
 
 use crate::state::McpState;
 use crate::tools::ToolRegistry;

@@ -83,8 +83,9 @@ pub struct McpState {
     pub validator: Arc<dyn BlockValidator>,
     pub exercise_services: ExerciseServiceClients,
     pub repository_rules: Arc<dyn ExerciseRepositoryRules>,
-    /// By exercise type; `None` for a service that serves no schema.
-    private_spec_schemas: Mutex<HashMap<String, CachedSchema>>,
+    /// By exercise type. Each type's own lock is held while fetching, so a slow service only
+    /// delays calls for its type.
+    private_spec_schemas: Mutex<HashMap<String, Arc<Mutex<Option<CachedSchema>>>>>,
     /// Held while fetching, so calls that find the cache stale meanwhile wait for that one fetch.
     block_schemas: Mutex<Option<(Instant, Arc<BlockSchemas>)>>,
 }
@@ -125,8 +126,15 @@ impl McpState {
         &self,
         exercise_type: &str,
     ) -> Result<Option<Arc<PrivateSpecSchema>>, ToolError> {
-        let mut cache = self.private_spec_schemas.lock().await;
-        if let Some((fetched_at, schema)) = cache.get(exercise_type)
+        let entry = self
+            .private_spec_schemas
+            .lock()
+            .await
+            .entry(exercise_type.to_string())
+            .or_default()
+            .clone();
+        let mut cached = entry.lock().await;
+        if let Some((fetched_at, schema)) = &*cached
             && fetched_at.elapsed() < SCHEMA_CACHE_TTL
         {
             return Ok(schema.clone());
@@ -160,7 +168,7 @@ impl McpState {
                 .map(Arc::new),
             None => None,
         };
-        cache.insert(exercise_type.to_string(), (Instant::now(), schema.clone()));
+        *cached = Some((Instant::now(), schema.clone()));
         Ok(schema)
     }
 

@@ -13,8 +13,7 @@ use headless_lms_base::{
     jwt::{sign_hs256_claim, validate_hs256_claim},
 };
 use headless_lms_models::{
-    ModelErrorType,
-    error::TryToOptional,
+    ModelError, ModelErrorType,
     file_uploads::{self, NewUpload},
 };
 use headless_lms_utils::file_store::{
@@ -87,17 +86,20 @@ fn top_level(mime: &str) -> &str {
     mime.split('/').next().unwrap_or_default()
 }
 
-/// The MIME type to store the file under: its content's type where that can be detected, else
-/// its extension's. Refuses HEIF, which browsers can't show, and content whose kind (image or
+/// The MIME type to store the file under: its content's type where a binary signature shows it,
+/// else its extension's. Refuses HEIF, which browsers can't show, and content whose kind (image or
 /// not) contradicts the extension.
 fn content_mime(file_name: &str, contents: &[u8]) -> Result<String, ToolError> {
     let by_name = mime_guess::from_path(file_name).first_or_octet_stream();
-    let detected = infer::get(contents).map(|kind| kind.mime_type());
+    // infer's text matchers guess from a prefix, e.g. `<!--` as HTML, so they would mislabel SVGs
+    // and plain text.
+    let detected = infer::get(contents)
+        .filter(|kind| kind.matcher_type() != infer::MatcherType::Text)
+        .map(|kind| kind.mime_type());
     if detected.is_some_and(is_heif) || is_heif(by_name.essence_str()) {
         return Err(heif_refused());
     }
     let is_named_image = by_name.type_() == "image";
-    // SVG is text, which content detection doesn't recognise.
     let is_svg = by_name.essence_str() == "image/svg+xml";
     let refuse = |message: String| Err(ToolError::InvalidArguments { message });
     match detected {
@@ -106,6 +108,9 @@ fn content_mime(file_name: &str, contents: &[u8]) -> Result<String, ToolError> {
             by_name.essence_str()
         )),
         Some(detected) => Ok(detected.to_string()),
+        None if is_svg && !contents.windows(4).any(|window| window == b"<svg") => refuse(format!(
+            "{file_name} is named as an SVG image, but its content has no <svg> element"
+        )),
         None if is_named_image && !is_svg => refuse(format!(
             "{file_name} is named as an image, but its content isn't an image format this server recognises; upload a JPEG, PNG, GIF, WebP or SVG"
         )),
@@ -145,43 +150,50 @@ fn course_media_path(course_id: Uuid, file_name: &str, mime: &str) -> PathBuf {
     )
 }
 
-/// Stores the file at `path` with its `file_uploads` row and returns what the tools answer.
-async fn store(
-    state: &McpState,
+fn new_upload<'a>(
     user_id: Uuid,
+    path: &'a Path,
+    file_name: &'a str,
+    mime: &'a str,
+    size_bytes: usize,
+) -> NewUpload<'a> {
+    NewUpload {
+        path,
+        name: file_name,
+        mime,
+        uploader: Some(user_id),
+        size_bytes: Some(size_bytes as i64),
+    }
+}
+
+fn payload(contents: Bytes) -> GenericPayload {
+    Box::pin(stream::once(async move { Ok(contents) }))
+}
+
+fn storing_failed(error: ModelError) -> ToolError {
+    match error.error_type() {
+        ModelErrorType::Util => ToolError::retryable(
+            format!("storing the file failed ({error}); the same call can be retried"),
+            2,
+        ),
+        _ => error.into(),
+    }
+}
+
+/// What the tools answer about a stored file.
+fn stored_file(
+    state: &McpState,
     path: &Path,
     file_name: &str,
     mime: &str,
-    contents: Vec<u8>,
-) -> Result<Value, ToolError> {
-    let size_bytes = contents.len();
-    let payload: GenericPayload = Box::pin(stream::once(async move { Ok(Bytes::from(contents)) }));
-    file_uploads::store_and_insert(
-        &state.pool,
-        state.file_store.as_ref(),
-        NewUpload {
-            path,
-            name: file_name,
-            mime,
-            uploader: Some(user_id),
-            size_bytes: Some(size_bytes as i64),
-        },
-        payload,
-    )
-    .await
-    .map_err(|e| match e.error_type() {
-        ModelErrorType::Util => ToolError::retryable(
-            format!("storing the file failed ({e}); the same call can be retried"),
-            2,
-        ),
-        _ => e.into(),
-    })?;
-    Ok(json!({
+    size_bytes: usize,
+) -> Value {
+    json!({
         "url": state.file_store.get_download_url(path, &state.app_conf),
         "file_name": file_name,
         "mime_type": mime,
         "size_bytes": size_bytes,
-    }))
+    })
 }
 
 #[async_trait(?Send)]
@@ -196,15 +208,23 @@ impl ToolHandler<McpState> for UploadFile {
     ) -> Result<ToolOutcome, ToolError> {
         let course_id = args.course.id();
         let file_name = checked_file_name(&args.file_name)?;
-        let contents = decode(args.content_base64).await?;
+        let contents = Bytes::from(decode(args.content_base64).await?);
         let mime = checked_content(&file_name, &contents)?;
         let user_id = ctx.principal.actor.user_id;
         let mut conn = connection(state).await?;
         authorize_course(&mut conn, user_id, course_id).await?;
         drop(conn);
         let path = course_media_path(course_id, &file_name, &mime);
-        let stored = store(state, user_id, &path, &file_name, &mime, contents).await?;
-        Ok(ToolResult::success(stored).into())
+        let size_bytes = contents.len();
+        file_uploads::store_and_insert(
+            &state.pool,
+            state.file_store.as_ref(),
+            new_upload(user_id, &path, &file_name, &mime, size_bytes),
+            payload(contents),
+        )
+        .await
+        .map_err(storing_failed)?;
+        Ok(ToolResult::success(stored_file(state, &path, &file_name, &mime, size_bytes)).into())
     }
 }
 
@@ -290,19 +310,39 @@ impl From<ToolError> for UploadLinkError {
     }
 }
 
-/// Stores `contents` as the file the upload link `token` was made for.
+/// A validated upload link, read before its body is.
+pub struct UploadLink(UploadLinkClaim);
+
+impl UploadLink {
+    /// Validates `token`, which the link's URL carries.
+    pub fn open(state: &McpState, token: &str) -> Result<Self, UploadLinkError> {
+        validate_hs256_claim(token, &state.jwt_key)
+            .map(Self)
+            .map_err(|_| UploadLinkError {
+                status: 403,
+                message:
+                    "the upload link is invalid or expired; make a new one with create_upload_link"
+                        .into(),
+            })
+    }
+
+    /// The most bytes a file of the link's name may have.
+    pub fn size_limit_bytes(&self) -> usize {
+        size_limit(
+            mime_guess::from_path(&self.0.file_name)
+                .first_or_octet_stream()
+                .essence_str(),
+        )
+    }
+}
+
+/// Stores `contents` as the file `link` was made for, unless the link has been used.
 pub async fn upload_with_link(
     state: &McpState,
-    token: &str,
-    contents: Vec<u8>,
+    link: UploadLink,
+    contents: Bytes,
 ) -> Result<Value, UploadLinkError> {
-    let claim: UploadLinkClaim =
-        validate_hs256_claim(token, &state.jwt_key).map_err(|_| UploadLinkError {
-            status: 403,
-            message:
-                "the upload link is invalid or expired; make a new one with create_upload_link"
-                    .into(),
-        })?;
+    let UploadLink(claim) = link;
     let mime = checked_content(&claim.file_name, &contents)?;
     // The path's folder was picked from the file name when the link was made.
     let named_mime = mime_guess::from_path(&claim.file_name).first_or_octet_stream();
@@ -319,13 +359,17 @@ pub async fn upload_with_link(
     }
     let mut conn = connection(state).await?;
     authorize_course(&mut conn, claim.user_id, claim.course_id).await?;
-    let is_used = file_uploads::get_details_by_path(&mut conn, &claim.path)
-        .await
-        .optional()
-        .map_err(ToolError::from)?
-        .is_some();
-    drop(conn);
-    if is_used {
+    let path = Path::new(&claim.path);
+    let size_bytes = contents.len();
+    let stored = file_uploads::store_and_insert_once(
+        &mut conn,
+        state.file_store.as_ref(),
+        new_upload(claim.user_id, path, &claim.file_name, &mime, size_bytes),
+        payload(contents),
+    )
+    .await
+    .map_err(storing_failed)?;
+    if stored.is_none() {
         return Err(UploadLinkError {
             status: 409,
             message:
@@ -333,13 +377,11 @@ pub async fn upload_with_link(
                     .into(),
         });
     }
-    Ok(store(
+    Ok(stored_file(
         state,
-        claim.user_id,
-        Path::new(&claim.path),
+        path,
         &claim.file_name,
         &mime,
-        contents,
-    )
-    .await?)
+        size_bytes,
+    ))
 }

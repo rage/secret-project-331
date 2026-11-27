@@ -62,20 +62,21 @@ for (const factory of storeFactories()) {
     })
 
     it("keeps the request and counts sends", async () => {
-      await store.create("g", GRADING, nowMs + 1000)
-      expect(await store.beginSend("g", "n1", 0, nowMs + 1000)).toBe(true)
+      await store.create("g", GRADING, "n1", nowMs + 1000)
       expect(await store.get("g")).toEqual({ ...GRADING, sends: 1, outcome: null })
+      expect(await store.beginSend("g", "n2", 0, nowMs + 1000)).toBe(true)
+      expect(await store.get("g")).toEqual({ ...GRADING, sends: 2, outcome: null })
     })
 
     it("leases a claimed grading until the lease ends", async () => {
-      await store.create("g", GRADING, nowMs)
+      await store.create("g", GRADING, "n0", nowMs)
       expect(await store.claimDue(nowMs, nowMs + 1000, 10)).toEqual([{ id: "g", claim: 1 }])
       expect(await claimIds(nowMs + 999, nowMs + 2000)).toEqual([])
       expect(await store.claimDue(nowMs + 1000, nowMs + 2000, 10)).toEqual([{ id: "g", claim: 2 }])
     })
 
     it("begins a send only under the latest claim", async () => {
-      await store.create("g", GRADING, nowMs)
+      await store.create("g", GRADING, "n0", nowMs)
       await store.claimDue(nowMs, nowMs, 10)
       await store.claimDue(nowMs, nowMs + 1000, 10)
       expect(await store.beginSend("g", "n1", 1, nowMs + 1000)).toBe(false)
@@ -83,8 +84,7 @@ for (const factory of storeFactories()) {
     })
 
     it("settles for a send only while it is the latest", async () => {
-      await store.create("g", GRADING, nowMs)
-      await store.beginSend("g", "n1", 0, nowMs)
+      await store.create("g", GRADING, "n1", nowMs)
       await store.beginSend("g", "n2", 0, nowMs)
       expect(await store.settle("g", OUTCOME, nowMs + 5000, "n1")).toBe(false)
       expect(await store.settle("g", OUTCOME, nowMs + 5000, "n2")).toBe(true)
@@ -93,8 +93,7 @@ for (const factory of storeFactories()) {
     })
 
     it("keeps a settled grading until it finishes, leased for reporting", async () => {
-      await store.create("g", GRADING, nowMs)
-      await store.beginSend("g", "n1", 0, nowMs)
+      await store.create("g", GRADING, "n1", nowMs)
       await store.settle("g", OUTCOME, nowMs + 5000)
       expect(await claimIds(nowMs + 4999, nowMs + 9000)).toEqual([])
       expect(await claimIds(nowMs + 5000, nowMs + 9000)).toEqual(["g"])
@@ -104,7 +103,7 @@ for (const factory of storeFactories()) {
     })
 
     it("voids older claims and sends once a grading has an outcome", async () => {
-      await store.create("g", GRADING, nowMs)
+      await store.create("g", GRADING, "n0", nowMs)
       const [claimed] = await store.claimDue(nowMs, nowMs + 1000, 10)
       await store.beginSend("g", "n1", claimed?.claim ?? -1, nowMs + 1000)
       expect(await record("n1", false, 3)).toBe("report")
@@ -115,16 +114,14 @@ for (const factory of storeFactories()) {
     })
 
     it("does not reschedule a send whose callback already came", async () => {
-      await store.create("g", GRADING, nowMs)
-      await store.beginSend("g", "n1", 0, nowMs + 1000)
+      await store.create("g", GRADING, "n1", nowMs + 1000)
       expect(await record("n1", true, 3)).toBe("resend")
       expect(await store.scheduleResend("g", "n1", nowMs + 5000)).toBe(false)
       expect(await claimIds(nowMs, nowMs + 1000)).toEqual(["g"])
     })
 
     it("decides each callback once", async () => {
-      await store.create("g", GRADING, nowMs)
-      await store.beginSend("g", "n1", 0, nowMs)
+      await store.create("g", GRADING, "n1", nowMs)
       await store.beginSend("g", "n2", 0, nowMs)
       expect(await record("n1", true, 3)).toBe("ignored")
       expect(await record("n2", false, 3)).toBe("report")
@@ -135,13 +132,12 @@ for (const factory of storeFactories()) {
     })
 
     it("reports a sandbox failure once out of sends", async () => {
-      await store.create("g", GRADING, nowMs)
-      await store.beginSend("g", "n1", 0, nowMs)
+      await store.create("g", GRADING, "n1", nowMs)
       expect(await record("n1", true, 1)).toBe("report")
     })
 
     it("renews the lease of a grading still being sent only", async () => {
-      await store.create("g", GRADING, nowMs)
+      await store.create("g", GRADING, "n0", nowMs)
       await store.renewLease("g", nowMs + 5000)
       expect(await claimIds(nowMs + 4999, nowMs + 9000)).toEqual([])
       expect(await claimIds(nowMs + 5000, nowMs + 9000)).toEqual(["g"])

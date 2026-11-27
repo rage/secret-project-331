@@ -1,5 +1,7 @@
 import { createHmac } from "node:crypto"
 
+import { shuffle } from "lodash"
+
 import { failedGradingResult, serverErrorResult } from "@/server/gradingResult"
 import { isRecord } from "@/shared-module/common/utils/objects"
 import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
@@ -43,11 +45,7 @@ export interface DispatchClock {
 const realClock: DispatchClock = {
   now: Date.now,
   sleep: delay,
-  shuffle: (items) =>
-    items
-      .map((item) => ({ item, key: Math.random() }))
-      .toSorted((a, b) => a.key - b.key)
-      .map(({ item }) => item),
+  shuffle,
 }
 
 /**

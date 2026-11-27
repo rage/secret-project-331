@@ -19,7 +19,7 @@ function golden(name: string): SandboxCallback {
   return sandboxCallbackSchema.parse(JSON.parse(readFileSync(path, "utf8")))
 }
 
-const logger = { log: vi.fn(), debug: vi.fn(), error: vi.fn() }
+const logger = { log: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn() }
 
 function grade(callback: SandboxCallback, points: string[]) {
   const outcome = outcomeFromCallback(callback, logger)

@@ -3,7 +3,7 @@ import { promises as fs } from "node:fs"
 
 import { gradingResultFromRun, serverErrorResult } from "@/server/gradingResult"
 import { HOST_GIVES_UP_AFTER_MS, sendGradingUpdate } from "@/server/gradingUpdate"
-import type { SubmissionSource } from "@/server/preparedSubmission"
+import type { PreparedSubmission, SubmissionSource } from "@/server/preparedSubmission"
 import { withGradingSlot, withPreparedSubmission } from "@/server/preparedSubmission"
 import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
 import { createLogger } from "@/util/logger"
@@ -89,6 +89,7 @@ export class RemoteGradings {
    */
   private readonly queuedResends = new Map<string, number>()
   private readonly background = new Set<Promise<void>>()
+  private isSweepFailing = false
 
   public constructor(deps: RemoteGradingsDeps) {
     this.deps = deps
@@ -96,30 +97,58 @@ export class RemoteGradings {
 
   /**
    * Hands a submission to a sandbox. Its result, or the failure when no sandbox takes it, then
-   * reaches the host from this or another process.
-   *
-   * @throws when the store cannot keep the grading, so the caller reports it failed
+   * reaches the host from this or another process. When the store is unreachable, the grading is
+   * sent untracked: without resends or the check for repeated callbacks.
    */
   public async start(request: RemoteGradingRequest, submission: SandboxSubmission): Promise<void> {
     const id = randomUUID()
     const submissionId = sandboxSubmissionId(request.gradingUpdateUrl)
+    const nonce = newNonce()
     const now = this.deps.now()
-    await this.deps.store.create(
-      id,
-      { request, submissionId, createdAtMs: now },
-      now + SEND_LEASE_MS,
-    )
+    let isTracked = true
+    try {
+      await this.deps.store.create(
+        id,
+        { request, submissionId, createdAtMs: now },
+        nonce,
+        now + SEND_LEASE_MS,
+      )
+    } catch (e) {
+      isTracked = false
+      logger.warn(
+        `Could not record submission ${submissionId}; sending it untracked, so it is not sent again if its result is lost`,
+        e,
+      )
+    }
     let rejected: RejectedSend | null
     try {
-      rejected = await this.send(id, 0, request, submissionId, submission)
+      rejected = await this.dispatchSend(
+        isTracked ? id : null,
+        nonce,
+        request,
+        submissionId,
+        submission,
+      )
     } catch (e) {
       logger.error(`Failed to send submission ${submissionId} to a sandbox`, e)
       rejected = { failure: serverErrorResult() }
     }
+    if (!rejected) {
+      return
+    }
+    if (!isTracked) {
+      // A create that failed may still have landed; finishing it keeps a sweep from sending it again.
+      this.inBackground(
+        this.deps.store.finish(id).catch(() => {}),
+        "Could not finish an untracked grading",
+      )
+      this.reportUntracked(request.gradingUpdateUrl, request.gradingUpdateClaim, rejected.failure)
+      return
+    }
     // A send that timed out can still have run and called back, so the callback's outcome or a
     // later send may own the grading by now; `settle` then refuses.
     try {
-      if (rejected && (await this.settle(id, rejected))) {
+      if (await this.settle(id, rejected)) {
         this.inBackground(
           this.report(id, request.gradingUpdateUrl, request.gradingUpdateClaim, rejected.failure),
           "Could not report a grading",
@@ -171,10 +200,7 @@ export class RemoteGradings {
         this.sweepInBackground()
         return true
       case "unknown":
-        this.inBackground(
-          this.deps.sendGradingUpdate(payload.url, payload.claim, result).then(() => {}),
-          "Could not report a grading",
-        )
+        this.reportUntracked(payload.url, payload.claim, result)
         return true
       case "report":
         if (gradingId !== null) {
@@ -226,7 +252,24 @@ export class RemoteGradings {
   }
 
   private sweepInBackground(): void {
-    this.inBackground(this.sweep(), "Could not look for gradings to send again")
+    this.inBackground(
+      this.sweep().then(
+        () => {
+          if (this.isSweepFailing) {
+            this.isSweepFailing = false
+            logger.log("Looking for gradings to send again succeeded after failing")
+          }
+        },
+        (e: unknown) => {
+          // A store outage fails every sweep; one log per outage is enough.
+          if (!this.isSweepFailing) {
+            this.isSweepFailing = true
+            logger.error("Could not look for gradings to send again", e)
+          }
+        },
+      ),
+      "Could not look for gradings to send again",
+    )
   }
 
   private inBackground(work: Promise<void>, failureMessage: string): void {
@@ -238,6 +281,14 @@ export class RemoteGradings {
         this.background.delete(tracked)
       })
     this.background.add(tracked)
+  }
+
+  /** Sends an outcome no stored grading holds, so nothing reports it again if the host misses it. */
+  private reportUntracked(url: string, claim: string | null, outcome: ExerciseTaskGradingResult) {
+    this.inBackground(
+      this.deps.sendGradingUpdate(url, claim, outcome).then(() => {}),
+      "Could not report a grading",
+    )
   }
 
   private settle(id: string, rejected: RejectedSend): Promise<boolean> {
@@ -286,6 +337,20 @@ export class RemoteGradings {
     if (!hasBegun) {
       return null
     }
+    return this.dispatchSend(id, nonce, request, submissionId, submission)
+  }
+
+  /**
+   * Hands the send under `nonce` to a sandbox and schedules its resend, unless `id` is null for an
+   * untracked grading. Resolves to the rejection when no sandbox took it.
+   */
+  private async dispatchSend(
+    id: string | null,
+    nonce: string,
+    request: RemoteGradingRequest,
+    submissionId: string,
+    submission: SandboxSubmission,
+  ): Promise<RejectedSend | null> {
     const config = this.deps.config()
     const payload: SandboxTokenPayload = {
       v: 1,
@@ -303,6 +368,9 @@ export class RemoteGradings {
     )
     if (!dispatched.accepted) {
       return { nonce, failure: dispatched.result }
+    }
+    if (id === null) {
+      return null
     }
     try {
       await this.deps.store.scheduleResend(id, nonce, this.deps.now() + RESEND_AFTER_MS)
@@ -396,6 +464,15 @@ export function sandboxSubmissionId(gradingUpdateUrl: string): string {
   return `cmf-${HOST_SUBMISSION_ID.test(lastSegment) ? lastSegment : randomUUID()}`
 }
 
+/** A prepared submission as a sandbox takes it. */
+export async function sandboxSubmission(prepared: PreparedSubmission): Promise<SandboxSubmission> {
+  return {
+    archive: await fs.readFile(prepared.archivePath),
+    image: prepared.image,
+    points: prepared.points,
+  }
+}
+
 let service: RemoteGradings | null = null
 
 /** The service's remote gradings, configured from the environment on first use. */
@@ -406,14 +483,10 @@ export function remoteGradings(): RemoteGradings {
     prepare: (submission, run) =>
       withGradingSlot(() =>
         withPreparedSubmission(submission, async (prepared) =>
-          run({
-            archive: await fs.readFile(prepared.archivePath),
-            image: prepared.image,
-            points: prepared.points,
-          }),
+          run(await sandboxSubmission(prepared)),
         ),
       ),
-    dispatch: (task, config) => dispatchToSandbox(task, config),
+    dispatch: dispatchToSandbox,
     sendGradingUpdate,
     now: Date.now,
   })

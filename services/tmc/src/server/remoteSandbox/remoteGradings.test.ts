@@ -74,6 +74,36 @@ async function settle(): Promise<void> {
   }
 }
 
+/**
+ * `inner` with an outage switch: while `state.isDown`, every call fails at once, or like a
+ * client's command timeout, after a while.
+ */
+function withOutage(inner: RemoteGradingStore, failure: "fails" | "times out" = "fails") {
+  const state = { isDown: false }
+  const store = new Proxy(inner, {
+    get(target, key, receiver) {
+      const value: unknown = Reflect.get(target, key, receiver)
+      if (typeof value !== "function") {
+        return value
+      }
+      return (...args: unknown[]): unknown => {
+        if (!state.isDown) {
+          return (value as (...a: unknown[]) => unknown).apply(target, args)
+        }
+        const error = new Error(failure === "fails" ? "ECONNREFUSED" : "Command timed out")
+        return failure === "fails"
+          ? Promise.reject(error)
+          : new Promise((_, reject) => {
+              setTimeout(() => {
+                reject(error)
+              }, 20)
+            })
+      }
+    },
+  })
+  return { state, store }
+}
+
 for (const factory of storeFactories()) {
   describe(`RemoteGradings with the ${factory.name} store`, () => {
     let nowMs: number
@@ -102,6 +132,7 @@ for (const factory of storeFactories()) {
 
     beforeEach(() => {
       vi.spyOn(console, "log").mockImplementation(() => {})
+      vi.spyOn(console, "warn").mockImplementation(() => {})
       vi.spyOn(console, "error").mockImplementation(() => {})
       nowMs = Date.now()
       sentTasks = []
@@ -524,12 +555,108 @@ for (const factory of storeFactories()) {
       expect(dispatch).toHaveBeenCalledTimes(2)
     })
 
-    it("throws from start when the store is unreachable, so the grading fails", async () => {
-      const unreachable = store()
-      vi.spyOn(unreachable, "create").mockRejectedValue(new Error("ECONNREFUSED"))
-      const broken = startProcess(unreachable)
-      await expect(broken.start(REQUEST, SUBMISSION)).rejects.toThrow("ECONNREFUSED")
-      expect(dispatch).not.toHaveBeenCalled()
+    it.each(["fails", "times out"] as const)(
+      "sends a grading untracked when the store %s, and reports its result",
+      async (failure) => {
+        const outage = withOutage(store(), failure)
+        const broken = startProcess(outage.store)
+        outage.state.isDown = true
+        await broken.start(REQUEST, SUBMISSION)
+        expect(dispatch).toHaveBeenCalledTimes(1)
+        expect(console.warn).toHaveBeenCalledWith(
+          "[remote-sandbox]",
+          expect.stringContaining("sending it untracked"),
+          expect.any(Error),
+        )
+        expect(await broken.handleCallback(tokenOf(0), PASSED)).toBe(true)
+        await broken.drain()
+        expect(sendGradingUpdate).toHaveBeenCalledWith(
+          REQUEST.gradingUpdateUrl,
+          "claim",
+          expect.objectContaining({ grading_progress: "FullyGraded", score_given: 1 }),
+        )
+      },
+    )
+
+    it("reports an untracked grading's result once the store is back", async () => {
+      const outage = withOutage(store())
+      const broken = startProcess(outage.store)
+      outage.state.isDown = true
+      await broken.start(REQUEST, SUBMISSION)
+      outage.state.isDown = false
+      expect(await broken.handleCallback(tokenOf(0), PASSED)).toBe(true)
+      await broken.drain()
+      expect(sendGradingUpdate).toHaveBeenCalledTimes(1)
+      await after(30 * MINUTE, broken)
+      expect(sentTasks).toHaveLength(1)
+    })
+
+    it("reports an untracked grading's dispatch failure", async () => {
+      const outage = withOutage(store())
+      const broken = startProcess(outage.store)
+      outage.state.isDown = true
+      dispatch.mockResolvedValueOnce(BUSY)
+      await broken.start(REQUEST, SUBMISSION)
+      await broken.drain()
+      expect(sendGradingUpdate).toHaveBeenCalledWith(REQUEST.gradingUpdateUrl, "claim", BUSY.result)
+    })
+
+    it("matches a grading whose create failed after it landed to the send", async () => {
+      const late = store()
+      const create = late.create.bind(late)
+      vi.spyOn(late, "create").mockImplementationOnce(async (...args) => {
+        await create(...args)
+        throw new Error("Command timed out")
+      })
+      const lateGradings = startProcess(late)
+      await lateGradings.start(REQUEST, SUBMISSION)
+      expect(await lateGradings.handleCallback(tokenOf(0), PASSED)).toBe(true)
+      await lateGradings.drain()
+      expect(await lateGradings.handleCallback(tokenOf(0), PASSED)).toBe(false)
+      await after(30 * MINUTE, lateGradings)
+      expect(sentTasks).toHaveLength(1)
+      expect(sendGradingUpdate).toHaveBeenCalledTimes(1)
+    })
+
+    it("does not resend an untracked grading whose create landed after its dispatch failed", async () => {
+      const late = store()
+      const create = late.create.bind(late)
+      vi.spyOn(late, "create").mockImplementationOnce(async (...args) => {
+        await create(...args)
+        throw new Error("Command timed out")
+      })
+      const lateGradings = startProcess(late)
+      dispatch.mockResolvedValueOnce(BUSY)
+      await lateGradings.start(REQUEST, SUBMISSION)
+      await after(30 * MINUTE, lateGradings)
+      expect(dispatch).toHaveBeenCalledTimes(1)
+      expect(sendGradingUpdate).toHaveBeenCalledTimes(1)
+      expect(sendGradingUpdate).toHaveBeenCalledWith(REQUEST.gradingUpdateUrl, "claim", BUSY.result)
+    })
+
+    it("keeps sweeping through a store outage and resends once the store is back", async () => {
+      vi.useFakeTimers({ toFake: ["setInterval", "clearInterval"] })
+      const outage = withOutage(store())
+      const sweeping = startProcess(outage.store)
+      await sweeping.start(REQUEST, SUBMISSION)
+      const stop = sweeping.startSweeping()
+      try {
+        outage.state.isDown = true
+        nowMs += 5 * MINUTE
+        for (let i = 0; i < 5; i++) {
+          await vi.advanceTimersByTimeAsync(20_000)
+          await sweeping.drain()
+        }
+        expect(sentTasks).toHaveLength(1)
+        expect(console.error).toHaveBeenCalledTimes(1)
+        outage.state.isDown = false
+        await vi.advanceTimersByTimeAsync(20_000)
+        await sweeping.drain()
+        expect(sentTasks).toHaveLength(2)
+      } finally {
+        stop()
+        vi.useRealTimers()
+      }
     })
 
     it("reports a result unchecked when the store is unreachable at callback time", async () => {

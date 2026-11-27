@@ -1,4 +1,3 @@
-import { promises as fs } from "fs"
 import os from "node:os"
 import path from "node:path"
 
@@ -16,7 +15,7 @@ import { HOST_GIVES_UP_AFTER_MS, sendGradingUpdate } from "./gradingUpdate"
 import type { SubmissionSource } from "./preparedSubmission"
 import { withGradingSlot, withPreparedSubmission } from "./preparedSubmission"
 import { gradingSandboxMode } from "./remoteSandbox/config"
-import { remoteGradings } from "./remoteSandbox/remoteGradings"
+import { remoteGradings, sandboxSubmission } from "./remoteSandbox/remoteGradings"
 import type { GradeRequest, GradingRequestFile } from "./requestSchemas"
 import { currentRepositoryExercise, gradeRequestSchema } from "./requestSchemas"
 
@@ -171,11 +170,7 @@ const gradeAnswer = (
       log("sending to a remote sandbox")
       await remoteGradings().start(
         { submission, gradingUpdateUrl: req.grading_update_url, gradingUpdateClaim },
-        {
-          archive: await fs.readFile(prepared.archivePath),
-          image: prepared.image,
-          points: prepared.points,
-        },
+        await sandboxSubmission(prepared),
       )
       return null
     }

@@ -1,4 +1,5 @@
 import { promises as fsPromises } from "fs"
+import { isUtf8 } from "node:buffer"
 import path from "path"
 
 import { temporaryDirectory, temporaryFile } from "tempy"
@@ -211,9 +212,12 @@ export async function browserEditorFields(
   exercise: RepositoryExercise,
 ): Promise<Pick<PublicSpec, "student_file_paths" | "main_file" | "archive_prefix">> {
   const stubFiles = await listFiles(stubDir)
-  const studentFiles = stubFiles
-    .filter((file) => isCoveredBy(file, studentFilePaths))
-    .toSorted(comparePaths)
+  const coveredFiles = stubFiles.filter((file) => isCoveredBy(file, studentFilePaths))
+  // The editor holds files as text, so a binary one would be packed corrupted over the template's.
+  const isText = await Promise.all(
+    coveredFiles.map(async (file) => isUtf8(await fsPromises.readFile(path.join(stubDir, file)))),
+  )
+  const studentFiles = coveredFiles.filter((_, i) => isText[i]).toSorted(comparePaths)
 
   const testSources = await Promise.all(
     stubFiles

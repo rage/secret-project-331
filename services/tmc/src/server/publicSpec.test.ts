@@ -1,5 +1,7 @@
+import { promises as fs } from "node:fs"
 import path from "path"
 
+import { temporaryDirectory } from "tempy"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { RepositoryExercise } from "@/util/exerciseServiceApi"
@@ -224,5 +226,14 @@ describe("browserEditorFields", () => {
       main_file: "src/a/b.py",
       archive_prefix: "part_1_ex_1",
     })
+  })
+
+  it("leaves out student files that are not text", async () => {
+    const stubDir = temporaryDirectory()
+    await fs.mkdir(path.join(stubDir, "src"))
+    await fs.writeFile(path.join(stubDir, "src", "main.py"), "print(1)\n")
+    await fs.writeFile(path.join(stubDir, "src", "data.bin"), Buffer.from([0xff, 0xfe, 0x00, 0x80]))
+    const fields = await browserEditorFields(stubDir, ["src"], exercise("ex"))
+    expect(fields.student_file_paths).toEqual(["src/main.py"])
   })
 })

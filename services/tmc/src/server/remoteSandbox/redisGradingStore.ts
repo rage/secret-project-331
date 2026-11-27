@@ -18,18 +18,35 @@ const logger = createLogger("remote-sandbox")
 /** Every key this service writes starts with this; headless-lms shares the Redis server. */
 export const REDIS_KEY_PREFIX = "tmc:remote-sandbox:"
 
-/** Bounds how long a grading or a callback waits on an unreachable Redis. */
+/** Bounds how long a grading or a callback waits on an unresponsive Redis. */
 const REDIS_COMMAND_TIMEOUT_MS = 5_000
 
-/** A Redis client that fails commands within seconds instead of queueing them through an outage. */
+/**
+ * A Redis client that fails commands at once while disconnected and within seconds when Redis
+ * stops answering, and keeps reconnecting until it is back.
+ */
 export function connectRedis(url: string): Redis {
   const client = new Redis(url, {
     commandTimeout: REDIS_COMMAND_TIMEOUT_MS,
     connectTimeout: REDIS_COMMAND_TIMEOUT_MS,
-    maxRetriesPerRequest: 1,
+    // Never queued or resent: callers handle a failed command as one that did not run.
+    enableOfflineQueue: false,
+    autoResendUnfulfilledCommands: false,
+    maxRetriesPerRequest: 0,
   })
+  // Every reconnect attempt errors; one log per outage is enough.
+  let isDown = false
   client.on("error", (e: unknown) => {
-    logger.error("Redis connection error", e)
+    if (!isDown) {
+      isDown = true
+      logger.error("Lost the Redis connection; retrying until it is back", e)
+    }
+  })
+  client.on("ready", () => {
+    if (isDown) {
+      isDown = false
+      logger.log("Reconnected to Redis")
+    }
   })
   return client
 }
@@ -144,7 +161,8 @@ export class RedisRemoteGradingStore implements RemoteGradingStore {
   public async create(
     id: string,
     grading: Omit<StoredGrading, "sends" | "outcome">,
-    dueAtMs: number,
+    nonce: string,
+    leaseUntilMs: number,
   ) {
     const results = await this.redis
       .multi()
@@ -152,12 +170,14 @@ export class RedisRemoteGradingStore implements RemoteGradingStore {
         request: JSON.stringify(grading.request),
         submissionId: grading.submissionId,
         createdAt: grading.createdAtMs,
-        sends: 0,
+        sends: 1,
+        latestNonce: nonce,
         claim: 0,
         finished: 0,
       })
       .pexpire(this.gradingKey(id), STORE_TTL_MS)
-      .zadd(this.dueKey, dueAtMs, id)
+      .set(this.nonceKey(nonce), id, "PX", STORE_TTL_MS)
+      .zadd(this.dueKey, leaseUntilMs, id)
       .exec()
     const failure = results?.find(([e]) => e)?.[0]
     if (failure) {

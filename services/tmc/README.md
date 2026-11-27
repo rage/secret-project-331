@@ -51,19 +51,19 @@ On pods, the time a test run may take is the exercise's `tests_timeout_ms` (tmc-
 
 `remote` needs these, checked at startup:
 
-| Variable                           | Value                                                                                                     |
-| ---------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `TMC_REMOTE_SANDBOX_URLS`          | Comma-separated sandbox base URLs; `https://user:password@host` credentials are sent as basic auth        |
-| `TMC_REMOTE_SANDBOX_NOTIFY_URL`    | This service's public callback URL, `https://courses.mooc.fi/tmc/api/sandbox-results` in production       |
-| `TMC_REMOTE_SANDBOX_NOTIFY_SECRET` | Optional: the sandboxes' `SANDBOX_CALLBACK_SECRET`, to sign the notify URL                                |
-| `TMC_REMOTE_SANDBOX_TOKEN_KEY`     | Base64 32-byte key(s) sealing the callback token, comma-separated to rotate: the first seals, all open    |
-| `TMC_REMOTE_SANDBOX_REDIS_URL`     | `redis://` URL of the Redis that holds pending gradings, e.g. `redis://redis.default.svc.cluster.local/3` |
+| Variable                           | Value                                                                                                  |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `TMC_REMOTE_SANDBOX_URLS`          | Comma-separated sandbox base URLs; `https://user:password@host` credentials are sent as basic auth     |
+| `TMC_REMOTE_SANDBOX_NOTIFY_URL`    | This service's public callback URL, `https://courses.mooc.fi/tmc/api/sandbox-results` in production    |
+| `TMC_REMOTE_SANDBOX_NOTIFY_SECRET` | Optional: the sandboxes' `SANDBOX_CALLBACK_SECRET`, to sign the notify URL                             |
+| `TMC_REMOTE_SANDBOX_TOKEN_KEY`     | Base64 32-byte key(s) sealing the callback token, comma-separated to rotate: the first seals, all open |
+| `TMC_REMOTE_SANDBOX_REDIS_URL`     | `redis://` URL of the Redis that holds pending gradings                                                |
 
 In production they come from the `tmc-remote-sandbox` Secret (`kubernetes/production/tmc/patch-remote-sandbox.yml`), which is created outside this repository. Generate a key with `openssl rand -base64 32`.
 
-Pending gradings live in Redis under `tmc:remote-sandbox:`, so any replica can take a callback, and a grading whose callback never comes is sent again 5 minutes after each send and failed after the third, even across restarts. A grading's result is kept in Redis until the host has taken it, and reported again from any replica when that does not happen within 5 minutes. Every replica sweeps for due gradings, and one claims each. Redis keeps only the grading request: a resend downloads the answer and template from the host again, whose download URLs outlive the grading. Any number of replicas may run. Use a Redis database headless-lms does not (it uses 1).
+Pending gradings live in Redis under `tmc:remote-sandbox:`, so any replica can take a callback, and a grading whose callback never comes is sent again 5 minutes after each send and failed after the third, even across restarts. A grading's result is kept in Redis until the host has taken it, and reported again from any replica when that does not happen within 5 minutes. Every replica sweeps for due gradings, and one claims each. Redis keeps only the grading request: a resend downloads the answer and template from the host again, whose download URLs outlive the grading. Any number of replicas may run.
 
-When Redis is unreachable, a new grading fails with `server_error`, and a callback's result is reported without the check for repeats rather than lost.
+While Redis is unreachable, gradings are still sent and reported, but not resent or checked for repeats.
 
 Set `TMC_TEST_REDIS_URL` to run the store tests against a real Redis too; they write under a random `tmc:remote-sandbox-test:` prefix and delete it.
 

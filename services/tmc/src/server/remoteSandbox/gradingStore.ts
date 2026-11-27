@@ -60,11 +60,15 @@ export interface CallbackRecord {
  * again, which resends it or reports its outcome again.
  */
 export interface RemoteGradingStore {
-  /** Records a new grading with claim 0, due at `dueAtMs` unless a send reschedules it. */
+  /**
+   * Records a new grading with claim 0, already sent once under `nonce` and leased until
+   * `leaseUntilMs`, so a create that lands after the caller gave up on it matches that send.
+   */
   create: (
     id: string,
     grading: Omit<StoredGrading, "sends" | "outcome">,
-    dueAtMs: number,
+    nonce: string,
+    leaseUntilMs: number,
   ) => Promise<void>
   /** The grading, or null once it has finished or expired. */
   get: (id: string) => Promise<StoredGrading | null>
@@ -131,17 +135,23 @@ export class MemoryRemoteGradingStore implements RemoteGradingStore {
     this.now = now
   }
 
-  public create(id: string, grading: Omit<StoredGrading, "sends" | "outcome">, dueAtMs: number) {
+  public create(
+    id: string,
+    grading: Omit<StoredGrading, "sends" | "outcome">,
+    nonce: string,
+    leaseUntilMs: number,
+  ) {
     this.gradings.set(id, {
       ...structuredClone(grading),
-      sends: 0,
+      sends: 1,
       outcome: null,
-      latestNonce: null,
+      latestNonce: nonce,
       claim: 0,
       isFinished: false,
       expiresAt: this.now() + STORE_TTL_MS,
     })
-    this.due.set(id, dueAtMs)
+    this.gradingByNonce.set(nonce, id)
+    this.due.set(id, leaseUntilMs)
     return Promise.resolve()
   }
 

@@ -41,8 +41,9 @@ export function useTestRun(publicSpec: PublicSpec, pythonWorker: PythonWorker) {
       setTestResults(null)
 
       const fullScript = adapter.buildScript(script, contents)
-      // The budget covers the tests only: it starts once Python has loaded.
-      const timeoutMs = browserTest.timeout_ms ?? TEST_TIMEOUT_MS
+      // The budget covers the tests only: it starts once Python has loaded. Pyodide runs far slower
+      // than the sandbox the exercise's timeout was set for, hence the floor.
+      const timeoutMs = Math.max(browserTest.timeout_ms ?? 0, TEST_TIMEOUT_MS)
 
       const runInWorker = (worker: Worker): Promise<TestWorkerResponse> =>
         new Promise((resolve, reject) => {

@@ -147,12 +147,8 @@ self.addEventListener("message", (event) => {
   }
   operation(message).catch((error) => {
     const text = String(error?.message ?? error)
-    const failure =
-      message.type === "run"
-        ? { type: "run_error", message: text }
-        : { type: "test_error", message: text }
     // oxlint-disable-next-line unicorn/require-post-message-target-origin -- a worker's postMessage has no targetOrigin
-    self.postMessage(failure)
+    self.postMessage({ type: `${message.type}_error`, message: text })
   })
 })
 

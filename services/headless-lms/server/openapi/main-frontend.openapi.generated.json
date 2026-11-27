@@ -2662,6 +2662,48 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-plan-courses/{plan_id}": {
+      "post": {
+        "tags": ["course-plans"],
+        "summary": "Creates a draft course from the plan once Design is done, with texts an AI drafts from the plan\nfirst. A plan creates at most one course.",
+        "description": "Waits for the AI, so it has an ingress with a longer timeout of its own\n(`kubernetes/base/ingress-ai-suggestions.yml`). When drafting fails or times out, nothing is\ncreated and the error has the reason `course_drafting_failed`; the request can be retried.",
+        "operationId": "createCourseFromCourseDesignerPlan",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCourseFromPlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Course"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-plans": {
       "get": {
         "tags": ["course-plans"],
@@ -3056,47 +3098,6 @@
         }
       }
     },
-    "/api/v0/main-frontend/course-plans/{plan_id}/course": {
-      "post": {
-        "tags": ["course-plans"],
-        "summary": "Creates a draft course from the plan's course structure. A plan creates at most one course.",
-        "operationId": "createCourseFromCourseDesignerPlan",
-        "parameters": [
-          {
-            "name": "plan_id",
-            "in": "path",
-            "description": "Plan id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateCourseFromPlanRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Created course",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Course"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v0/main-frontend/course-plans/{plan_id}/members": {
       "get": {
         "tags": ["course-plans"],
@@ -3345,77 +3346,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CourseDesignerScheduleSuggestionResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses": {
-      "get": {
-        "tags": ["course-plans"],
-        "operationId": "getCourseDesignerSectionStatuses",
-        "parameters": [
-          {
-            "name": "plan_id",
-            "in": "path",
-            "description": "Plan id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Section statuses",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CourseDesignerPlanSectionStatus"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": ["course-plans"],
-        "operationId": "setCourseDesignerSectionStatus",
-        "parameters": [
-          {
-            "name": "plan_id",
-            "in": "path",
-            "description": "Plan id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetCourseDesignerSectionStatusRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Saved section status",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CourseDesignerPlanSectionStatus"
                 }
               }
             }
@@ -22172,7 +22102,6 @@
           "propose_add_task",
           "propose_update_task",
           "propose_schedule_adjustment",
-          "propose_section_status",
           "propose_vision_edit"
         ]
       },
@@ -23926,9 +23855,81 @@
           }
         }
       },
+      "CourseDesignerAutomaticCheck": {
+        "type": "string",
+        "description": "What an automatic task checks in the plan's course; see\n[`CourseDesignerCourseStatus::passes`].",
+        "enum": ["ContentFilled", "ExercisesExist", "CoursePublished"]
+      },
+      "CourseDesignerChapterWithoutExercises": {
+        "type": "object",
+        "required": ["chapter_id", "name", "chapter_number"],
+        "properties": {
+          "chapter_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "chapter_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
       "CourseDesignerCourseSize": {
         "type": "string",
         "enum": ["small", "medium", "large"]
+      },
+      "CourseDesignerCourseStatus": {
+        "type": "object",
+        "description": "The state of a plan's course that the plan pages and automatic tasks show. Hidden pages are\nleft out.",
+        "required": [
+          "course_id",
+          "name",
+          "slug",
+          "is_draft",
+          "chapter_count",
+          "page_count",
+          "unfilled_pages",
+          "chapters_without_exercises"
+        ],
+        "properties": {
+          "chapter_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "chapters_without_exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDesignerChapterWithoutExercises"
+            }
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_draft": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "page_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "unfilled_pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDesignerUnfilledPage"
+            },
+            "description": "In course order: top-level pages first, then chapter by chapter."
+          }
+        }
       },
       "CourseDesignerPlan": {
         "type": "object",
@@ -23986,8 +23987,19 @@
       },
       "CourseDesignerPlanDetails": {
         "type": "object",
-        "required": ["plan", "members", "stages", "section_statuses"],
+        "required": ["plan", "members", "stages"],
         "properties": {
+          "course_status": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CourseDesignerCourseStatus",
+                "description": "`None` until a course has been created from the plan."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "members": {
             "type": "array",
             "items": {
@@ -23996,12 +24008,6 @@
           },
           "plan": {
             "$ref": "#/components/schemas/CourseDesignerPlan"
-          },
-          "section_statuses": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CourseDesignerPlanSectionStatus"
-            }
           },
           "stages": {
             "type": "array",
@@ -24031,54 +24037,6 @@
             "format": "date-time"
           },
           "user_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
-      "CourseDesignerPlanSectionStatus": {
-        "type": "object",
-        "required": [
-          "id",
-          "created_at",
-          "updated_at",
-          "course_designer_plan_id",
-          "stage",
-          "section_key",
-          "status",
-          "updated_by_user_id"
-        ],
-        "properties": {
-          "comment": {
-            "type": ["string", "null"]
-          },
-          "course_designer_plan_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "section_key": {
-            "type": "string",
-            "description": "Defined by the frontend forms, e.g. `design.learning_goals`."
-          },
-          "stage": {
-            "$ref": "#/components/schemas/CourseDesignerStage"
-          },
-          "status": {
-            "$ref": "#/components/schemas/CourseDesignerSectionStatus"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated_by_user_id": {
             "type": "string",
             "format": "uuid"
           }
@@ -24160,6 +24118,17 @@
             "type": ["string", "null"],
             "format": "uuid",
             "description": "Always a current plan member; cleared when that member leaves."
+          },
+          "automatic_check": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CourseDesignerAutomaticCheck",
+                "description": "Set on automatic tasks, whose `is_completed` comes from the plan's course and cannot be\nchanged through the API."
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "completed_at": {
             "type": ["string", "null"],
@@ -24330,10 +24299,6 @@
           }
         }
       },
-      "CourseDesignerSectionStatus": {
-        "type": "string",
-        "enum": ["Ready", "Unfinished"]
-      },
       "CourseDesignerStage": {
         "type": "string",
         "enum": ["Analysis", "Design", "Development", "Implementation", "Evaluation"]
@@ -24372,7 +24337,7 @@
       "CourseDesignerSupportPlan": {
         "type": "object",
         "description": "One plan as global admins see it in the MOOC support listing.",
-        "required": ["plan", "members", "stages", "section_statuses"],
+        "required": ["plan", "members", "stages"],
         "properties": {
           "members": {
             "type": "array",
@@ -24382,12 +24347,6 @@
           },
           "plan": {
             "$ref": "#/components/schemas/CourseDesignerPlan"
-          },
-          "section_statuses": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CourseDesignerPlanSectionStatus"
-            }
           },
           "stages": {
             "type": "array",
@@ -24410,7 +24369,8 @@
         "properties": {
           "completed_task_count": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "description": "Automatic tasks count as completed when their check passes on the plan's course."
           },
           "planned_ends_on": {
             "type": "string",
@@ -24431,6 +24391,35 @@
             "format": "int64"
           }
         }
+      },
+      "CourseDesignerUnfilledPage": {
+        "type": "object",
+        "required": ["page_id", "title", "url_path", "reason"],
+        "properties": {
+          "chapter_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` for the front page and other top-level pages."
+          },
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/CourseDesignerUnfilledPageReason"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url_path": {
+            "type": "string"
+          }
+        }
+      },
+      "CourseDesignerUnfilledPageReason": {
+        "type": "string",
+        "description": "Why a page of the course does not count as written yet. When several apply, the first in\ndeclaration order is reported.",
+        "enum": ["empty", "placeholder_text", "ai_outline"]
       },
       "CourseEnrollmentInfo": {
         "type": "object",
@@ -25545,6 +25534,10 @@
         "type": "object",
         "required": ["organization_id"],
         "properties": {
+          "give_members_course_roles": {
+            "type": "boolean",
+            "description": "Gives every other plan member the Teacher role on the new course."
+          },
           "language_code": {
             "type": ["string", "null"],
             "description": "Defaults to the Analysis form's language when it reads as one, else English."
@@ -37549,26 +37542,6 @@
         "properties": {
           "course_designer_assistant": {
             "type": "boolean"
-          }
-        }
-      },
-      "SetCourseDesignerSectionStatusRequest": {
-        "type": "object",
-        "required": ["stage", "section_key", "status"],
-        "properties": {
-          "comment": {
-            "type": ["string", "null"],
-            "description": "Blank or `null` stores no comment."
-          },
-          "section_key": {
-            "type": "string",
-            "description": "Stable key defined by the frontend form, e.g. `design.learning_goals`. At most 255 characters."
-          },
-          "stage": {
-            "$ref": "#/components/schemas/CourseDesignerStage"
-          },
-          "status": {
-            "$ref": "#/components/schemas/CourseDesignerSectionStatus"
           }
         }
       },

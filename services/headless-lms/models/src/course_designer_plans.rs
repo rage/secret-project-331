@@ -1,6 +1,6 @@
 use crate::course_designer_plan_members;
-use crate::course_designer_section_statuses::CourseDesignerPlanSectionStatus;
 use crate::course_designer_stage_workspace::{self, CourseDesignerStageWorkspace};
+use crate::library::course_designer_course_status::{self, CourseDesignerCourseStatus};
 use crate::prelude::*;
 use chrono::{Datelike, Duration, NaiveDate};
 use serde_json::{Value, json};
@@ -136,6 +136,33 @@ pub struct CourseDesignerPlanStage {
     pub workspace_revision: i32,
 }
 
+/// What an automatic task checks in the plan's course; see
+/// [`CourseDesignerCourseStatus::passes`].
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
+#[sqlx(
+    type_name = "course_designer_automatic_check",
+    rename_all = "snake_case"
+)]
+pub enum CourseDesignerAutomaticCheck {
+    /// No page is empty or holds template placeholder text or an AI outline.
+    ContentFilled,
+    /// Every chapter has an exercise.
+    ExercisesExist,
+    /// The course is no longer a draft.
+    CoursePublished,
+}
+
+impl CourseDesignerAutomaticCheck {
+    /// The name the database enum uses for the check.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::ContentFilled => "content_filled",
+            Self::ExercisesExist => "exercises_exist",
+            Self::CoursePublished => "course_published",
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, FromRow, ToSchema)]
 pub struct CourseDesignerPlanStageTask {
     pub id: Uuid,
@@ -152,6 +179,20 @@ pub struct CourseDesignerPlanStageTask {
     pub created_by_user_id: Option<Uuid>,
     /// Always a current plan member; cleared when that member leaves.
     pub assignee_user_id: Option<Uuid>,
+    /// Set on automatic tasks, whose `is_completed` comes from the plan's course and cannot be
+    /// changed through the API.
+    pub automatic_check: Option<CourseDesignerAutomaticCheck>,
+}
+
+impl CourseDesignerPlanStageTask {
+    /// Replaces an automatic task's stored completion with the result of its check on the course.
+    pub fn apply_course_status(&mut self, course_status: Option<&CourseDesignerCourseStatus>) {
+        if let Some(check) = self.automatic_check {
+            self.is_completed = course_status.is_some_and(|status| status.passes(check));
+            self.completed_at = None;
+            self.completed_by_user_id = None;
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -166,7 +207,8 @@ pub struct CourseDesignerPlanDetails {
     pub plan: CourseDesignerPlan,
     pub members: Vec<CourseDesignerPlanMember>,
     pub stages: Vec<CourseDesignerPlanStageWithTasks>,
-    pub section_statuses: Vec<CourseDesignerPlanSectionStatus>,
+    /// `None` until a course has been created from the plan.
+    pub course_status: Option<CourseDesignerCourseStatus>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
@@ -376,7 +418,7 @@ VALUES ($1, $2)
     Ok(plan)
 }
 
-/// A plan with its members, stages, tasks and section marks, if `user_id` is a member.
+/// A plan with its members, stages, tasks and course status, if `user_id` is a member.
 pub async fn get_plan_details_for_user(
     conn: &mut PgConnection,
     plan_id: Uuid,
@@ -386,12 +428,12 @@ pub async fn get_plan_details_for_user(
     let members = course_designer_plan_members::get_plan_members(conn, plan_id).await?;
     let stages = course_designer_plan_members::get_plan_stages(conn, plan_id).await?;
     let tasks = course_designer_plan_members::get_plan_tasks(conn, plan_id).await?;
-    let section_statuses =
-        crate::course_designer_section_statuses::get_for_plan(conn, plan_id).await?;
+    let course_status = course_designer_course_status::get_for_plan(conn, plan_id).await?;
     let mut tasks_by_stage: std::collections::HashMap<Uuid, Vec<CourseDesignerPlanStageTask>> =
         tasks
             .into_iter()
-            .fold(std::collections::HashMap::new(), |mut acc, t| {
+            .fold(std::collections::HashMap::new(), |mut acc, mut t| {
+                t.apply_course_status(course_status.as_ref());
                 acc.entry(t.course_designer_plan_stage_id)
                     .or_default()
                     .push(t);
@@ -412,7 +454,7 @@ pub async fn get_plan_details_for_user(
         plan,
         members,
         stages: stages_with_tasks,
-        section_statuses,
+        course_status,
     })
 }
 
@@ -750,7 +792,6 @@ pub struct CourseDesignerSupportPlan {
     pub plan: CourseDesignerPlan,
     pub members: Vec<PlanMemberWithDetails>,
     pub stages: Vec<CourseDesignerSupportStage>,
-    pub section_statuses: Vec<CourseDesignerPlanSectionStatus>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
@@ -760,11 +801,12 @@ pub struct CourseDesignerSupportStage {
     pub planned_starts_on: NaiveDate,
     pub planned_ends_on: NaiveDate,
     pub task_count: i64,
+    /// Automatic tasks count as completed when their check passes on the plan's course.
     pub completed_task_count: i64,
 }
 
-/// Every non-deleted plan with its members, stage progress and section marks, newest activity
-/// first. Not scoped to a user: the caller must have checked global admin access.
+/// Every non-deleted plan with its members and stage progress, newest activity first. Not scoped
+/// to a user: the caller must have checked global admin access.
 pub async fn list_plans_for_support(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<CourseDesignerSupportPlan>> {
@@ -810,7 +852,14 @@ SELECT
   s.planned_starts_on,
   s.planned_ends_on,
   COUNT(t.id)::BIGINT AS "task_count!",
-  COUNT(t.id) FILTER (WHERE t.is_completed)::BIGINT AS "completed_task_count!"
+  COUNT(t.id) FILTER (
+    WHERE t.is_completed
+      AND t.automatic_check IS NULL
+  )::BIGINT AS "completed_task_count!",
+  COALESCE(
+    ARRAY_AGG(t.automatic_check) FILTER (WHERE t.automatic_check IS NOT NULL),
+    '{}'
+  ) AS "automatic_checks!"
 FROM course_designer_plan_stages s
 LEFT JOIN course_designer_plan_stage_tasks t
   ON t.course_designer_plan_stage_id = s.id
@@ -831,8 +880,13 @@ ORDER BY
     )
     .fetch_all(&mut *conn)
     .await?;
-    let section_statuses =
-        crate::course_designer_section_statuses::get_for_plans(conn, &plan_ids).await?;
+    let plan_ids_with_course: Vec<Uuid> = plans
+        .iter()
+        .filter(|p| p.created_course_id.is_some())
+        .map(|p| p.id)
+        .collect();
+    let course_statuses =
+        course_designer_course_status::get_for_plans(conn, &plan_ids_with_course).await?;
 
     let mut support_plans: Vec<CourseDesignerSupportPlan> = plans
         .into_iter()
@@ -840,7 +894,6 @@ ORDER BY
             plan,
             members: vec![],
             stages: vec![],
-            section_statuses: vec![],
         })
         .collect();
     let index_by_plan: std::collections::HashMap<Uuid, usize> = support_plans
@@ -863,6 +916,11 @@ ORDER BY
     }
     for row in stage_rows {
         if let Some(&index) = index_by_plan.get(&row.course_designer_plan_id) {
+            let course_status = course_statuses.get(&row.course_designer_plan_id);
+            let passed_check_count = course_designer_course_status::count_passed_checks(
+                course_status,
+                &row.automatic_checks,
+            );
             support_plans[index]
                 .stages
                 .push(CourseDesignerSupportStage {
@@ -871,13 +929,8 @@ ORDER BY
                     planned_starts_on: row.planned_starts_on,
                     planned_ends_on: row.planned_ends_on,
                     task_count: row.task_count,
-                    completed_task_count: row.completed_task_count,
+                    completed_task_count: row.completed_task_count + passed_check_count,
                 });
-        }
-    }
-    for status in section_statuses {
-        if let Some(&index) = index_by_plan.get(&status.course_designer_plan_id) {
-            support_plans[index].section_statuses.push(status);
         }
     }
     Ok(support_plans)

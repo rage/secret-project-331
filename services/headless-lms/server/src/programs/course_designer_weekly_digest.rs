@@ -109,6 +109,12 @@ struct DigestCopy {
     untitled_plan: &'static str,
     nothing: &'static str,
     no_active_stage: &'static str,
+    no_course: &'static str,
+    unfilled_pages: fn(usize) -> String,
+    chapters_without_exercises: fn(usize) -> String,
+    all_pages_filled: &'static str,
+    is_draft: &'static str,
+    is_published: &'static str,
     on_schedule: &'static str,
     overdue: fn(i64) -> String,
     date_format: &'static str,
@@ -119,6 +125,18 @@ const ENGLISH_COPY: DigestCopy = DigestCopy {
     untitled_plan: "Untitled plan",
     nothing: "None",
     no_active_stage: "No active phase",
+    no_course: "Not created yet.",
+    unfilled_pages: |count| match count {
+        1 => "1 page still needs content.".to_string(),
+        _ => format!("{count} pages still need content."),
+    },
+    chapters_without_exercises: |count| match count {
+        1 => "1 chapter has no exercises.".to_string(),
+        _ => format!("{count} chapters have no exercises."),
+    },
+    all_pages_filled: "Every page has content.",
+    is_draft: "The course is not published yet.",
+    is_published: "The course is published.",
     on_schedule: "The phase is on schedule.",
     overdue: |days| format!("The phase is {days} days past its planned end."),
     date_format: "%B %-d, %Y",
@@ -135,6 +153,18 @@ const FINNISH_COPY: DigestCopy = DigestCopy {
     untitled_plan: "Nimetön suunnitelma",
     nothing: "Ei yhtään",
     no_active_stage: "Ei aktiivista vaihetta",
+    no_course: "Ei vielä luotu.",
+    unfilled_pages: |count| match count {
+        1 => "1 sivu odottaa vielä sisältöä.".to_string(),
+        _ => format!("{count} sivua odottaa vielä sisältöä."),
+    },
+    chapters_without_exercises: |count| match count {
+        1 => "1 osassa ei ole tehtäviä.".to_string(),
+        _ => format!("{count} osassa ei ole tehtäviä."),
+    },
+    all_pages_filled: "Kaikilla sivuilla on sisältöä.",
+    is_draft: "Kurssia ei ole vielä julkaistu.",
+    is_published: "Kurssi on julkaistu.",
     on_schedule: "Vaihe etenee aikataulussa.",
     overdue: |days| format!("Vaihe on {days} päivää yli suunnitellun päättymispäivän."),
     date_format: "%-d.%-m.%Y",
@@ -167,18 +197,32 @@ fn placeholders(digest: &WeeklyDigest, base_url: &str, now: DateTime<Utc>) -> se
             items.join("; ")
         }
     };
-    let unfinished_sections = join_or_nothing(
-        digest
-            .unfinished_section_counts
-            .iter()
-            .map(|(stage, count)| format!("{} ({count})", (copy.stage_name)(*stage)))
-            .collect(),
-    );
+    let course_status = match &digest.course_status {
+        None => copy.no_course.to_string(),
+        Some(status) => {
+            let mut parts = vec![if status.unfilled_pages.is_empty() {
+                copy.all_pages_filled.to_string()
+            } else {
+                (copy.unfilled_pages)(status.unfilled_pages.len())
+            }];
+            if !status.chapters_without_exercises.is_empty() {
+                parts.push((copy.chapters_without_exercises)(
+                    status.chapters_without_exercises.len(),
+                ));
+            }
+            parts.push(
+                if status.is_draft {
+                    copy.is_draft
+                } else {
+                    copy.is_published
+                }
+                .to_string(),
+            );
+            parts.join(" ")
+        }
+    };
     let stage_query = digest
-        .unfinished_section_counts
-        .first()
-        .map(|(stage, _)| *stage)
-        .or(digest.active_stage)
+        .active_stage
         .map(|stage| format!("?stage={}", stage.as_str()))
         .unwrap_or_default();
     json!({
@@ -195,7 +239,7 @@ fn placeholders(digest: &WeeklyDigest, base_url: &str, now: DateTime<Utc>) -> se
         "COMPLETED_TASKS_LAST_WEEK": join_or_nothing(digest.tasks_completed_since.clone()),
         "COMPLETED_TASK_COUNT": digest.completed_task_count,
         "TASK_COUNT": digest.task_count,
-        "UNFINISHED_SECTIONS": unfinished_sections,
+        "COURSE_STATUS": course_status,
         "PLAN_LINK": format!(
             "{base_url}/manage/course-plans/{}/workspace{stage_query}",
             digest.plan_id

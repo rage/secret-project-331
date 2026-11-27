@@ -2114,7 +2114,6 @@ export type ClientToolName =
   | "propose_add_task"
   | "propose_update_task"
   | "propose_schedule_adjustment"
-  | "propose_section_status"
   | "propose_vision_edit"
 
 export type CmsPageExercise = {
@@ -2782,7 +2781,37 @@ export type CourseDesignerAssistantStatus = {
   has_guide_course: boolean
 }
 
+/**
+ * What an automatic task checks in the plan's course; see
+ * [`CourseDesignerCourseStatus::passes`].
+ */
+export type CourseDesignerAutomaticCheck = "ContentFilled" | "ExercisesExist" | "CoursePublished"
+
+export type CourseDesignerChapterWithoutExercises = {
+  chapter_id: string
+  chapter_number: number
+  name: string
+}
+
 export type CourseDesignerCourseSize = "small" | "medium" | "large"
+
+/**
+ * The state of a plan's course that the plan pages and automatic tasks show. Hidden pages are
+ * left out.
+ */
+export type CourseDesignerCourseStatus = {
+  chapter_count: number
+  chapters_without_exercises: Array<CourseDesignerChapterWithoutExercises>
+  course_id: string
+  is_draft: boolean
+  name: string
+  page_count: number
+  slug: string
+  /**
+   * In course order: top-level pages first, then chapter by chapter.
+   */
+  unfilled_pages: Array<CourseDesignerUnfilledPage>
+}
 
 export type CourseDesignerPlan = {
   active_stage?: CourseDesignerStage | null
@@ -2802,9 +2831,9 @@ export type CourseDesignerPlan = {
 }
 
 export type CourseDesignerPlanDetails = {
+  course_status?: CourseDesignerCourseStatus | null
   members: Array<CourseDesignerPlanMember>
   plan: CourseDesignerPlan
-  section_statuses: Array<CourseDesignerPlanSectionStatus>
   stages: Array<CourseDesignerPlanStageWithTasks>
 }
 
@@ -2814,21 +2843,6 @@ export type CourseDesignerPlanMember = {
   receives_weekly_digest: boolean
   updated_at: string
   user_id: string
-}
-
-export type CourseDesignerPlanSectionStatus = {
-  comment?: string | null
-  course_designer_plan_id: string
-  created_at: string
-  id: string
-  /**
-   * Defined by the frontend forms, e.g. `design.learning_goals`.
-   */
-  section_key: string
-  stage: CourseDesignerStage
-  status: CourseDesignerSectionStatus
-  updated_at: string
-  updated_by_user_id: string
 }
 
 export type CourseDesignerPlanStage = {
@@ -2855,6 +2869,7 @@ export type CourseDesignerPlanStageTask = {
    * Always a current plan member; cleared when that member leaves.
    */
   assignee_user_id?: string | null
+  automatic_check?: CourseDesignerAutomaticCheck | null
   completed_at?: string | null
   completed_by_user_id?: string | null
   course_designer_plan_stage_id: string
@@ -2908,8 +2923,6 @@ export type CourseDesignerScheduleSuggestionResponse = {
   stages: Array<CourseDesignerScheduleStageInput>
 }
 
-export type CourseDesignerSectionStatus = "Ready" | "Unfinished"
-
 export type CourseDesignerStage =
   | "Analysis"
   | "Design"
@@ -2938,11 +2951,13 @@ export type CourseDesignerStageWorkspace =
 export type CourseDesignerSupportPlan = {
   members: Array<PlanMemberWithDetails>
   plan: CourseDesignerPlan
-  section_statuses: Array<CourseDesignerPlanSectionStatus>
   stages: Array<CourseDesignerSupportStage>
 }
 
 export type CourseDesignerSupportStage = {
+  /**
+   * Automatic tasks count as completed when their check passes on the plan's course.
+   */
   completed_task_count: number
   planned_ends_on: string
   planned_starts_on: string
@@ -2950,6 +2965,23 @@ export type CourseDesignerSupportStage = {
   status: CourseDesignerPlanStageStatus
   task_count: number
 }
+
+export type CourseDesignerUnfilledPage = {
+  /**
+   * `None` for the front page and other top-level pages.
+   */
+  chapter_id?: string | null
+  page_id: string
+  reason: CourseDesignerUnfilledPageReason
+  title: string
+  url_path: string
+}
+
+/**
+ * Why a page of the course does not count as written yet. When several apply, the first in
+ * declaration order is reported.
+ */
+export type CourseDesignerUnfilledPageReason = "empty" | "placeholder_text" | "ai_outline"
 
 export type CourseEnrollmentInfo = {
   course: Course
@@ -3430,6 +3462,10 @@ export type CreateCourseDesignerStageTaskRequest = {
 }
 
 export type CreateCourseFromPlanRequest = {
+  /**
+   * Gives every other plan member the Teacher role on the new course.
+   */
+  give_members_course_roles?: boolean
   /**
    * Defaults to the Analysis form's language when it reads as one, else English.
    */
@@ -8429,19 +8465,6 @@ export type SetCourseDesignerAssistantRequest = {
   course_designer_assistant: boolean
 }
 
-export type SetCourseDesignerSectionStatusRequest = {
-  /**
-   * Blank or `null` stores no comment.
-   */
-  comment?: string | null
-  /**
-   * Stable key defined by the frontend form, e.g. `design.learning_goals`. At most 255 characters.
-   */
-  section_key: string
-  stage: CourseDesignerStage
-  status: CourseDesignerSectionStatus
-}
-
 export type SetCourseDesignerTaskAssigneeRequest = {
   /**
    * A current plan member, or `null` to unassign.
@@ -11118,6 +11141,28 @@ export type GetCourseModuleUserCompletionResponses = {
 export type GetCourseModuleUserCompletionResponse =
   GetCourseModuleUserCompletionResponses[keyof GetCourseModuleUserCompletionResponses]
 
+export type CreateCourseFromCourseDesignerPlanData = {
+  body: CreateCourseFromPlanRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plan-courses/{plan_id}"
+}
+
+export type CreateCourseFromCourseDesignerPlanResponses = {
+  /**
+   * Created course
+   */
+  200: Course
+}
+
+export type CreateCourseFromCourseDesignerPlanResponse =
+  CreateCourseFromCourseDesignerPlanResponses[keyof CreateCourseFromCourseDesignerPlanResponses]
+
 export type GetCourseDesignerPlansData = {
   body?: never
   path?: never
@@ -11374,28 +11419,6 @@ export type SendCourseDesignerAssistantToolResponseResponses = {
 export type SendCourseDesignerAssistantToolResponseResponse =
   SendCourseDesignerAssistantToolResponseResponses[keyof SendCourseDesignerAssistantToolResponseResponses]
 
-export type CreateCourseFromCourseDesignerPlanData = {
-  body: CreateCourseFromPlanRequest
-  path: {
-    /**
-     * Plan id
-     */
-    plan_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-plans/{plan_id}/course"
-}
-
-export type CreateCourseFromCourseDesignerPlanResponses = {
-  /**
-   * Created course
-   */
-  200: Course
-}
-
-export type CreateCourseFromCourseDesignerPlanResponse =
-  CreateCourseFromCourseDesignerPlanResponses[keyof CreateCourseFromCourseDesignerPlanResponses]
-
 export type GetCoursePlanMembersData = {
   body?: never
   path: {
@@ -11553,50 +11576,6 @@ export type CreateCourseDesignerScheduleSuggestionResponses = {
 
 export type CreateCourseDesignerScheduleSuggestionResponse =
   CreateCourseDesignerScheduleSuggestionResponses[keyof CreateCourseDesignerScheduleSuggestionResponses]
-
-export type GetCourseDesignerSectionStatusesData = {
-  body?: never
-  path: {
-    /**
-     * Plan id
-     */
-    plan_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses"
-}
-
-export type GetCourseDesignerSectionStatusesResponses = {
-  /**
-   * Section statuses
-   */
-  200: Array<CourseDesignerPlanSectionStatus>
-}
-
-export type GetCourseDesignerSectionStatusesResponse =
-  GetCourseDesignerSectionStatusesResponses[keyof GetCourseDesignerSectionStatusesResponses]
-
-export type SetCourseDesignerSectionStatusData = {
-  body: SetCourseDesignerSectionStatusRequest
-  path: {
-    /**
-     * Plan id
-     */
-    plan_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses"
-}
-
-export type SetCourseDesignerSectionStatusResponses = {
-  /**
-   * Saved section status
-   */
-  200: CourseDesignerPlanSectionStatus
-}
-
-export type SetCourseDesignerSectionStatusResponse =
-  SetCourseDesignerSectionStatusResponses[keyof SetCourseDesignerSectionStatusResponses]
 
 export type AdvanceCourseDesignerStageData = {
   body?: never

@@ -16,6 +16,11 @@ use headless_lms_chatbot::{
     },
     cms_ai_suggestion::RESPONSE_FORMAT_NAME as CMS_SUGGESTION_FORMAT,
     course_description_summary::RESPONSE_FORMAT_NAME as COURSE_DESCRIPTION_FORMAT,
+    course_plan_drafting::{
+        CHAPTER_RESPONSE_FORMAT_NAME as COURSE_PLAN_CHAPTER_FORMAT,
+        COURSE_RESPONSE_FORMAT_NAME as COURSE_PLAN_COURSE_FORMAT, LEARNING_GOALS_HEADING,
+        LIST_ITEM_PREFIX, SECTION_END, TOPICS_HEADING,
+    },
     feedback_categorization::RESPONSE_FORMAT_NAME as FEEDBACK_CATEGORIZATION_FORMAT,
     language_version_matching::{
         HEURISTIC_PICK_PREFIX, ITEM_ID_PREFIX, OTHER_EXERCISES_HEADING, OTHER_PAGES_HEADING,
@@ -265,6 +270,18 @@ const SCENARIOS: &[Scenario] = &[
         matches: |request| request.wants_format(LANGUAGE_VERSION_MATCHING_FORMAT),
         respond: |request, _| blocking_response(&language_version_matching_payload(request)),
         example: || MockRequest::structured_output(LANGUAGE_VERSION_MATCHING_FORMAT),
+    },
+    Scenario {
+        name: "the course-level drafts of a course created from a plan",
+        matches: |request| request.wants_format(COURSE_PLAN_COURSE_FORMAT),
+        respond: |request, _| blocking_response(&course_plan_course_payload(request)),
+        example: || MockRequest::structured_output(COURSE_PLAN_COURSE_FORMAT),
+    },
+    Scenario {
+        name: "the chapter drafts of a course created from a plan",
+        matches: |request| request.wants_format(COURSE_PLAN_CHAPTER_FORMAT),
+        respond: |request, _| blocking_response(&course_plan_chapter_payload(request)),
+        example: || MockRequest::structured_output(COURSE_PLAN_CHAPTER_FORMAT),
     },
     Scenario {
         name: "the chart block specification",
@@ -1166,6 +1183,57 @@ fn language_version_matching_payload(request: &MockRequest) -> String {
     json!({
         "pages": confirmed_picks(THIS_PAGES_HEADING, OTHER_PAGES_HEADING),
         "exercises": confirmed_picks(THIS_EXERCISES_HEADING, OTHER_EXERCISES_HEADING),
+    })
+    .to_string()
+}
+
+/// How many list items the prompt section that `heading` starts has; the drafting validates that
+/// the answer has one entry per item.
+fn prompt_list_item_count(request: &MockRequest, heading: &str) -> usize {
+    request
+        .prompt_section(heading, SECTION_END)
+        .unwrap_or_default()
+        .lines()
+        .filter(|line| line.starts_with(LIST_ITEM_PREFIX))
+        .count()
+}
+
+fn course_plan_course_payload(request: &MockRequest) -> String {
+    let goal_count = prompt_list_item_count(request, LEARNING_GOALS_HEADING);
+    json!({
+        "description": "A mock course description drafted from the course plan.",
+        "hero_subtitle": "A mock subtitle drafted from the course plan.",
+        "about_text": "A mock paragraph about the course, drafted from the course plan.",
+        "learning_goal_headings": (1..=goal_count)
+            .map(|number| format!("Mock goal heading {number}"))
+            .collect::<Vec<_>>(),
+        "how_to_study_paragraphs": ["A mock paragraph on how to study the course."],
+        "chatbot": {
+            "name": "Mock course chatbot",
+            "prompt": "You are a mock study companion for this course.",
+            "initial_message": "Hi! Ask me about the course topics.",
+            "suggested_messages": ["What does this course cover?", "Help me revise chapter 1."]
+        }
+    })
+    .to_string()
+}
+
+fn course_plan_chapter_payload(request: &MockRequest) -> String {
+    let topic_count = prompt_list_item_count(request, TOPICS_HEADING);
+    json!({
+        "prior_learning_heading": "What do you already know?",
+        "prior_learning_questions": [
+            "Where have you come across this chapter's topics before?",
+            "What would you like to learn about them?"
+        ],
+        "topic_outlines": (0..topic_count)
+            .map(|_| json!({
+                "sections": [
+                    {"heading": "Why this matters", "points": ["A mock point to cover"]},
+                    {"heading": "Key ideas", "points": ["A mock idea", "Another mock idea"]}
+                ]
+            }))
+            .collect::<Vec<_>>(),
     })
     .to_string()
 }

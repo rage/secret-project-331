@@ -146,10 +146,23 @@ impl GutenbergBlock {
     /// The course objectives section with [`COURSE_OBJECTIVE_PLACEHOLDERS`] for the teacher to
     /// replace.
     pub fn course_objective_section() -> Self {
-        let columns = COURSE_OBJECTIVE_PLACEHOLDERS
+        Self::course_objective_section_with(
+            "In this course you'll...",
+            &COURSE_OBJECTIVE_PLACEHOLDERS,
+        )
+    }
+
+    /// The course objectives section with one column per `(heading, description)`. Both are
+    /// rich text, so the caller escapes plain text.
+    pub fn course_objective_section_with(
+        title: &str,
+        objectives: &[(impl AsRef<str>, impl AsRef<str>)],
+    ) -> Self {
+        let columns = objectives
             .iter()
             .enumerate()
             .map(|(index, (heading, description))| {
+                let (heading, description) = (heading.as_ref(), description.as_ref());
                 GutenbergBlock::block_with_name_attributes_and_inner_blocks(
                     "core/column",
                     attributes! {},
@@ -178,7 +191,7 @@ impl GutenbergBlock {
         GutenbergBlock::block_with_name_attributes_and_inner_blocks(
             "moocfi/course-objective-section",
             attributes! {
-                "title": "In this course you'll..."
+                "title": title
             },
             vec![GutenbergBlock::block_with_name_attributes_and_inner_blocks(
                 "core/columns",
@@ -222,6 +235,35 @@ impl GutenbergBlock {
                     ],
                 )],
             )],
+        )
+    }
+
+    /// A heading whose anchor is derived from `content`, which is rich text.
+    pub fn heading(content: &str, level: u8) -> Self {
+        Self::block_with_name_and_attributes(
+            "core/heading",
+            attributes! {
+                "content": content,
+                "level": level,
+                "anchor": crate::strings::slugify(&crate::strings::decode_html_entities(&strip_html_tags(content))),
+            },
+        )
+    }
+
+    /// An unordered list with one item per entry of `items`, which are rich text.
+    pub fn list(items: &[impl AsRef<str>]) -> Self {
+        Self::block_with_name_attributes_and_inner_blocks(
+            "core/list",
+            attributes! { "ordered": false },
+            items
+                .iter()
+                .map(|item| {
+                    Self::block_with_name_and_attributes(
+                        "core/list-item",
+                        attributes! { "content": item.as_ref() },
+                    )
+                })
+                .collect(),
         )
     }
 

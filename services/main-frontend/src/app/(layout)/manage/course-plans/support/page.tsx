@@ -26,8 +26,6 @@ import {
   TONE,
 } from "@/shared-module/components"
 
-import { SCHEDULE_STAGE_ORDER } from "../[id]/schedule/scheduleConstants"
-import { sectionKeyLabel } from "../[id]/workspace/components/section-status/sectionKeys"
 import { daysUntilPlanDate, formatPlanDate } from "../coursePlanDates"
 import { formatPlanMemberName } from "../coursePlanMembers"
 import { stageLabel } from "../coursePlanStages"
@@ -51,14 +49,7 @@ const mutedStyles = css`
 `
 
 const detailsStyles = css`
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-  gap: 1.5rem;
   padding: 0.5rem 0;
-
-  @media (max-width: 50rem) {
-    grid-template-columns: minmax(0, 1fr);
-  }
 
   h3 {
     margin: 0 0 0.5rem;
@@ -75,24 +66,10 @@ const detailsStyles = css`
   }
 `
 
-const sectionRowStyles = css`
+const stageRowStyles = css`
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-`
-
-const sectionHeaderStyles = css`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-`
-
-const commentStyles = css`
-  margin: 0;
-  font-size: 0.9rem;
-  color: ${baseTheme.colors.gray[700]};
-  white-space: pre-wrap;
 `
 
 function planStatusLabel(status: CourseDesignerPlanStatus, t: TFunction): string {
@@ -189,12 +166,14 @@ function CoursePlansSupportPage() {
                 cell: (row) => scheduleHealth(row, t),
               },
               {
-                header: t("course-plans-support-column-sections"),
+                header: t("course-plans-support-column-tasks"),
                 cell: (row) =>
-                  t("course-plans-support-sections-ready", {
-                    ready: row.section_statuses.filter((status) => status.status === "Ready")
-                      .length,
-                    total: row.section_statuses.length,
+                  t("course-plans-support-tasks-done", {
+                    completed: row.stages.reduce(
+                      (sum, stage) => sum + stage.completed_task_count,
+                      0,
+                    ),
+                    total: row.stages.reduce((sum, stage) => sum + stage.task_count, 0),
                   }),
               },
             ]}
@@ -220,19 +199,13 @@ function SupportPlanDetails({
   locale: string
 }) {
   const { t } = useTranslation()
-  const sectionStatuses = supportPlan.section_statuses.toSorted(
-    (a, b) =>
-      SCHEDULE_STAGE_ORDER.indexOf(a.stage) - SCHEDULE_STAGE_ORDER.indexOf(b.stage) ||
-      a.section_key.localeCompare(b.section_key),
-  )
-
   return (
     <div className={detailsStyles}>
       <div>
         <h3>{t("course-plans-support-stages-heading")}</h3>
         <ul>
           {supportPlan.stages.map((stage) => (
-            <li key={stage.stage} className={sectionRowStyles}>
+            <li key={stage.stage} className={stageRowStyles}>
               <strong>{stageLabel(stage.stage, t)}</strong>
               <span className={mutedStyles}>
                 {t("course-plans-overview-stage-dates", {
@@ -249,36 +222,6 @@ function SupportPlanDetails({
             </li>
           ))}
         </ul>
-      </div>
-      <div>
-        <h3>{t("course-plans-support-sections-heading")}</h3>
-        {sectionStatuses.length === 0 ? (
-          <p className={mutedStyles}>{t("course-plans-support-no-sections")}</p>
-        ) : (
-          <ul>
-            {sectionStatuses.map((status) => (
-              <li key={status.id} className={sectionRowStyles}>
-                <span className={sectionHeaderStyles}>
-                  <strong>
-                    {t("course-plans-support-section-name", {
-                      stage: stageLabel(status.stage, t),
-                      section: sectionKeyLabel(status.section_key, t),
-                    })}
-                  </strong>
-                  <Badge
-                    tone={status.status === "Ready" ? TONE.SUCCESS : TONE.WARNING}
-                    size="compact"
-                  >
-                    {status.status === "Ready"
-                      ? t("course-plans-support-section-ready")
-                      : t("course-plans-support-section-unfinished")}
-                  </Badge>
-                </span>
-                {status.comment && <p className={commentStyles}>{status.comment}</p>}
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
     </div>
   )

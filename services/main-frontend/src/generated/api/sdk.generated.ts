@@ -389,8 +389,6 @@ import type {
   GetCourseDesignerPlanResponses,
   GetCourseDesignerPlansData,
   GetCourseDesignerPlansResponses,
-  GetCourseDesignerSectionStatusesData,
-  GetCourseDesignerSectionStatusesResponses,
   GetCourseDesignerSupportAssistantChatbotsData,
   GetCourseDesignerSupportAssistantChatbotsResponses,
   GetCourseDesignerSupportPlansData,
@@ -922,8 +920,6 @@ import type {
   SetCourseChatbotAsNonDefaultResponses,
   SetCourseDesignerGreatMoocVisionData,
   SetCourseDesignerGreatMoocVisionResponses,
-  SetCourseDesignerSectionStatusData,
-  SetCourseDesignerSectionStatusResponses,
   SetCourseDesignerTaskAssigneeData,
   SetCourseDesignerTaskAssigneeResponses,
   SetCourseDesignerWeeklyDigestSubscriptionData,
@@ -1166,7 +1162,6 @@ import {
   zGetCourseDesignerAssistantStatusResponse,
   zGetCourseDesignerPlanResponse,
   zGetCourseDesignerPlansResponse,
-  zGetCourseDesignerSectionStatusesResponse,
   zGetCourseDesignerSupportAssistantChatbotsResponse,
   zGetCourseDesignerSupportPlansResponse,
   zGetCourseExercisesAndAnswersRequiringAttentionCountsResponse,
@@ -1403,7 +1398,6 @@ import {
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
   zSetCourseDesignerGreatMoocVisionResponse,
-  zSetCourseDesignerSectionStatusResponse,
   zSetCourseDesignerTaskAssigneeResponse,
   zSetCourseDesignerWeeklyDigestSubscriptionResponse,
   zSetCourseModuleCertificateGenerationResponse,
@@ -2892,6 +2886,34 @@ export const getCourseModuleUserCompletion = <ThrowOnError extends boolean = tru
     ...options,
   })
 
+/**
+ * Creates a draft course from the plan once Design is done, with texts an AI drafts from the plan
+ * first. A plan creates at most one course.
+ *
+ * Waits for the AI, so it has an ingress with a longer timeout of its own
+ * (`kubernetes/base/ingress-ai-suggestions.yml`). When drafting fails or times out, nothing is
+ * created and the error has the reason `course_drafting_failed`; the request can be retried.
+ */
+export const createCourseFromCourseDesignerPlan = <ThrowOnError extends boolean = true>(
+  options: Options<CreateCourseFromCourseDesignerPlanData, ThrowOnError>,
+): RequestResult<CreateCourseFromCourseDesignerPlanResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    CreateCourseFromCourseDesignerPlanResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zCreateCourseFromCourseDesignerPlanResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plan-courses/{plan_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
 export const getCourseDesignerPlans = <ThrowOnError extends boolean = true>(
   options?: Options<GetCourseDesignerPlansData, ThrowOnError>,
 ): RequestResult<GetCourseDesignerPlansResponses, unknown, ThrowOnError, "data"> =>
@@ -3131,29 +3153,6 @@ export const sendCourseDesignerAssistantToolResponse = <ThrowOnError extends boo
     },
   })
 
-/**
- * Creates a draft course from the plan's course structure. A plan creates at most one course.
- */
-export const createCourseFromCourseDesignerPlan = <ThrowOnError extends boolean = true>(
-  options: Options<CreateCourseFromCourseDesignerPlanData, ThrowOnError>,
-): RequestResult<CreateCourseFromCourseDesignerPlanResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<
-    CreateCourseFromCourseDesignerPlanResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zCreateCourseFromCourseDesignerPlanResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/course-plans/{plan_id}/course",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
-
 export const getCoursePlanMembers = <ThrowOnError extends boolean = true>(
   options: Options<GetCoursePlanMembersData, ThrowOnError>,
 ): RequestResult<GetCoursePlanMembersResponses, unknown, ThrowOnError, "data"> =>
@@ -3260,42 +3259,6 @@ export const createCourseDesignerScheduleSuggestion = <ThrowOnError extends bool
       await zCreateCourseDesignerScheduleSuggestionResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/course-plans/{plan_id}/schedule/suggestions",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
-
-export const getCourseDesignerSectionStatuses = <ThrowOnError extends boolean = true>(
-  options: Options<GetCourseDesignerSectionStatusesData, ThrowOnError>,
-): RequestResult<GetCourseDesignerSectionStatusesResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<
-    GetCourseDesignerSectionStatusesResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zGetCourseDesignerSectionStatusesResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses",
-    ...options,
-  })
-
-export const setCourseDesignerSectionStatus = <ThrowOnError extends boolean = true>(
-  options: Options<SetCourseDesignerSectionStatusData, ThrowOnError>,
-): RequestResult<SetCourseDesignerSectionStatusResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).put<
-    SetCourseDesignerSectionStatusResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zSetCourseDesignerSectionStatusResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses",
     ...options,
     headers: {
       "Content-Type": "application/json",

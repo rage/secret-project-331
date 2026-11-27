@@ -21,6 +21,10 @@
       "message": "Dette kapittelet er ikke åpent ennå.",
       "title": "Kapittelet er stengt"
     },
+    "course_drafting_failed": {
+      "message": "KI-en rakk ikke å skrive utkast til tekstene i kurset, så ingen kurs ble opprettet. Prøv igjen.",
+      "title": "Kurset kunne ikke skrives som utkast"
+    },
     "course_slug_already_taken": {
       "message": "Et annet kurs bruker allerede denne slugen. Velg en annen.",
       "title": "Slugen er allerede i bruk"

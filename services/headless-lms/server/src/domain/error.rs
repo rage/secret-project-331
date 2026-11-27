@@ -212,6 +212,10 @@ pub enum BadRequestReason {
     /// The form's proof-of-work solution was missing, wrong, expired or already used.
     #[display("Form verification failed")]
     FormVerificationFailed,
+    /// The AI could not draft the texts of a course created from a course design plan, so no
+    /// course was created.
+    #[display("Course drafting failed")]
+    CourseDraftingFailed,
 }
 
 impl BadRequestReason {
@@ -242,6 +246,7 @@ impl BadRequestReason {
             }
             Self::StaleVersion => "stale_version",
             Self::FormVerificationFailed => "form_verification_failed",
+            Self::CourseDraftingFailed => "course_drafting_failed",
         }
     }
 

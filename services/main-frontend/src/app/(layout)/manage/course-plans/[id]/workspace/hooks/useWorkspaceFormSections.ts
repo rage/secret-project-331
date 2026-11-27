@@ -5,14 +5,11 @@ import type { ComponentType } from "react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { CourseDesignerStage } from "@/generated/api/types.generated"
-
 import { sectionAccentByIndex } from "../components/analysis-form/analysisFormDomain"
 import useWorkspaceSectionNav from "./useWorkspaceSectionNav"
 
 interface WorkspaceFormSectionDefinition {
   domId: string
-  sectionKey: string
   titleKey: ParseKeys
   icon: ComponentType<{ size?: number | string }>
 }
@@ -23,7 +20,6 @@ interface WorkspaceFormSectionDefinition {
  */
 export default function useWorkspaceFormSections(
   sections: readonly WorkspaceFormSectionDefinition[],
-  stage: CourseDesignerStage,
   isReadOnly: boolean,
 ) {
   const { t } = useTranslation()
@@ -32,7 +28,6 @@ export default function useWorkspaceFormSections(
 
   const sectionLinks = sections.map((section) => ({
     domId: section.domId,
-    sectionKey: section.sectionKey,
     title: t(section.titleKey),
   }))
 
@@ -41,8 +36,6 @@ export default function useWorkspaceFormSections(
     const section = sections[index]!
     return {
       domId: section.domId,
-      stage,
-      sectionKey: section.sectionKey,
       icon: section.icon,
       title: t(section.titleKey),
       accentClassName: sectionAccentByIndex[index % sectionAccentByIndex.length] ?? "",

@@ -11,7 +11,6 @@ use crate::{
         course_plan_tools::{
             get_course_plan::GetCoursePlanTool, propose_add_task::ProposeAddTaskTool,
             propose_schedule_adjustment::ProposeScheduleAdjustmentTool,
-            propose_section_status::ProposeSectionStatusTool,
             propose_update_task::ProposeUpdateTaskTool, propose_vision_edit::ProposeVisionEditTool,
             propose_workspace_edit::ProposeWorkspaceEditTool,
         },
@@ -175,7 +174,6 @@ pub enum ClientToolName {
     ProposeAddTask,
     ProposeUpdateTask,
     ProposeScheduleAdjustment,
-    ProposeSectionStatus,
     ProposeVisionEdit,
 }
 
@@ -193,7 +191,6 @@ impl ClientToolName {
             Self::ProposeAddTask => "propose_add_task",
             Self::ProposeUpdateTask => "propose_update_task",
             Self::ProposeScheduleAdjustment => "propose_schedule_adjustment",
-            Self::ProposeSectionStatus => "propose_section_status",
             Self::ProposeVisionEdit => "propose_vision_edit",
         }
     }
@@ -764,7 +761,6 @@ chatbot_tool_registry!(
         ProposeAddTaskTool,
         ProposeUpdateTaskTool,
         ProposeScheduleAdjustmentTool,
-        ProposeSectionStatusTool,
         ProposeVisionEditTool,
     ],
 );
@@ -1098,7 +1094,6 @@ mod tests {
             <ProposeAddTaskTool as ChatbotToolDeclaration>::get_tool_definition(),
             <ProposeUpdateTaskTool as ChatbotToolDeclaration>::get_tool_definition(),
             <ProposeScheduleAdjustmentTool as ChatbotToolDeclaration>::get_tool_definition(),
-            <ProposeSectionStatusTool as ChatbotToolDeclaration>::get_tool_definition(),
             <ProposeVisionEditTool as ChatbotToolDeclaration>::get_tool_definition(),
         ];
         definitions.extend(function_definitions(get_chatbot_tool_definitions()));

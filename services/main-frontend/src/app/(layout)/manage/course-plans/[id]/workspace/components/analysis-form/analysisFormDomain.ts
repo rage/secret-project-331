@@ -15,8 +15,6 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { stringToNumberOrNull } from "@/shared-module/components"
 
-import { SECTION_KEYS } from "../section-status/sectionKeys"
-
 export const STAGE_ANALYSIS: CourseDesignerStage = "Analysis"
 export const FIELD_CREDITS = "credits"
 export const FIELD_LANGUAGE = "language"
@@ -154,37 +152,31 @@ export function buildCreditsFieldRules(t: TFunction) {
 export const ANALYSIS_SECTIONS = [
   {
     domId: "analysis-section-1",
-    sectionKey: SECTION_KEYS.analysisMyCourse,
     titleKey: "course-plans-analysis-section-1",
     icon: Document,
   },
   {
     domId: "analysis-section-2",
-    sectionKey: SECTION_KEYS.analysisNeedsAnalysis,
     titleKey: "course-plans-analysis-section-2",
     icon: Users,
   },
   {
     domId: "analysis-section-3",
-    sectionKey: SECTION_KEYS.analysisWishes,
     titleKey: "course-plans-analysis-section-3",
     icon: Pencil,
   },
   {
     domId: "analysis-section-4",
-    sectionKey: SECTION_KEYS.analysisMarketAnalysis,
     titleKey: "course-plans-analysis-section-4",
     icon: Statistics,
   },
   {
     domId: "analysis-section-5",
-    sectionKey: SECTION_KEYS.analysisResources,
     titleKey: "course-plans-analysis-section-5",
     icon: Coins,
   },
   {
     domId: "analysis-section-6",
-    sectionKey: SECTION_KEYS.analysisKeyContributors,
     titleKey: "course-plans-analysis-section-6",
     icon: AccountsGroupPeople,
   },

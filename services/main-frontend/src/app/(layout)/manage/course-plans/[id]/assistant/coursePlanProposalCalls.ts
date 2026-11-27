@@ -12,7 +12,6 @@ export const PROPOSE_ADD_TASK_TOOL = "propose_add_task" satisfies ClientToolName
 export const PROPOSE_UPDATE_TASK_TOOL = "propose_update_task" satisfies ClientToolName
 export const PROPOSE_SCHEDULE_ADJUSTMENT_TOOL =
   "propose_schedule_adjustment" satisfies ClientToolName
-export const PROPOSE_SECTION_STATUS_TOOL = "propose_section_status" satisfies ClientToolName
 export const PROPOSE_VISION_EDIT_TOOL = "propose_vision_edit" satisfies ClientToolName
 
 export const workspaceEditCallSchema = z.object({
@@ -66,15 +65,6 @@ export const scheduleAdjustmentCallSchema = z.object({
   proposed_schedule: z.array(stageDatesSchema),
 })
 export type ScheduleAdjustmentCall = z.infer<typeof scheduleAdjustmentCallSchema>
-
-export const sectionStatusCallSchema = z.object({
-  section_key: z.string(),
-  current_status: z.string(),
-  current_comment: z.string(),
-  proposed_status: z.string(),
-  proposed_comment: z.string(),
-})
-export type SectionStatusCall = z.infer<typeof sectionStatusCallSchema>
 
 export const visionEditCallSchema = z.object({
   current_vision: z.string(),

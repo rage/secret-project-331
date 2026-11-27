@@ -19,8 +19,6 @@ import type {
   DesignWorkspaceV1,
 } from "@/generated/api/types.generated"
 
-import { SECTION_KEYS } from "../section-status/sectionKeys"
-
 export const STAGE_DESIGN: CourseDesignerStage = "Design"
 const DESIGN_WORKSPACE_SCHEMA_V1 = "design_v1" as const
 const DEFAULT_LEARNING_GOAL_COUNT = 3
@@ -251,43 +249,36 @@ export const STYLE_GUIDE_ITEMS = [
 export const DESIGN_SECTIONS = [
   {
     domId: "design-section-learning-goals",
-    sectionKey: SECTION_KEYS.designLearningGoals,
     titleKey: "course-plans-design-section-learning-goals",
     icon: TargetArrowBullseye,
   },
   {
     domId: "design-section-core-content",
-    sectionKey: SECTION_KEYS.designCoreContent,
     titleKey: "course-plans-design-section-core-content",
     icon: ListClipboard,
   },
   {
     domId: "design-section-course-structure",
-    sectionKey: SECTION_KEYS.designCourseStructure,
     titleKey: "course-plans-design-section-course-structure",
     icon: Hierarchy,
   },
   {
     domId: "design-section-content-format",
-    sectionKey: SECTION_KEYS.designContentFormat,
     titleKey: "course-plans-design-section-content-format",
     icon: ImageMessage,
   },
   {
     domId: "design-section-style-guide",
-    sectionKey: SECTION_KEYS.designStyleGuide,
     titleKey: "course-plans-design-section-style-guide",
     icon: Paintbrush,
   },
   {
     domId: "design-section-exercises",
-    sectionKey: SECTION_KEYS.designExercises,
     titleKey: "course-plans-design-section-exercises",
     icon: PencilPaper,
   },
   {
     domId: "design-section-learning-types",
-    sectionKey: SECTION_KEYS.designLearningTypes,
     titleKey: "course-plans-design-section-learning-types",
     icon: Brain,
   },

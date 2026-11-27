@@ -21,6 +21,10 @@
       "message": "Tämä luku ei ole vielä avoinna.",
       "title": "Luku on suljettu"
     },
+    "course_drafting_failed": {
+      "message": "Tekoäly ei ehtinyt luonnostella kurssin tekstejä, joten kurssia ei luotu. Yritä uudelleen.",
+      "title": "Kurssia ei voitu luonnostella"
+    },
     "course_slug_already_taken": {
       "message": "Toinen kurssi käyttää jo tätä lyhyttä nimeä. Valitse jokin muu.",
       "title": "Lyhyt nimi on jo käytössä"

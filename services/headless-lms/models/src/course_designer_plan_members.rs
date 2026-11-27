@@ -1,8 +1,8 @@
 use crate::course_designer_plans::{
-    CourseDesignerPlan, CourseDesignerPlanDetails, CourseDesignerPlanMember,
-    CourseDesignerPlanStage, CourseDesignerPlanStageStatus, CourseDesignerPlanStageTask,
-    CourseDesignerPlanStatus, CourseDesignerPlanSummary, CourseDesignerScheduleStageInput,
-    CourseDesignerStage, PlanMemberWithDetails,
+    CourseDesignerAutomaticCheck, CourseDesignerPlan, CourseDesignerPlanDetails,
+    CourseDesignerPlanMember, CourseDesignerPlanStage, CourseDesignerPlanStageStatus,
+    CourseDesignerPlanStageTask, CourseDesignerPlanStatus, CourseDesignerPlanSummary,
+    CourseDesignerScheduleStageInput, CourseDesignerStage, PlanMemberWithDetails,
 };
 use crate::course_designer_plans::{MAX_EXTEND_MONTHS, validate_schedule_input};
 use crate::prelude::*;
@@ -177,7 +177,8 @@ SELECT
   t.completed_by_user_id,
   t.is_auto_generated,
   t.created_by_user_id,
-  t.assignee_user_id
+  t.assignee_user_id,
+  t.automatic_check
 FROM course_designer_plan_stage_tasks t
 JOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL
 WHERE s.course_designer_plan_id = $1
@@ -269,7 +270,8 @@ RETURNING
   completed_by_user_id,
   is_auto_generated,
   created_by_user_id,
-  assignee_user_id
+  assignee_user_id,
+  automatic_check
 "#,
         stage_id,
         title,
@@ -284,7 +286,7 @@ RETURNING
 }
 
 /// Updates a task after membership validation. `None` leaves a field unchanged; a blank
-/// `description` clears it.
+/// `description` clears it. Refuses `is_completed` for automatic tasks.
 pub async fn update_stage_task_for_user(
     conn: &mut PgConnection,
     plan_id: Uuid,
@@ -304,6 +306,7 @@ SELECT
   t.is_completed,
   t.completed_at,
   t.completed_by_user_id,
+  t.automatic_check,
   s.stage AS "stage: CourseDesignerStage"
 FROM course_designer_plan_stage_tasks t
 JOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL
@@ -324,6 +327,7 @@ FOR UPDATE OF t
         current_completed,
         current_completed_at,
         current_completed_by_user_id,
+        automatic_check,
         stage,
     ) = match row {
         Some(r) => (
@@ -332,6 +336,7 @@ FOR UPDATE OF t
             r.is_completed,
             r.completed_at,
             r.completed_by_user_id,
+            r.automatic_check,
             r.stage,
         ),
         None => {
@@ -342,6 +347,13 @@ FOR UPDATE OF t
             ));
         }
     };
+    if automatic_check.is_some() && is_completed.is_some() {
+        return Err(model_err!(
+            PreconditionFailed,
+            "This task is checked automatically from the course and cannot be marked done by hand."
+                .to_string()
+        ));
+    }
     let new_title = title.map(|t| t.trim().to_string()).unwrap_or(current_title);
     if new_title.is_empty() {
         return Err(ModelError::new(
@@ -392,7 +404,8 @@ RETURNING
   t.completed_by_user_id,
   t.is_auto_generated,
   t.created_by_user_id,
-  t.assignee_user_id
+  t.assignee_user_id,
+  t.automatic_check
 "#,
         plan_id,
         new_title,
@@ -432,6 +445,20 @@ RETURNING
         .await?;
     }
     tx.commit().await?;
+    with_course_status(conn, plan_id, task).await
+}
+
+/// The task as the plan pages show it: an automatic task's completion computed from the course.
+async fn with_course_status(
+    conn: &mut PgConnection,
+    plan_id: Uuid,
+    mut task: CourseDesignerPlanStageTask,
+) -> ModelResult<CourseDesignerPlanStageTask> {
+    if task.automatic_check.is_some() {
+        let course_status =
+            crate::library::course_designer_course_status::get_for_plan(conn, plan_id).await?;
+        task.apply_course_status(course_status.as_ref());
+    }
     Ok(task)
 }
 
@@ -493,7 +520,8 @@ RETURNING
   t.completed_by_user_id,
   t.is_auto_generated,
   t.created_by_user_id,
-  t.assignee_user_id
+  t.assignee_user_id,
+  t.automatic_check
 "#,
         plan_id,
         user_id,
@@ -510,7 +538,7 @@ RETURNING
         )
     })?;
     tx.commit().await?;
-    Ok(task)
+    with_course_status(conn, plan_id, task).await
 }
 
 /// Soft-deletes a task after membership validation.
@@ -1391,43 +1419,67 @@ ORDER BY
     get_plan_for_user(conn, plan_id, user_id).await
 }
 
-/// Checklist added to each stage when the schedule is finalized. Stored as task titles, so these
-/// are data rather than UI copy and are not translated.
-fn default_stage_task_titles(stage: CourseDesignerStage) -> &'static [&'static str] {
+/// Checklist added to each stage when the schedule is finalized: a title, and the check of an
+/// automatic task. Stored as task titles, so these are data rather than UI copy and are not
+/// translated.
+///
+/// Analysis and Design have one task per form section, titled like the section in the
+/// main-frontend forms.
+fn default_stage_tasks(
+    stage: CourseDesignerStage,
+) -> &'static [(&'static str, Option<CourseDesignerAutomaticCheck>)] {
     match stage {
         CourseDesignerStage::Analysis => &[
-            "Fill in the course details",
-            "Find out what students and other stakeholders need",
-            "List the available resources and budget",
-            "Agree on who contributes to the course and in which role",
+            ("Course information", None),
+            ("Students needs analysis", None),
+            ("Wishes about the course", None),
+            ("Market analysis", None),
+            ("Resources", None),
+            ("Key contributors", None),
         ],
         CourseDesignerStage::Design => &[
-            "Write the learning goals",
-            "Decide what is must-know, should-know and nice-to-know content",
-            "Plan the chapters, topics and learning objectives",
-            "Choose the content formats",
-            "Agree on the style guide",
-            "Plan the exercises and check the student workload",
+            ("Learning goals", None),
+            ("Core content", None),
+            ("Course structure", None),
+            ("Content format", None),
+            ("Style guide", None),
+            ("Exercises and workload", None),
+            ("Learning types", None),
         ],
         CourseDesignerStage::Development => &[
-            "Produce the course content following the style guide",
-            "Create the exercises",
-            "Review the content for accuracy and accessibility",
+            (
+                "Write the content of every page",
+                Some(CourseDesignerAutomaticCheck::ContentFilled),
+            ),
+            (
+                "Add exercises to every chapter",
+                Some(CourseDesignerAutomaticCheck::ExercisesExist),
+            ),
+            ("Review the content for accuracy and accessibility", None),
         ],
         CourseDesignerStage::Implementation => &[
-            "Upload the course materials to the platform",
-            "Set up the activities and assessments",
-            "Check that all links and media work",
-            "Check that the content follows the style guide",
-            "Test the course as a learner",
-            "Make sure the course works as intended",
+            ("Set up the activities and assessments", None),
+            ("Check that all links and media work", None),
+            ("Check that the content follows the style guide", None),
+            ("Test the course as a learner", None),
+            ("Make sure the course works as intended", None),
+            (
+                "Publish the course",
+                Some(CourseDesignerAutomaticCheck::CoursePublished),
+            ),
         ],
         CourseDesignerStage::Evaluation => &[
-            "Select the test group",
-            "Send the test group an invitation with a registration form, the testing period and what is expected of them",
-            "Prepare a short feedback form",
-            "Ask testers to report content issues with the feedback button on the platform",
-            "Improve the course based on the feedback",
+            ("Select the test group", None),
+            (
+                "Send the test group an invitation with a registration form, the testing period and what is expected of them",
+                None,
+            ),
+            ("Prepare a short feedback form", None),
+            (
+                "Ask testers to report content issues with the feedback button on the platform",
+                None,
+            ),
+            ("Improve the course based on the feedback", None),
         ],
     }
 }
@@ -1438,9 +1490,12 @@ async fn insert_default_stage_tasks(
     plan_id: Uuid,
 ) -> ModelResult<()> {
     for stage in crate::course_designer_plans::fixed_stage_order() {
-        let titles: Vec<String> = default_stage_task_titles(stage)
+        let tasks = default_stage_tasks(stage);
+        let titles: Vec<String> = tasks.iter().map(|(title, _)| title.to_string()).collect();
+        // TEXT rather than the enum: sqlx cannot bind an enum array with NULL elements.
+        let automatic_checks: Vec<Option<String>> = tasks
             .iter()
-            .map(|t| t.to_string())
+            .map(|(_, check)| check.map(|check| check.as_str().to_string()))
             .collect();
         sqlx::query!(
             r#"
@@ -1448,14 +1503,16 @@ INSERT INTO course_designer_plan_stage_tasks (
   course_designer_plan_stage_id,
   title,
   order_number,
-  is_auto_generated
+  is_auto_generated,
+  automatic_check
 )
 SELECT s.id,
-  titles.title,
-  COALESCE(existing.max_order, 0) + titles.ordinal::INTEGER,
-  TRUE
+  defaults.title,
+  COALESCE(existing.max_order, 0) + defaults.ordinal::INTEGER,
+  TRUE,
+  defaults.automatic_check::course_designer_automatic_check
 FROM course_designer_plan_stages s
-CROSS JOIN UNNEST($3::TEXT []) WITH ORDINALITY AS titles(title, ordinal)
+CROSS JOIN UNNEST($3::TEXT [], $4::TEXT []) WITH ORDINALITY AS defaults(title, automatic_check, ordinal)
 LEFT JOIN LATERAL (
   SELECT MAX(order_number) AS max_order
   FROM course_designer_plan_stage_tasks
@@ -1475,7 +1532,8 @@ WHERE s.course_designer_plan_id = $1
 "#,
             plan_id,
             stage as CourseDesignerStage,
-            &titles
+            &titles,
+            &automatic_checks as &[Option<String>]
         )
         .execute(&mut **tx)
         .await?;

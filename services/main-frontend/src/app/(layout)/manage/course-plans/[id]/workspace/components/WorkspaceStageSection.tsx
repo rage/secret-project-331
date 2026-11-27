@@ -12,7 +12,10 @@ import {
   setCourseDesignerTaskAssigneeMutation,
   updateCourseDesignerStageTaskMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
-import type { CourseDesignerPlanStageWithTasks } from "@/generated/api/types.generated"
+import type {
+  CourseDesignerCourseStatus,
+  CourseDesignerPlanStageWithTasks,
+} from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { announceAfterFocus } from "@/shared-module/common/utils/announceAfterFocus"
@@ -156,6 +159,7 @@ const emptyTasksStyles = css`
 interface WorkspaceStageSectionProps {
   planId: string
   stage: CourseDesignerPlanStageWithTasks
+  courseStatus: CourseDesignerCourseStatus | null
   stageLabel: string
   isActive: boolean
   onInvalidate: () => void
@@ -169,6 +173,7 @@ const NEW_TASK_FIELD_NAME = "newTaskTitle" as const
 export default function WorkspaceStageSection({
   planId,
   stage,
+  courseStatus,
   stageLabel,
   isActive,
   onInvalidate,
@@ -367,6 +372,7 @@ export default function WorkspaceStageSection({
               key={task.id}
               task={task}
               members={members}
+              courseStatus={courseStatus}
               onSave={(changes) => saveTask(task.id, changes)}
               onToggle={(is_completed) =>
                 updateMutation.mutate({

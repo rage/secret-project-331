@@ -21,6 +21,10 @@
       "message": "This chapter is not open yet.",
       "title": "Chapter is closed"
     },
+    "course_drafting_failed": {
+      "message": "The AI could not draft the course texts in time, so no course was created. Try again.",
+      "title": "The course could not be drafted"
+    },
     "course_slug_already_taken": {
       "message": "Another course is already using this slug. Please choose a different one.",
       "title": "Slug is already in use"

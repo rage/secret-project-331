@@ -1,16 +1,17 @@
 use std::collections::HashMap;
 
 use chrono::NaiveDate;
+use headless_lms_models::course_designer_plan_members;
 use headless_lms_models::course_designer_plans::{
-    self, CourseDesignerPlanStageStatus, CourseDesignerPlanStatus, CourseDesignerStage,
+    self, CourseDesignerAutomaticCheck, CourseDesignerPlanStageStatus, CourseDesignerPlanStatus,
+    CourseDesignerStage,
 };
 use headless_lms_models::course_designer_stage_workspace::{
     CourseDesignerStageWorkspace, parse_workspace_data,
 };
-use headless_lms_models::{course_designer_plan_members, courses};
 use headless_lms_utils::cache::Cache;
 
-use super::{KNOWN_SECTION_KEYS, plan_member_requirements, plan_tool_declaration_items};
+use super::{plan_member_requirements, plan_tool_declaration_items};
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
@@ -32,7 +33,6 @@ pub struct CoursePlanSnapshot {
     plan: PlanOverview,
     members: Vec<MemberSnapshot>,
     stages: Vec<StageSnapshot>,
-    known_section_keys: &'static [&'static str],
 }
 
 #[derive(Serialize)]
@@ -48,6 +48,11 @@ struct PlanOverview {
 struct CreatedCourse {
     course_id: Uuid,
     name: String,
+    is_draft: bool,
+    chapter_count: i64,
+    page_count: i64,
+    unfilled_page_titles: Vec<String>,
+    chapters_without_exercises: Vec<String>,
 }
 
 #[derive(Serialize)]
@@ -68,7 +73,6 @@ struct StageSnapshot {
     /// The stage's form as saved: `{"schema", "payload"}`, or null when nothing is saved yet.
     workspace: Option<serde_json::Value>,
     tasks: Vec<TaskSnapshot>,
-    section_statuses: Vec<SectionStatusSnapshot>,
 }
 
 #[derive(Serialize)]
@@ -81,15 +85,8 @@ struct TaskSnapshot {
     assignee_user_id: Option<Uuid>,
     assignee_name: Option<String>,
     is_default_checklist_task: bool,
-}
-
-#[derive(Serialize)]
-struct SectionStatusSnapshot {
-    section_key: String,
-    status: &'static str,
-    comment: Option<String>,
-    updated_by: Option<String>,
-    updated_at: DateTime<Utc>,
+    /// Set on automatic tasks, which tick themselves from the course and cannot be marked by hand.
+    automatic_check: Option<&'static str>,
 }
 
 impl ChatbotToolDeclaration for GetCoursePlanTool {
@@ -101,7 +98,7 @@ impl ChatbotToolDeclaration for GetCoursePlanTool {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
             name: Self::NAME.to_string(),
-            description: "Read the whole course design plan this conversation is about: name, status, active stage, the team's vision, members, every stage's schedule, saved form (workspace), tasks with assignees, and the ready/unfinished marks with comments on each section. Call it before giving feedback or proposing any change, and again after a change was applied or refused as stale.".to_string(),
+            description: "Read the whole course design plan this conversation is about: name, status, active stage, the team's vision, members, every stage's schedule, saved form (workspace), tasks with assignees, and the state of the course created from the plan. Call it before giving feedback or proposing any change, and again after a change was applied or refused as stale.".to_string(),
             parameters: no_parameters(),
             strict: true,
         }
@@ -144,18 +141,23 @@ impl ChatbotTool for GetCoursePlanTool {
         let members =
             course_designer_plan_members::get_plan_members_with_details(conn, plan_id, user_id)
                 .await?;
-        let created_course = match details.plan.created_course_id {
-            Some(course_id) => {
-                courses::get_course(conn, course_id)
-                    .await
-                    .optional()?
-                    .map(|course| CreatedCourse {
-                        course_id,
-                        name: course.name,
-                    })
-            }
-            None => None,
-        };
+        let created_course = details.course_status.as_ref().map(|status| CreatedCourse {
+            course_id: status.course_id,
+            name: status.name.clone(),
+            is_draft: status.is_draft,
+            chapter_count: status.chapter_count,
+            page_count: status.page_count,
+            unfilled_page_titles: status
+                .unfilled_pages
+                .iter()
+                .map(|page| page.title.clone())
+                .collect(),
+            chapters_without_exercises: status
+                .chapters_without_exercises
+                .iter()
+                .map(|chapter| chapter.name.clone())
+                .collect(),
+        });
 
         let names: HashMap<Uuid, String> = members
             .iter()
@@ -198,18 +200,9 @@ impl ChatbotTool for GetCoursePlanTool {
                             completed_at: task.completed_at,
                             assignee_user_id: task.assignee_user_id,
                             is_default_checklist_task: task.is_auto_generated,
-                        })
-                        .collect(),
-                    section_statuses: details
-                        .section_statuses
-                        .iter()
-                        .filter(|status| status.stage == stage.stage)
-                        .map(|status| SectionStatusSnapshot {
-                            section_key: status.section_key.clone(),
-                            status: status.status.as_str(),
-                            comment: status.comment.clone(),
-                            updated_by: names.get(&status.updated_by_user_id).cloned(),
-                            updated_at: status.updated_at,
+                            automatic_check: task
+                                .automatic_check
+                                .map(CourseDesignerAutomaticCheck::as_str),
                         })
                         .collect(),
                 }
@@ -241,7 +234,6 @@ impl ChatbotTool for GetCoursePlanTool {
                     })
                     .collect(),
                 stages,
-                known_section_keys: &KNOWN_SECTION_KEYS,
             },
         })
     }

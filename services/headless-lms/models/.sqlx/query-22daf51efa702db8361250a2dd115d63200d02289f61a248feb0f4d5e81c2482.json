@@ -29,7 +29,8 @@
                 "prompt-creation",
                 "feedback-categorization",
                 "chart-spec-generation",
-                "language-version-matching"
+                "language-version-matching",
+                "course-plan-drafting"
               ]
             }
           }
@@ -112,7 +113,8 @@
                 "prompt-creation",
                 "feedback-categorization",
                 "chart-spec-generation",
-                "language-version-matching"
+                "language-version-matching",
+                "course-plan-drafting"
               ]
             }
           }

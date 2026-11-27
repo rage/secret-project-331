@@ -59,6 +59,16 @@ pub fn default_course_front_page_content() -> Vec<GutenbergBlock> {
     ]
 }
 
+/// Module credits of a new course's default module when none are given.
+const DEFAULT_MODULE_ECTS_CREDITS: f32 = 5.0;
+
+/// Overrides for what [`create_new_course_with_content`] starts a course with; `None` keeps the default.
+#[derive(Debug, Clone, Default)]
+pub struct NewCourseContent {
+    pub front_page_content: Option<Vec<GutenbergBlock>>,
+    pub default_module_ects_credits: Option<f32>,
+}
+
 /// Creates a new course with a front page and default instances.
 pub async fn create_new_course(
     conn: &mut PgConnection,
@@ -66,6 +76,31 @@ pub async fn create_new_course(
     pkey_policy: PKeyPolicy<CreateNewCourseFixedIds>,
     new_course: NewCourse,
     user: Uuid,
+    spec_fetcher: impl SpecFetcher,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+) -> ModelResult<(Course, Page, CourseInstance, CourseModule)> {
+    create_new_course_with_content(
+        conn,
+        app_config,
+        pkey_policy,
+        new_course,
+        user,
+        NewCourseContent::default(),
+        spec_fetcher,
+        fetch_service_info,
+    )
+    .await
+}
+
+/// Like [`create_new_course`], with the given [`NewCourseContent`] overrides.
+#[allow(clippy::too_many_arguments)]
+pub async fn create_new_course_with_content(
+    conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
+    pkey_policy: PKeyPolicy<CreateNewCourseFixedIds>,
+    new_course: NewCourse,
+    user: Uuid,
+    content: NewCourseContent,
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<(Course, Page, CourseInstance, CourseModule)> {
@@ -86,7 +121,9 @@ pub async fn create_new_course(
 
     let course_front_page = NewPage {
         chapter_id: None,
-        content: default_course_front_page_content(),
+        content: content
+            .front_page_content
+            .unwrap_or_else(default_course_front_page_content),
         course_id: Some(course.id),
         exam_id: None,
         front_page_of_chapter_id: None,
@@ -128,7 +165,11 @@ pub async fn create_new_course(
     let default_module = crate::course_modules::insert(
         &mut tx,
         PKeyPolicy::Generate,
-        &NewCourseModule::new_course_default(course.id).set_ects_credits(Some(5.0)),
+        &NewCourseModule::new_course_default(course.id).set_ects_credits(Some(
+            content
+                .default_module_ects_credits
+                .unwrap_or(DEFAULT_MODULE_ECTS_CREDITS),
+        )),
     )
     .await?;
 

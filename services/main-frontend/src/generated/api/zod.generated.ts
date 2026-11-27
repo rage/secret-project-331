@@ -1046,7 +1046,6 @@ export const zClientToolName = z.enum([
   "propose_add_task",
   "propose_update_task",
   "propose_schedule_adjustment",
-  "propose_section_status",
   "propose_vision_edit",
 ])
 
@@ -1594,6 +1593,25 @@ export const zCourseDesignerAssistantStatus = z.object({
   has_guide_course: z.boolean(),
 })
 
+/**
+ * What an automatic task checks in the plan's course; see
+ * [`CourseDesignerCourseStatus::passes`].
+ */
+export const zCourseDesignerAutomaticCheck = z.enum([
+  "ContentFilled",
+  "ExercisesExist",
+  "CoursePublished",
+])
+
+export const zCourseDesignerChapterWithoutExercises = z.object({
+  chapter_id: z.uuid(),
+  chapter_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  name: z.string(),
+})
+
 export const zCourseDesignerCourseSize = z.enum(["small", "medium", "large"])
 
 export const zCourseDesignerPlanMember = z.object({
@@ -1608,6 +1626,7 @@ export const zCourseDesignerPlanStageStatus = z.enum(["NotStarted", "InProgress"
 
 export const zCourseDesignerPlanStageTask = z.object({
   assignee_user_id: z.uuid().nullish(),
+  automatic_check: zCourseDesignerAutomaticCheck.nullish(),
   completed_at: z.iso.datetime().nullish(),
   completed_by_user_id: z.uuid().nullish(),
   course_designer_plan_stage_id: z.uuid(),
@@ -1638,8 +1657,6 @@ export const zCourseDesignerScheduleSuggestionRequest = z.object({
   starts_on: z.iso.date(),
 })
 
-export const zCourseDesignerSectionStatus = z.enum(["Ready", "Unfinished"])
-
 export const zCourseDesignerStage = z.enum([
   "Analysis",
   "Design",
@@ -1660,18 +1677,6 @@ export const zCourseDesignerPlan = z.object({
   name: z.string().nullish(),
   status: zCourseDesignerPlanStatus,
   updated_at: z.iso.datetime(),
-})
-
-export const zCourseDesignerPlanSectionStatus = z.object({
-  comment: z.string().nullish(),
-  course_designer_plan_id: z.uuid(),
-  created_at: z.iso.datetime(),
-  id: z.uuid(),
-  section_key: z.string(),
-  stage: zCourseDesignerStage,
-  status: zCourseDesignerSectionStatus,
-  updated_at: z.iso.datetime(),
-  updated_by_user_id: z.uuid(),
 })
 
 export const zCourseDesignerPlanStage = z.object({
@@ -1696,13 +1701,6 @@ export const zCourseDesignerPlanStageWithTasks = zCourseDesignerPlanStage.and(
     tasks: z.array(zCourseDesignerPlanStageTask),
   }),
 )
-
-export const zCourseDesignerPlanDetails = z.object({
-  members: z.array(zCourseDesignerPlanMember),
-  plan: zCourseDesignerPlan,
-  section_statuses: z.array(zCourseDesignerPlanSectionStatus),
-  stages: z.array(zCourseDesignerPlanStageWithTasks),
-})
 
 export const zCourseDesignerPlanSummary = z.object({
   active_stage: zCourseDesignerStage.nullish(),
@@ -1770,6 +1768,56 @@ export const zCourseDesignerSupportStage = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
+})
+
+/**
+ * Why a page of the course does not count as written yet. When several apply, the first in
+ * declaration order is reported.
+ */
+export const zCourseDesignerUnfilledPageReason = z.enum(["empty", "placeholder_text", "ai_outline"])
+
+export const zCourseDesignerUnfilledPage = z.object({
+  chapter_id: z.uuid().nullish(),
+  page_id: z.uuid(),
+  reason: zCourseDesignerUnfilledPageReason,
+  title: z.string(),
+  url_path: z.string(),
+})
+
+/**
+ * The state of a plan's course that the plan pages and automatic tasks show. Hidden pages are
+ * left out.
+ */
+export const zCourseDesignerCourseStatus = z.object({
+  chapter_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  chapters_without_exercises: z.array(zCourseDesignerChapterWithoutExercises),
+  course_id: z.uuid(),
+  is_draft: z.boolean(),
+  name: z.string(),
+  page_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  slug: z.string(),
+  unfilled_pages: z.array(zCourseDesignerUnfilledPage),
+})
+
+export const zCourseDesignerPlanDetails = z.object({
+  course_status: zCourseDesignerCourseStatus.nullish(),
+  members: z.array(zCourseDesignerPlanMember),
+  plan: zCourseDesignerPlan,
+  stages: z.array(zCourseDesignerPlanStageWithTasks),
 })
 
 export const zCourseExam = z.object({
@@ -1989,6 +2037,7 @@ export const zCreateCourseDesignerStageTaskRequest = z.object({
 })
 
 export const zCreateCourseFromPlanRequest = z.object({
+  give_members_course_roles: z.boolean().optional(),
   language_code: z.string().nullish(),
   name: z.string().nullish(),
   organization_id: z.uuid(),
@@ -5844,7 +5893,6 @@ export const zPlanMemberWithDetails = z.object({
 export const zCourseDesignerSupportPlan = z.object({
   members: z.array(zPlanMemberWithDetails),
   plan: zCourseDesignerPlan,
-  section_statuses: z.array(zCourseDesignerPlanSectionStatus),
   stages: z.array(zCourseDesignerSupportStage),
 })
 
@@ -6975,13 +7023,6 @@ export const zServiceInfo = z.object({
 
 export const zSetCourseDesignerAssistantRequest = z.object({
   course_designer_assistant: z.boolean(),
-})
-
-export const zSetCourseDesignerSectionStatusRequest = z.object({
-  comment: z.string().nullish(),
-  section_key: z.string(),
-  stage: zCourseDesignerStage,
-  status: zCourseDesignerSectionStatus,
 })
 
 export const zSetCourseDesignerTaskAssigneeRequest = z.object({
@@ -10499,6 +10540,17 @@ export const zGetCourseModuleUserCompletionPath = z.object({
  */
 export const zGetCourseModuleUserCompletionResponse = zUserCompletionInformation
 
+export const zCreateCourseFromCourseDesignerPlanBody = zCreateCourseFromPlanRequest
+
+export const zCreateCourseFromCourseDesignerPlanPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Created course
+ */
+export const zCreateCourseFromCourseDesignerPlanResponse = zCourse
+
 /**
  * Plans
  */
@@ -10601,17 +10653,6 @@ export const zSendCourseDesignerAssistantToolResponsePath = z.object({
  */
 export const zSendCourseDesignerAssistantToolResponseResponse = zChatbotChatStreamEvent
 
-export const zCreateCourseFromCourseDesignerPlanBody = zCreateCourseFromPlanRequest
-
-export const zCreateCourseFromCourseDesignerPlanPath = z.object({
-  plan_id: z.uuid(),
-})
-
-/**
- * Created course
- */
-export const zCreateCourseFromCourseDesignerPlanResponse = zCourse
-
 export const zGetCoursePlanMembersPath = z.object({
   plan_id: z.uuid(),
 })
@@ -10684,26 +10725,6 @@ export const zCreateCourseDesignerScheduleSuggestionPath = z.object({
  */
 export const zCreateCourseDesignerScheduleSuggestionResponse =
   zCourseDesignerScheduleSuggestionResponse
-
-export const zGetCourseDesignerSectionStatusesPath = z.object({
-  plan_id: z.uuid(),
-})
-
-/**
- * Section statuses
- */
-export const zGetCourseDesignerSectionStatusesResponse = z.array(zCourseDesignerPlanSectionStatus)
-
-export const zSetCourseDesignerSectionStatusBody = zSetCourseDesignerSectionStatusRequest
-
-export const zSetCourseDesignerSectionStatusPath = z.object({
-  plan_id: z.uuid(),
-})
-
-/**
- * Saved section status
- */
-export const zSetCourseDesignerSectionStatusResponse = zCourseDesignerPlanSectionStatus
 
 export const zAdvanceCourseDesignerStagePath = z.object({
   plan_id: z.uuid(),

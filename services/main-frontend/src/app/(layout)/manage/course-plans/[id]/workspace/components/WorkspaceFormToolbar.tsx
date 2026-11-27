@@ -4,7 +4,6 @@ import { css, cx } from "@emotion/css"
 import type { MouseEvent } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
 
@@ -16,7 +15,6 @@ import {
   stickyToolbarStyles,
   toolbarRowStyles,
 } from "./analysis-form/analysisFormDomain"
-import { SectionStatusDot } from "./section-status/SectionStatusBadge"
 
 const saveAreaStyles = css`
   display: flex;
@@ -39,16 +37,14 @@ const statusErrorStyles = css`
 
 export interface WorkspaceFormSectionLink {
   domId: string
-  sectionKey: string
   title: string
 }
 
 /**
- * Sticky bar of a stage form: section links with their marks, save status and Save now, or Load
+ * Sticky bar of a stage form: section links, save status and Save now, or Load
  * latest after another member saved first. Read-only forms show only the section links.
  */
 export default function WorkspaceFormToolbar(props: {
-  stage: CourseDesignerStage
   sections: readonly WorkspaceFormSectionLink[]
   activeSectionId: string | null
   scrollToSection: (domId: string) => (event: MouseEvent<HTMLAnchorElement>) => void
@@ -58,7 +54,6 @@ export default function WorkspaceFormToolbar(props: {
   isReadOnly: boolean
 }) {
   const {
-    stage,
     sections,
     activeSectionId,
     scrollToSection,
@@ -107,7 +102,6 @@ export default function WorkspaceFormToolbar(props: {
               onClick={scrollToSection(section.domId)}
             >
               {section.title}
-              <SectionStatusDot stage={stage} sectionKey={section.sectionKey} />
             </a>
           ))}
         </nav>

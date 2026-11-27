@@ -38,7 +38,6 @@ pub mod course_background_questions;
 pub mod course_custom_privacy_policy_checkbox_texts;
 pub mod course_designer_plan_members;
 pub mod course_designer_plans;
-pub mod course_designer_section_statuses;
 pub mod course_designer_stage_workspace;
 pub mod course_exams;
 pub mod course_instance_enrollments;

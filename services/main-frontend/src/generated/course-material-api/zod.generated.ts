@@ -187,7 +187,6 @@ export const zClientToolName = z.enum([
   "propose_add_task",
   "propose_update_task",
   "propose_schedule_adjustment",
-  "propose_section_status",
   "propose_vision_edit",
 ])
 

@@ -13,12 +13,10 @@ import {
   addTaskCallSchema,
   PROPOSE_ADD_TASK_TOOL,
   PROPOSE_SCHEDULE_ADJUSTMENT_TOOL,
-  PROPOSE_SECTION_STATUS_TOOL,
   PROPOSE_UPDATE_TASK_TOOL,
   PROPOSE_VISION_EDIT_TOOL,
   PROPOSE_WORKSPACE_EDIT_TOOL,
   scheduleAdjustmentCallSchema,
-  sectionStatusCallSchema,
   updateTaskCallSchema,
   visionEditCallSchema,
   workspaceEditCallSchema,
@@ -26,7 +24,6 @@ import {
 import {
   AddTaskBubble,
   ScheduleAdjustmentBubble,
-  SectionStatusBubble,
   UpdateTaskBubble,
   VisionEditBubble,
   WorkspaceEditBubble,
@@ -50,6 +47,5 @@ export const COURSE_PLAN_TOOL_REGISTRY: Record<string, ClientToolRegistryEntry> 
     scheduleAdjustmentCallSchema,
     ScheduleAdjustmentBubble,
   ),
-  [PROPOSE_SECTION_STATUS_TOOL]: proposalEntry(sectionStatusCallSchema, SectionStatusBubble),
   [PROPOSE_VISION_EDIT_TOOL]: proposalEntry(visionEditCallSchema, VisionEditBubble),
 }

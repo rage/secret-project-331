@@ -11,6 +11,7 @@ import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { type ScrollOverflow, ScrollRegion } from "@/shared-module/components"
+import { richTextToPlainText } from "@/utils/course-material/richTextToPlainText"
 
 import type { BlockRendererProps } from "../../.."
 import { CopyButton } from "./CopyButton"
@@ -34,6 +35,8 @@ const frameStyles = css`
     padding-right: 3rem;
   }
 `
+
+const MAX_LABEL_LINE_LENGTH = 60
 
 const NORMAL_FONT_SIZE_PX = 16
 const FONT_SIZES_PX: Record<string, number> = { small: 14, normal: NORMAL_FONT_SIZE_PX, large: 18 }
@@ -67,6 +70,19 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
     [processedContent],
   )
 
+  // Pages often have several code blocks, so the first line tells their scroll regions apart.
+  const firstLine = richTextToPlainText(
+    cleanCode.split("\n").find((line) => line.trim() !== "") ?? "",
+  )
+  const regionLabel = firstLine
+    ? t("code-example-starting-with", {
+        firstLine:
+          firstLine.length > MAX_LABEL_LINE_LENGTH
+            ? `${firstLine.slice(0, MAX_LABEL_LINE_LENGTH)}…`
+            : firstLine,
+      })
+    : t("code-example")
+
   const highlightedLinesSummary =
     highlightedLines && highlightedLines.size > 0
       ? formatHighlightedLinesRanges(highlightedLines)
@@ -80,11 +96,7 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
         </VisuallyHidden>
       )}
       {cleanCode && <CopyButton content={cleanCode} />}
-      <ScrollRegion
-        className={scrollerStyles}
-        label={t("code-example")}
-        onOverflowChange={setOverflow}
-      >
+      <ScrollRegion className={scrollerStyles} label={regionLabel} onOverflowChange={setOverflow}>
         <pre className={getPreStyles(fontSizePx)}>
           <SyntaxHighlightedContainer
             content={cleanCode}

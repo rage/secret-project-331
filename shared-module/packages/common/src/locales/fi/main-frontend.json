@@ -581,6 +581,7 @@
   "code": "Koodi",
   "code-block-highlighted-lines": "Korostetut rivit: {{lines}}",
   "code-example": "Koodiesimerkki",
+  "code-example-starting-with": "Koodiesimerkki: {{firstLine}}",
   "cohort-analysis-future-date": "Tuleva päivämäärä - Ei tietoja saatavilla vielä",
   "cohort-analysis-tooltip": "Kohortti: {{cohort}}<br/>Päiviä aloituksen jälkeen: {{days}}<br/>Aktiiviset käyttäjät: {{users}}",
   "cohort-analysis-tooltip-daily": "Kohortti: {{cohort}}<br/>Päiviä aloituksesta: {{days}}<br/>Aktiivisia käyttäjiä: {{users}}",

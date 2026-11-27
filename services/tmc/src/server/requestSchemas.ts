@@ -20,6 +20,14 @@ export const repositoryExerciseSchema = z.looseObject({
   download_url: z.string(),
 }) satisfies z.ZodType<RepositoryExercise>
 
+type ParsedRepositoryExercise = z.infer<typeof repositoryExerciseSchema>
+
+/** The repository exercise to use: the host's current version, when it sends one, supersedes the copy picked in the editor. */
+export const currentRepositoryExercise = (
+  request: { repository_exercise?: ParsedRepositoryExercise | undefined },
+  privateSpec: { repository_exercise: ParsedRepositoryExercise },
+): ParsedRepositoryExercise => request.repository_exercise ?? privateSpec.repository_exercise
+
 export const privateSpecSchema = z.looseObject({
   type: z.enum(["browser", "editor"]),
   repository_exercise: repositoryExerciseSchema,
@@ -46,8 +54,10 @@ export const gradingRequestFileSchema = z.looseObject({
 export const gradeRequestSchema = z.looseObject({
   grading_update_url: z.string(),
   exercise_spec: privateSpecSchema,
+  repository_exercise: repositoryExerciseSchema.optional(),
   submission_files: z.array(gradingRequestFileSchema).min(1),
 })
+export type GradingRequestFile = z.infer<typeof gradingRequestFileSchema>
 export type GradeRequest = z.infer<typeof gradeRequestSchema>
 
 // SpecRequest envelope for public-spec / model-solution. private_spec is validated separately so
@@ -56,6 +66,7 @@ export const specRequestSchema = z.looseObject({
   request_id: z.string(),
   private_spec: z.unknown(),
   upload_url: z.string().nullable(),
+  repository_exercise: repositoryExerciseSchema.optional(),
 })
 export type ParsedSpecRequest = z.infer<typeof specRequestSchema>
 
@@ -73,6 +84,6 @@ export const testRequestSchema = z.discriminatedUnion("type", [
 ])
 export type TestRequest = z.infer<typeof testRequestSchema>
 
-export const extractStubRequestSchema = z.looseObject({
-  stub_download_url: z.string().min(1),
+export const prepareRepositoryRequestSchema = z.looseObject({
+  checkout_download_url: z.string().min(1),
 })

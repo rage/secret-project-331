@@ -1,11 +1,12 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { useEffect, useId, useState } from "react"
+import React, { useEffect, useId } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { useCooldown } from "../lib/hooks/useCooldown"
 import { Button } from "./Button"
 import { OtpField } from "./OtpField"
 
@@ -223,30 +224,3 @@ export const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
 
 const formatMinutesSeconds = (totalSeconds: number) =>
   `${Math.floor(totalSeconds / 60)}:${String(totalSeconds % 60).padStart(2, "0")}`
-
-/** Seconds left until `until` (epoch ms), ticking; `start` only ever pushes the end later. */
-function useCooldown(initialUntil: number) {
-  const [until, setUntil] = useState(initialUntil)
-  const [now, setNow] = useState(() => Date.now())
-
-  useEffect(() => {
-    setUntil((current) => Math.max(current, initialUntil))
-  }, [initialUntil])
-
-  const secondsLeft = Math.max(0, Math.ceil((until - now) / 1000))
-
-  useEffect(() => {
-    if (secondsLeft <= 0) {
-      return
-    }
-    const timeout = setTimeout(() => setNow(Date.now()), 1000)
-    return () => clearTimeout(timeout)
-  }, [secondsLeft, now])
-
-  const start = (nextUntil: number) => {
-    setNow(Date.now())
-    setUntil((current) => Math.max(current, nextUntil))
-  }
-
-  return [secondsLeft, start] as const
-}

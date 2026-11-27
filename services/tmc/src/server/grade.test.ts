@@ -5,7 +5,14 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { LangsError } from "@/tmc/langs"
 
-import { gradingFailureFeedback, handleGrade, runScore, TemplateError } from "./grade"
+import {
+  answerCompression,
+  gradingFailureFeedback,
+  gradingFailureKey,
+  handleGrade,
+  runScore,
+  TemplateError,
+} from "./grade"
 
 vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
   reportErrorOccurrence: vi.fn(() => Promise.resolve(undefined)),
@@ -45,6 +52,7 @@ const SUBMISSION_FILE = {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  vi.restoreAllMocks()
 })
 
 describe("POST /api/grade", () => {
@@ -148,7 +156,7 @@ describe("POST /api/grade", () => {
     await vi.waitFor(() => {
       expect(updates).toHaveLength(1)
     })
-    expect(downloads).toEqual([SUBMISSION_FILE.download_url])
+    expect(downloads).toEqual([SUBMISSION_FILE.download_url, REPOSITORY_EXERCISE.download_url])
     expect(updates[0]).toEqual({
       claim: "signed-claim",
       body: expect.objectContaining({
@@ -158,6 +166,51 @@ describe("POST /api/grade", () => {
           "The submission could not be graded because of an error on the server. Try submitting again later.",
       }),
     })
+  })
+
+  it("skips a queued grading once the host has given up waiting for it", async () => {
+    const releaseDownloads: (() => void)[] = []
+    const downloads: string[] = []
+    const updates: string[] = []
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((url: string) => {
+        if (url.startsWith("http://host/")) {
+          updates.push(url)
+          return Promise.resolve(Response.json(null))
+        }
+        if (url.startsWith("http://files/")) {
+          downloads.push(url)
+        }
+        return new Promise((_resolve, reject) => {
+          releaseDownloads.push(() => reject(new Error("download stopped by the test")))
+        })
+      }),
+    )
+    let now = Date.now()
+    vi.spyOn(Date, "now").mockImplementation(() => now)
+    for (let index = 0; index < 5; index++) {
+      await handleGrade(
+        post({
+          grading_update_url: `http://host/grading-update/${index.toString()}`,
+          exercise_spec: { type: "editor", repository_exercise: REPOSITORY_EXERCISE },
+          submission_files: [
+            { ...SUBMISSION_FILE, download_url: `http://files/${index.toString()}` },
+          ],
+        }),
+      )
+    }
+    await vi.waitFor(() => {
+      expect(downloads).toHaveLength(4)
+    })
+    now += 2 * 60 * 60_000
+    releaseDownloads.forEach((release) => release())
+
+    await vi.waitFor(() => {
+      expect(updates).toHaveLength(4)
+    })
+    expect(downloads).not.toContain("http://files/4")
+    expect(updates).not.toContain("http://host/grading-update/4")
   })
 })
 
@@ -210,17 +263,67 @@ describe("gradingFailureFeedback", () => {
   })
 })
 
-describe("runScore", () => {
-  const passed = { status: "PASSED" as const, testResults: [{ successful: true, points: [] }] }
+const test = (successful: boolean, ...points: string[]) => ({ successful, points })
 
-  it("awards every point only when every test passed", () => {
-    expect(runScore(passed, 2)).toEqual({ score_given: 2, score_maximum: 2 })
-    expect(
-      runScore({ status: "TESTS_FAILED", testResults: [{ successful: false, points: [] }] }, 2),
-    ).toEqual({ score_given: 0, score_maximum: 2 })
+describe("runScore", () => {
+  const passed = { status: "PASSED" as const, testResults: [test(true)] }
+
+  it("awards each point whose tests all passed", () => {
+    const run = {
+      status: "TESTS_FAILED" as const,
+      testResults: [test(true, "1.1", "1.2"), test(false, "1.2"), test(true, "1.3")],
+    }
+    expect(runScore(run, ["1.1", "1.2", "1.3"])).toEqual({ score_given: 2, score_maximum: 3 })
+  })
+
+  it("counts only the points the exercise makes available", () => {
+    const run = { status: "PASSED" as const, testResults: [test(true, "1.1", "extra")] }
+    expect(runScore(run, ["1.1", "1.2"])).toEqual({ score_given: 1, score_maximum: 2 })
+  })
+
+  it("awards nothing for a run that did not finish the tests", () => {
+    for (const status of ["COMPILE_FAILED", "GENERIC_ERROR", "TESTRUN_INTERRUPTED"] as const) {
+      expect(runScore({ status, testResults: [test(true, "1.1")] }, ["1.1"])).toEqual({
+        score_given: 0,
+        score_maximum: 1,
+      })
+    }
+  })
+
+  it("awards nothing after a failed style check", () => {
+    expect(runScore(passed, ["1.1"], { styleFailed: true })).toEqual({
+      score_given: 0,
+      score_maximum: 1,
+    })
   })
 
   it("scores a passing exercise without points, such as a no-tests one, as full points", () => {
-    expect(runScore(passed, 0)).toEqual({ score_given: 1, score_maximum: 1 })
+    expect(runScore(passed, [])).toEqual({ score_given: 1, score_maximum: 1 })
+  })
+
+  it("scores a failing exercise without points as zero", () => {
+    const failed = { status: "TESTS_FAILED" as const, testResults: [test(false)] }
+    expect(runScore(failed, [])).toEqual({ score_given: 0, score_maximum: 1 })
+  })
+})
+
+describe("gradingFailureKey", () => {
+  it("names the kind of failure", () => {
+    expect(gradingFailureKey(new Error("boom"))).toBe("server_error")
+    expect(gradingFailureKey(new TemplateError(new Error("x")))).toBe("server_error")
+    expect(
+      gradingFailureKey(new LangsError("x", ["Caused by: No project directory found in archive"])),
+    ).toBe("no_project_in_archive")
+    expect(gradingFailureKey(new LangsError("x", ["Caused by: bad zip"]))).toBe("langs_error")
+  })
+})
+
+describe("answerCompression", () => {
+  it("reads a zip upload as zip and anything else as the packed tar.zst", () => {
+    expect(answerCompression({ name: "solution.ZIP", mime: "application/octet-stream" })).toBe(
+      "zip",
+    )
+    expect(answerCompression({ name: "blob", mime: "application/x-zip-compressed" })).toBe("zip")
+    expect(answerCompression({ name: "submission.tar.zst", mime: "application/zstd" })).toBe("zstd")
   })
 })

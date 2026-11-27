@@ -1,0 +1,100 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  part,\n  name,\n  checksum,\n  archive_path,\n  download_url,\n  details\nFROM repository_exercises\nWHERE repository_id = $1\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "part",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "part"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "checksum",
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "checksum"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "archive_path",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "archive_path"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "download_url",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "download_url"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "details",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "details"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "38a7e0d099e545859d8b2ce2ddc73a1790e4b1db29df0624f9d25b8d495d6bdc"
+}

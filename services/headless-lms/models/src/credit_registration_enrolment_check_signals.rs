@@ -98,9 +98,10 @@ WITH codes AS (
     AND linked.deleted_at IS NULL
     AND TRIM(COALESCE(linked.uh_course_code, '')) <> ''
   UNION
-  SELECT TRIM(target.uh_course_code)
-  FROM external_credit_targets target
-  WHERE target.id = $4
+  SELECT TRIM(code.uh_course_code)
+  FROM external_credit_target_codes code
+  WHERE code.external_credit_target_id = $4
+    AND code.deleted_at IS NULL
 )
 INSERT INTO credit_registration_enrolment_check_signals (
     course_module_completion_id,

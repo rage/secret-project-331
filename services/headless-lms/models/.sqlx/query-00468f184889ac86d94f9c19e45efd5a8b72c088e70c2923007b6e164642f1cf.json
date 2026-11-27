@@ -72,7 +72,8 @@
                 "sisu-description-summary",
                 "prompt-creation",
                 "feedback-categorization",
-                "chart-spec-generation"
+                "chart-spec-generation",
+                "language-version-matching"
               ]
             }
           }
@@ -110,7 +111,8 @@
                 "sisu-description-summary",
                 "prompt-creation",
                 "feedback-categorization",
-                "chart-spec-generation"
+                "chart-spec-generation",
+                "language-version-matching"
               ]
             }
           }

@@ -81,6 +81,8 @@ pub struct ExerciseTask {
     pub model_solution_spec: Option<serde_json::Value>,
     pub copied_from: Option<Uuid>,
     pub order_number: i32,
+    pub repository_exercise_id: Option<Uuid>,
+    pub repository_exercise_checksum: Option<Vec<u8>>,
 }
 
 impl FromIterator<ExerciseTask> for HashMap<Uuid, ExerciseTask> {

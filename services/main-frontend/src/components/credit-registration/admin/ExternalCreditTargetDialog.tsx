@@ -1,11 +1,12 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { fromDate, parseDateTime, toCalendarDateTime } from "@internationalized/date"
-import React from "react"
-import { useForm } from "react-hook-form"
+import { useQuery } from "@tanstack/react-query"
+import React, { useRef } from "react"
+import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { adminGetExternalCreditTargetCodesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import {
   adminCreateExternalCreditTarget,
   adminUpdateExternalCreditTarget,
@@ -13,7 +14,7 @@ import {
 import type {
   AdminExternalCreditTargetPayload,
   ExternalCreditTarget,
-  ExternalGrading,
+  ExternalCreditTargetCode,
 } from "@/generated/api/types.generated"
 import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -24,16 +25,23 @@ import {
   DateTimeLocalField,
   Dialog,
   Infobox,
-  NumberField,
-  Select,
+  QueryResult,
   TextField,
 } from "@/shared-module/components"
 
-import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "../constants"
+import {
+  BUTTON_PRIMARY,
+  CREDIT_REGISTRATION_NS,
+  type CreditRegistrationTFunction,
+  TONE,
+} from "../constants"
 import { dialogFormCss } from "../styles"
 import type { DialogOpenState } from "./AdminActionDialog"
 import { useInvalidateCourseStats } from "./adminCreditRegistrationHooks"
 import { AUDIT_ACTION } from "./auditActions"
+import ExternalCreditTargetCodeRows, { fieldRowCss } from "./ExternalCreditTargetCodeRows"
+import type { CodeFields } from "./externalCreditTargetCodes"
+import { codeFieldsFrom, emptyCodeFields, saveTargetCodes } from "./externalCreditTargetCodes"
 import { ReasonField } from "./ReasonConfirmDialog"
 
 /** mooc.fi and its admins keep the cutoff in Helsinki time. */
@@ -44,20 +52,24 @@ const LOCAL_MINUTE_LENGTH = 16
 /** The database's own check on `external_credit_targets.language_code`. */
 const LANGUAGE_CODE_PATTERN = /^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?$/
 
-const TIERS_OVERLAP = "external_credit_target_tiers_overlap"
-const COURSE_CODE_TAKEN = "external_credit_target_course_code_taken"
 const MOOCFI_COURSE_FIXED = "external_credit_target_moocfi_course_fixed"
 
-const PASS_FAIL: ExternalGrading = "pass_fail"
-const NUMERIC: ExternalGrading = "numeric"
-const VALIDATE_ON_COMMIT = "validate" as const
-
-const fieldRowCss = css`
-  display: grid;
-  gap: var(--space-4);
-  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
-  align-items: start;
-`
+/** The form-wide message for a refusal the backend names by message key, if it names one. */
+const rootErrorMessage = (
+  t: CreditRegistrationTFunction,
+  messageKey: string | null,
+): string | null => {
+  switch (messageKey) {
+    case "external_credit_target_course_code_taken":
+      return t("credit-registration-admin-moocfi-course-code-taken")
+    case "external_credit_target_code_prerequisites_circular":
+      return t("credit-registration-admin-prerequisites-circular")
+    case "external_credit_target_code_prerequisite_tier_above":
+      return t("credit-registration-admin-prerequisite-tier-above")
+    default:
+      return null
+  }
+}
 
 const toCutoffLocal = (at: Date): string =>
   toCalendarDateTime(fromDate(at, CUTOFF_TIME_ZONE)).toString().slice(0, LOCAL_MINUTE_LENGTH)
@@ -70,31 +82,24 @@ interface Fields {
   moocfi_course_slug: string
   name: string
   language_code: string
-  uh_course_code: string
-  ects_credits: number | null
-  grading: ExternalGrading
-  enrolment_link: string
-  lowest_tier: number | null
-  highest_tier: number | null
   delegated_at: string
   enabled: boolean
   reason: string
+  codes: CodeFields[]
 }
 
-const initialFields = (target: ExternalCreditTarget | null): Fields => ({
+const initialFields = (
+  target: ExternalCreditTarget | null,
+  codes: readonly ExternalCreditTargetCode[],
+): Fields => ({
   moocfi_course_id: target?.moocfi_course_id ?? "",
   moocfi_course_slug: target?.moocfi_course_slug ?? "",
   name: target?.name ?? "",
   language_code: target?.language_code ?? "",
-  uh_course_code: target?.uh_course_code ?? "",
-  ects_credits: target?.ects_credits ?? null,
-  grading: target?.grading ?? PASS_FAIL,
-  enrolment_link: target?.enrolment_link ?? "",
-  lowest_tier: target?.tiers?.lowest ?? null,
-  highest_tier: target?.tiers?.highest ?? null,
   delegated_at: toCutoffLocal(target ? new Date(target.delegated_at) : new Date()),
   enabled: target ? Boolean(target.enabled_at) : false,
   reason: "",
+  codes: target ? codes.map((code) => codeFieldsFrom(code)) : [emptyCodeFields()],
 })
 
 interface Props extends DialogOpenState {
@@ -104,52 +109,61 @@ interface Props extends DialogOpenState {
   hasRegistrations: boolean
 }
 
-/** Adds a mooc.fi course to register credits for, or edits one. Every save is audited. */
-const ExternalCreditTargetDialog: React.FC<Props> = ({
-  isOpen,
-  onClose,
-  target,
-  hasRegistrations,
-}) => {
+const ExternalCreditTargetForm: React.FC<
+  Props & { codes: readonly ExternalCreditTargetCode[] }
+> = ({ isOpen, onClose, target, codes, hasRegistrations }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const invalidateCourseStats = useInvalidateCourseStats()
-  const initial = initialFields(target)
+  const initial = initialFields(target, codes)
+  const form = useForm<Fields>({ defaultValues: initial })
   const {
     control,
     handleSubmit,
-    getValues,
     setError,
     formState: { errors },
-  } = useForm<Fields>({ defaultValues: initial })
+  } = form
+  const createdTargetId = useRef<string | null>(null)
 
   const mutation = useToastMutation(
-    (body: AdminExternalCreditTargetPayload) =>
-      target
-        ? adminUpdateExternalCreditTarget({
-            path: { external_credit_target_id: target.id },
-            body,
-          })
-        : adminCreateExternalCreditTarget({ body }),
+    async (fields: Fields) => {
+      const body: AdminExternalCreditTargetPayload = {
+        moocfi_course_id: fields.moocfi_course_id.trim(),
+        moocfi_course_slug: fields.moocfi_course_slug,
+        name: fields.name,
+        language_code: fields.language_code.trim(),
+        // The field edits minutes, so an untouched cutoff is sent back as stored, seconds and all.
+        delegated_at:
+          target && fields.delegated_at === initial.delegated_at
+            ? target.delegated_at
+            : fromCutoffLocal(fields.delegated_at),
+        enabled: fields.enabled,
+        reason: fields.reason,
+      }
+      let targetId = target?.id ?? createdTargetId.current
+      if (targetId) {
+        await adminUpdateExternalCreditTarget({
+          path: { external_credit_target_id: targetId },
+          body,
+        })
+      } else {
+        targetId = await adminCreateExternalCreditTarget({ body })
+        createdTargetId.current = targetId
+      }
+      await saveTargetCodes(targetId, fields.codes, fields.reason)
+    },
     { notify: false },
     {
-      onSuccess: () => {
-        void invalidateCourseStats()
-        onClose()
-      },
+      onSuccess: onClose,
+      onSettled: () => void invalidateCourseStats(),
       onError: (error) => {
         const messageKey = isAppApiError(error) ? error.messageKey : null
-        if (messageKey === TIERS_OVERLAP) {
-          setError("lowest_tier", {
-            message: t("credit-registration-admin-moocfi-tiers-overlap"),
-          })
-        } else if (messageKey === COURSE_CODE_TAKEN) {
-          setError("uh_course_code", {
-            message: t("credit-registration-admin-moocfi-course-code-taken"),
-          })
-        } else if (messageKey === MOOCFI_COURSE_FIXED) {
+        const rootError = rootErrorMessage(t, messageKey)
+        if (messageKey === MOOCFI_COURSE_FIXED) {
           setError("moocfi_course_id", {
             message: t("credit-registration-admin-moocfi-course-id-fixed"),
           })
+        } else if (rootError) {
+          setError("root", { message: rootError })
         } else {
           setError("root", {
             message: isAppApiError(error) ? (error.userMessage ?? error.message) : String(error),
@@ -159,27 +173,7 @@ const ExternalCreditTargetDialog: React.FC<Props> = ({
     },
   )
 
-  const submit = handleSubmit((fields) => {
-    const isTiered = fields.lowest_tier !== null || fields.highest_tier !== null
-    mutation.mutate({
-      moocfi_course_id: fields.moocfi_course_id.trim(),
-      moocfi_course_slug: fields.moocfi_course_slug,
-      name: fields.name,
-      language_code: fields.language_code.trim(),
-      uh_course_code: fields.uh_course_code,
-      ects_credits: fields.ects_credits ?? 0,
-      grading: fields.grading,
-      enrolment_link: fields.enrolment_link.trim() === "" ? null : fields.enrolment_link,
-      tiers: isTiered ? { lowest: fields.lowest_tier, highest: fields.highest_tier } : null,
-      // The field edits minutes, so an untouched cutoff is sent back as stored, seconds and all.
-      delegated_at:
-        target && fields.delegated_at === initial.delegated_at
-          ? target.delegated_at
-          : fromCutoffLocal(fields.delegated_at),
-      enabled: fields.enabled,
-      reason: fields.reason,
-    })
-  })
+  const submit = handleSubmit((fields) => mutation.mutate(fields))
 
   const actions: readonly [DialogAction] = [
     {
@@ -198,156 +192,127 @@ const ExternalCreditTargetDialog: React.FC<Props> = ({
       size="wide"
       title={
         target
-          ? t("credit-registration-admin-moocfi-edit-title", { name: target.name })
+          ? t("credit-registration-admin-moocfi-edit-title", {
+              name: target.name,
+            })
           : t("button-text-add-moocfi-course")
       }
       actions={actions}
     >
-      <form className={dialogFormCss} onSubmit={submit}>
-        {errors.root?.message && <Infobox tone={TONE.DANGER}>{errors.root.message}</Infobox>}
-        <div className={fieldRowCss}>
-          <TextField
-            name="moocfi_course_id"
+      <FormProvider {...form}>
+        <form className={dialogFormCss} onSubmit={submit}>
+          {errors.root?.message && <Infobox tone={TONE.DANGER}>{errors.root.message}</Infobox>}
+          <div className={fieldRowCss}>
+            <TextField
+              name="moocfi_course_id"
+              control={control}
+              label={t("label-moocfi-course-id")}
+              description={
+                hasRegistrations
+                  ? t("credit-registration-admin-moocfi-course-id-fixed")
+                  : t("credit-registration-admin-moocfi-course-id-description")
+              }
+              isDisabled={hasRegistrations}
+              isRequired
+              rules={{
+                ...required,
+                validate: (value) =>
+                  validateUUID(value.trim()) ||
+                  t("credit-registration-admin-moocfi-course-id-invalid"),
+              }}
+            />
+            <TextField
+              name="moocfi_course_slug"
+              control={control}
+              label={t("label-moocfi-course-slug")}
+              isRequired
+              rules={required}
+            />
+          </div>
+          <div className={fieldRowCss}>
+            <TextField
+              name="name"
+              control={control}
+              label={t("label-name")}
+              description={t("credit-registration-admin-moocfi-name-description")}
+              isRequired
+              rules={required}
+            />
+            <TextField
+              name="language_code"
+              control={control}
+              label={t("label-language-code")}
+              description={t("credit-registration-admin-moocfi-language-description")}
+              isRequired
+              rules={{
+                ...required,
+                validate: (value) =>
+                  LANGUAGE_CODE_PATTERN.test(value.trim()) ||
+                  t("credit-registration-admin-invalid-language-code"),
+              }}
+            />
+          </div>
+          <ExternalCreditTargetCodeRows />
+          <DateTimeLocalField
+            name="delegated_at"
             control={control}
-            label={t("label-moocfi-course-id")}
+            label={t("label-moocfi-cutoff")}
             description={
               hasRegistrations
-                ? t("credit-registration-admin-moocfi-course-id-fixed")
-                : t("credit-registration-admin-moocfi-course-id-description")
+                ? t("credit-registration-admin-moocfi-cutoff-fixed")
+                : t("credit-registration-admin-moocfi-cutoff-description")
             }
+            hourCycle={24}
             isDisabled={hasRegistrations}
             isRequired
-            rules={{
-              ...required,
-              validate: (value) =>
-                validateUUID(value.trim()) ||
-                t("credit-registration-admin-moocfi-course-id-invalid"),
-            }}
-          />
-          <TextField
-            name="moocfi_course_slug"
-            control={control}
-            label={t("label-moocfi-course-slug")}
-            isRequired
             rules={required}
           />
-        </div>
-        <div className={fieldRowCss}>
-          <TextField
-            name="name"
+          <Checkbox
+            name="enabled"
             control={control}
-            label={t("label-name")}
-            description={t("credit-registration-admin-moocfi-name-description")}
-            isRequired
-            rules={required}
+            label={t("credit-registration-admin-moocfi-enabled")}
+            description={t("credit-registration-admin-moocfi-enabled-description")}
           />
-          <TextField
-            name="language_code"
+          <ReasonField
             control={control}
-            label={t("label-language-code")}
-            description={t("credit-registration-admin-moocfi-language-description")}
-            isRequired
-            rules={{
-              ...required,
-              validate: (value) =>
-                LANGUAGE_CODE_PATTERN.test(value.trim()) ||
-                t("credit-registration-admin-invalid-language-code"),
-            }}
+            auditAction={AUDIT_ACTION.CONFIGURE_EXTERNAL_CREDIT_TARGET}
           />
-        </div>
-        <div className={fieldRowCss}>
-          <TextField
-            name="uh_course_code"
-            control={control}
-            label={t("uh-course-code")}
-            isRequired
-            rules={required}
-          />
-          <NumberField
-            name="ects_credits"
-            control={control}
-            label={t("ects-credits")}
-            minValue={0}
-            step={0.5}
-            commitBehavior={VALIDATE_ON_COMMIT}
-            isRequired
-            rules={{
-              validate: (value) =>
-                (value !== null && value > 0) || t("credit-registration-admin-ects-positive"),
-            }}
-          />
-          <Select
-            name="grading"
-            control={control}
-            label={t("label-grading")}
-            options={[
-              { value: PASS_FAIL, label: t("credit-registration-admin-grading-pass-fail") },
-              { value: NUMERIC, label: t("credit-registration-admin-grading-numeric") },
-            ]}
-          />
-        </div>
-        <TextField
-          name="enrolment_link"
-          control={control}
-          type="url"
-          label={t("label-enrolment-link")}
-          description={t("credit-registration-admin-moocfi-enrolment-link-description")}
-        />
-        <div className={fieldRowCss}>
-          <NumberField
-            name="lowest_tier"
-            control={control}
-            label={t("label-lowest-tier")}
-            minValue={0}
-            step={1}
-            description={t("credit-registration-admin-moocfi-tiers-description")}
-          />
-          <NumberField
-            name="highest_tier"
-            control={control}
-            label={t("label-highest-tier")}
-            minValue={0}
-            step={1}
-            rules={{
-              validate: (value) => {
-                const lowest = getValues("lowest_tier")
-                return (
-                  value === null ||
-                  lowest === null ||
-                  value >= lowest ||
-                  t("credit-registration-admin-moocfi-tiers-reversed")
-                )
-              },
-            }}
-          />
-        </div>
-        <DateTimeLocalField
-          name="delegated_at"
-          control={control}
-          label={t("label-moocfi-cutoff")}
-          description={
-            hasRegistrations
-              ? t("credit-registration-admin-moocfi-cutoff-fixed")
-              : t("credit-registration-admin-moocfi-cutoff-description")
-          }
-          hourCycle={24}
-          isDisabled={hasRegistrations}
-          isRequired
-          rules={required}
-        />
-        <Checkbox
-          name="enabled"
-          control={control}
-          label={t("credit-registration-admin-moocfi-enabled")}
-          description={t("credit-registration-admin-moocfi-enabled-description")}
-        />
-        <ReasonField
-          control={control}
-          auditAction={AUDIT_ACTION.CONFIGURE_EXTERNAL_CREDIT_TARGET}
-        />
-      </form>
+        </form>
+      </FormProvider>
     </Dialog>
   )
 }
+
+const ExistingTargetDialog: React.FC<Props & { target: ExternalCreditTarget }> = (props) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const codesQuery = useQuery(
+    adminGetExternalCreditTargetCodesOptions({
+      path: { external_credit_target_id: props.target.id },
+    }),
+  )
+  if (codesQuery.data) {
+    return <ExternalCreditTargetForm {...props} codes={codesQuery.data} />
+  }
+  return (
+    <Dialog
+      open={props.isOpen}
+      onClose={props.onClose}
+      size="wide"
+      title={t("credit-registration-admin-moocfi-edit-title", {
+        name: props.target.name,
+      })}
+    >
+      <QueryResult query={codesQuery}>{() => null}</QueryResult>
+    </Dialog>
+  )
+}
+
+/** Adds a mooc.fi course to register credits for, or edits one, with its Sisu courses. Every save is audited. */
+const ExternalCreditTargetDialog: React.FC<Props> = (props) =>
+  props.target ? (
+    <ExistingTargetDialog {...props} target={props.target} />
+  ) : (
+    <ExternalCreditTargetForm {...props} codes={[]} />
+  )
 
 export default ExternalCreditTargetDialog

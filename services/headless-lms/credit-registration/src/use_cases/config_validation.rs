@@ -1,5 +1,5 @@
 //! The `config-validation` phase: the daily pass over the configuration of every module with a
-//! course code and every enabled mooc.fi target.
+//! course code and every code of an enabled mooc.fi target.
 //!
 //! Asks Suotar's `course-codes/validate` about every distinct course code, and mooc.fi about each
 //! target's course; the rest of the check reads the database.
@@ -9,11 +9,12 @@ use headless_lms_models::course_module_suotar_configurations::{
     SuotarConfigCheck, SuotarModuleConfigFacts, get_config_facts_for_modules_with_course_code,
     record_config_check,
 };
-use headless_lms_models::external_credit_targets::{
-    self, ExternalCreditTargetConfigFacts, get_config_facts_for_enabled_targets,
+use headless_lms_models::external_credit_target_codes::{
+    self, ExternalCreditTargetCodeConfigFacts, get_config_facts_for_enabled_targets,
 };
+use headless_lms_models::external_credit_targets;
 use headless_lms_models::library::credit_registration::config_validation::{
-    CourseCodeVerdict, check_module_config, check_target_config,
+    CourseCodeVerdict, check_module_config, check_target_code_config,
 };
 use headless_lms_utils::services::moocfi::{MoocfiClient, MoocfiError};
 use itertools::Itertools;
@@ -36,7 +37,7 @@ pub(crate) async fn run<R: StudyRegistry>(
         refresh_moocfi_course_details(pool, scope, delegation).await?;
     }
     // A course scope has no targets in it, and a target scope no modules.
-    let (modules, targets) = {
+    let (modules, target_codes) = {
         let mut conn = pool.acquire().await?;
         let modules = match scope.external_credit_target_id {
             None => {
@@ -44,23 +45,23 @@ pub(crate) async fn run<R: StudyRegistry>(
             }
             Some(_) => Vec::new(),
         };
-        let targets = match scope.course_id {
+        let target_codes = match scope.course_id {
             None => {
                 get_config_facts_for_enabled_targets(&mut conn, scope.external_credit_target_id)
                     .await?
             }
             Some(_) => Vec::new(),
         };
-        (modules, targets)
+        (modules, target_codes)
     };
     let course_codes = distinct_course_codes(
         modules
             .iter()
             .map(|module| module.uh_course_code.as_deref())
             .chain(
-                targets
+                target_codes
                     .iter()
-                    .map(|target| Some(target.uh_course_code.as_str())),
+                    .map(|code| Some(code.uh_course_code.as_str())),
             ),
     );
 
@@ -71,8 +72,8 @@ pub(crate) async fn run<R: StudyRegistry>(
 
     let checks = check_modules(&modules, &verdicts);
     record_checks(pool, &modules, &checks).await?;
-    let target_checks = check_targets(&targets, &verdicts);
-    record_target_checks(pool, &targets, &target_checks).await?;
+    let target_checks = check_target_codes(&target_codes, &verdicts);
+    record_target_code_checks(pool, &target_codes, &target_checks).await?;
 
     let with_problems = checks
         .iter()
@@ -86,21 +87,21 @@ pub(crate) async fn run<R: StudyRegistry>(
         );
     }
     let modules_checked = modules.len();
-    let targets_checked = targets.len();
+    let target_codes_checked = target_codes.len();
     let codes_checked = verdicts.len();
-    if modules_checked + targets_checked > 0 {
+    if modules_checked + target_codes_checked > 0 {
         info!(
             modules_checked,
-            targets_checked,
+            target_codes_checked,
             codes_checked,
             with_problems,
-            "checked {modules_checked} modules, {targets_checked} mooc.fi targets, {codes_checked} course codes"
+            "checked {modules_checked} modules, {target_codes_checked} mooc.fi codes, {codes_checked} course codes"
         );
     }
 
     // A misconfigured unit is a finding, not a failed item: the phase did its job.
     Ok(Counts::processed(
-        i64::try_from(modules_checked + targets_checked).unwrap_or(i64::MAX),
+        i64::try_from(modules_checked + target_codes_checked).unwrap_or(i64::MAX),
     ))
 }
 
@@ -182,32 +183,33 @@ fn check_modules(
         .collect()
 }
 
-/// Each target's check, in target order, with the same fallback to the stored verdict as modules.
-fn check_targets(
-    targets: &[ExternalCreditTargetConfigFacts],
+/// Each mooc.fi code's check, in order, with the same fallback to the stored verdict as modules.
+fn check_target_codes(
+    codes: &[ExternalCreditTargetCodeConfigFacts],
     verdicts: &CourseCodeVerdicts,
 ) -> Vec<SuotarConfigCheck> {
-    targets
+    codes
         .iter()
-        .map(|target| {
-            let verdict = CourseCode::parse(&target.uh_course_code)
-                .and_then(|code| verdicts.get(&code).cloned())
-                .or_else(|| CourseCodeVerdict::stored_for_target(target));
-            check_target_config(target, verdict.as_ref())
+        .map(|code| {
+            let verdict = CourseCode::parse(&code.uh_course_code)
+                .and_then(|course_code| verdicts.get(&course_code).cloned())
+                .or_else(|| CourseCodeVerdict::stored_for_target_code(code));
+            check_target_code_config(code, verdict.as_ref())
         })
         .collect()
 }
 
-async fn record_target_checks(
+/// Writes each mooc.fi code's check, in the order of `codes`.
+async fn record_target_code_checks(
     pool: &PgPool,
-    targets: &[ExternalCreditTargetConfigFacts],
+    codes: &[ExternalCreditTargetCodeConfigFacts],
     checks: &[SuotarConfigCheck],
 ) -> CreditRegistrationResult<()> {
     let mut conn = pool.acquire().await?;
-    for (target, check) in targets.iter().zip(checks) {
-        external_credit_targets::record_config_check(
+    for (code, check) in codes.iter().zip(checks) {
+        external_credit_target_codes::record_config_check(
             &mut conn,
-            target.external_credit_target_id,
+            code.external_credit_target_code_id,
             check,
         )
         .await?;

@@ -1145,7 +1145,12 @@ SELECT e.id,
   COALESCE(e.course_id, e.external_credit_target_id) AS "course_or_target_id!",
   COALESCE(c.name, 'mooc.fi: ' || target.name) AS "course_name!",
   COALESCE(
-    TRIM(target.uh_course_code),
+    (
+      SELECT MIN(TRIM(code.uh_course_code))
+      FROM external_credit_target_codes code
+      WHERE code.external_credit_target_id = e.external_credit_target_id
+        AND code.deleted_at IS NULL
+    ),
     (
       SELECT MIN(TRIM(cm.uh_course_code))
       FROM course_modules cm
@@ -1200,8 +1205,10 @@ FROM credit_registration_account_linking_emails e
     UNION ALL
     SELECT NULL::uuid,
       target.id,
-      TRIM(target.uh_course_code)
+      TRIM(target_code.uh_course_code)
     FROM external_credit_targets target
+      JOIN external_credit_target_codes target_code ON target_code.external_credit_target_id = target.id
+      AND target_code.deleted_at IS NULL
     WHERE target.deleted_at IS NULL
   ) code ON code.course_id = e.course_id
   OR code.external_credit_target_id = e.external_credit_target_id

@@ -145,6 +145,17 @@
             "name": "updated_at"
           }
         }
+      },
+      {
+        "ordinal": 13,
+        "name": "family_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_refresh_tokens",
+            "name": "family_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -164,6 +175,7 @@
       true,
       false,
       true,
+      false,
       false,
       false
     ]

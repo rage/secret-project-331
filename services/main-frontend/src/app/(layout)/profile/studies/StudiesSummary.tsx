@@ -34,7 +34,7 @@ const StudiesSummary: React.FC<StudiesSummaryProps> = ({ totals }) => {
     <StatTileList ariaLabel={t("heading-my-studies")} maxColumns={SUMMARY_TILE_COUNT}>
       <StatTile
         label={t("label-credits-earned")}
-        value={t("ects-n", { n: formatEcts(totals.ects, i18n.language) })}
+        value={t("ects-n", { count: totals.ects, n: formatEcts(totals.ects, i18n.language) })}
         tone={TONE.SUCCESS}
       />
       <StatTile label={t("label-completions")} value={totals.completions} />

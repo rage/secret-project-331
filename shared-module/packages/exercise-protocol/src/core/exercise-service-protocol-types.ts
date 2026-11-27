@@ -50,6 +50,15 @@ export interface CurrentStateMessage {
    * editing user, but it does reject ids it has no upload for.
    */
   private_spec_files?: string[]
+  /**
+   * From `exercise-editor`: the id of the `RepositoryExercise` the private spec is built on, `null`
+   * for none. The host sends that exercise's current version with every spec and grading request,
+   * and re-derives the specs when a repository sync changes it. Omitting it leaves the previous
+   * choice standing.
+   *
+   * Ignored from the other views.
+   */
+  repository_exercise_id?: string | null
   valid: boolean
   /**
    * Optional, already-localized reasons the current answer is not yet submittable

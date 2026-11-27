@@ -67,6 +67,8 @@ use secrecy::ExposeSecret;
     courses::admin_delete_external_credit_target,
     courses::admin_pause_external_credit_target,
     courses::admin_resume_external_credit_target,
+    courses::admin_get_external_credit_target_codes,
+    courses::admin_save_external_credit_target_codes,
     reconciliation::get_credit_registration_reconciliation,
     audit::list_credit_registration_admin_actions,
     audit::get_credit_registration_earlier_reasons,

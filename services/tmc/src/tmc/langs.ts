@@ -6,7 +6,13 @@ import * as readline from "readline"
 import { temporaryDirectory, temporaryFile } from "tempy"
 import kill from "tree-kill"
 
-import type { Compression, ExercisePackagingConfiguration, OutputData, RunResult } from "./cli"
+import type {
+  Compression,
+  ExercisePackagingConfiguration,
+  OutputData,
+  RepositoryExercise,
+  RunResult,
+} from "./cli"
 import { isCliOutput } from "./cli.guard"
 
 /** A failure tmc-langs-cli reported. */
@@ -222,6 +228,37 @@ export const getExercisePackagingConfiguration = async (
   )
   if (config.data?.["output-data-kind"] === "exercise-packaging-configuration") {
     return config.data["output-data"]
+  }
+  throw new Error("Unexpected data")
+}
+
+/** How long tmc-langs lets the exercise's tests run, its `.tmcproject.yml` and default applied. */
+export const getTestsTimeoutMs = async (
+  exercisePath: string,
+  log: (message: string, ...optionalParams: unknown[]) => void,
+): Promise<number> => {
+  const { tests_timeout_ms } = await getExercisePackagingConfiguration(exercisePath, log)
+  if (tests_timeout_ms === undefined) {
+    throw new Error("tmc-langs did not report the exercise's tests timeout")
+  }
+  return tests_timeout_ms
+}
+
+/**
+ * Finds the exercises of a course repository checkout and writes the root `.tmcproject.yml`, if
+ * any, into each, merged under the exercise's own.
+ */
+export const prepareExerciseRepository = async (
+  repositoryPath: string,
+  log: (message: string, ...optionalParams: unknown[]) => void,
+): Promise<RepositoryExercise[]> => {
+  const output = await execute(
+    "prepare-exercise-repository",
+    ["--repository-path", repositoryPath],
+    log,
+  )
+  if (output.data?.["output-data-kind"] === "repository-exercises") {
+    return output.data["output-data"]
   }
   throw new Error("Unexpected data")
 }

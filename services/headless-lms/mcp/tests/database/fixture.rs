@@ -31,6 +31,7 @@ use headless_lms_models::{
     organizations,
     pages::{self, NewPage, PageDetailsUpdate},
     peer_or_self_review_configs,
+    repository_exercises::RepositoryExercise,
     roles::{self, RoleDomain, UserRole},
     test_helper::{init_file_store, test_database_url},
     users,
@@ -78,6 +79,7 @@ pub(crate) fn no_spec<'a>(
     _: Url,
     _: &'a str,
     _: Option<&'a Value>,
+    _: Option<&'a RepositoryExercise>,
 ) -> BoxFuture<'a, ModelResult<Value>> {
     Box::pin(async { panic!("the test pages have no exercises") })
 }
@@ -169,7 +171,7 @@ impl Fixture {
                 can_add_chatbot: false,
             },
             user_id,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -196,7 +198,7 @@ impl Fixture {
                 course_module_id: Some(module.id),
             },
             user_id,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -220,7 +222,7 @@ impl Fixture {
                 hidden: false,
             },
             user_id,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -382,7 +384,7 @@ impl Fixture {
                 hidden: false,
             },
             self.user_id,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await

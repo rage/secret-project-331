@@ -1,0 +1,109 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercise_tasks(\n    id,\n    exercise_slide_id,\n    exercise_type,\n    assignment,\n    public_spec,\n    private_spec,\n    model_solution_spec,\n    order_number,\n    repository_exercise_id,\n    repository_exercise_checksum\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO\nUPDATE\nSET exercise_slide_id = $2,\n  exercise_type = $3,\n  assignment = $4,\n  public_spec = $5,\n  private_spec = $6,\n  model_solution_spec = $7,\n  order_number = $8,\n  repository_exercise_id = $9,\n  repository_exercise_checksum = $10,\n  deleted_at = NULL\nRETURNING id,\n  exercise_slide_id,\n  assignment,\n  exercise_type,\n  private_spec,\n  order_number,\n  repository_exercise_id\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "exercise_slide_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "exercise_slide_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "assignment",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "assignment"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "exercise_type",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "exercise_type"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "private_spec",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "private_spec"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "order_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "order_number"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "repository_exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "repository_exercise_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Jsonb",
+        "Jsonb",
+        "Jsonb",
+        "Jsonb",
+        "Int4",
+        "Uuid",
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "fb2f16d649b9cc201d6233d71586df51515844d169abd6c7a618c571534f999b"
+}

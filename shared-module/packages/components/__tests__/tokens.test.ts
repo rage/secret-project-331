@@ -74,7 +74,7 @@ describe("tokens.ts custom properties", () => {
     expect(root.getPropertyValue("--radius-4")).toBe("12px")
     expect(root.getPropertyValue("--radius-5")).toBe("16px")
     expect(root.getPropertyValue("--radius-full")).toBe("9999px")
-    expect(root.getPropertyValue("--control-radius")).toBe("var(--radius-2)")
+    expect(root.getPropertyValue("--control-radius")).toBe("var(--radius-3)")
   })
 
   test("elevation scale is neutral and two-layered, plus the pressed inset and scrim", () => {

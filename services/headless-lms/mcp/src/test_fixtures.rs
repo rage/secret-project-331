@@ -292,6 +292,7 @@ pub fn page_with_exercise() -> PageSnapshot {
             private_spec: Some(json!({"a": 1})),
             order_number: 0,
             private_spec_files: vec![id("file")],
+            repository_exercise_id: None,
         }],
         joins_page_language_group_id: None,
     }

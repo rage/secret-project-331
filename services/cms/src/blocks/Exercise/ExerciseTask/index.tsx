@@ -37,6 +37,10 @@ const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
       type: "array",
       default: [],
     },
+    repository_exercise_id: {
+      type: "string",
+      default: null,
+    },
     show_editor: {
       type: "boolean",
       default: false,

@@ -101,6 +101,8 @@ export interface ExerciseTaskAttributes {
    * so a save keeps them: they are what stops the files being reclaimed as abandoned uploads.
    */
   private_spec_files: string[]
+  /** The repository exercise the exercise service reported the spec is built on. */
+  repository_exercise_id: string | null
   show_editor: boolean
   order_number: number
 }
@@ -241,10 +243,13 @@ const ExerciseTaskEditor: React.FC<
                     <ExerciseTaskIFrameEditor
                       exerciseServiceSlug={exerciseType}
                       exerciseTaskId={attributes.id}
-                      onPrivateSpecChange={(privateSpec, specFiles) =>
+                      onPrivateSpecChange={(privateSpec, specFiles, repositoryExerciseId) =>
                         setAttributes({
                           private_spec: privateSpec,
                           ...includeIf(specFiles !== undefined, { private_spec_files: specFiles }),
+                          ...includeIf(repositoryExerciseId !== undefined, {
+                            repository_exercise_id: repositoryExerciseId,
+                          }),
                         })
                       }
                       privateSpec={privateSpecToPostToIframe}

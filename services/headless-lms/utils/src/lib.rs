@@ -30,6 +30,5 @@ pub mod strings;
 pub mod text_scrub;
 pub mod url_encoding;
 pub mod url_to_oembed_endpoint;
-pub mod version;
 #[macro_use]
 extern crate tracing;

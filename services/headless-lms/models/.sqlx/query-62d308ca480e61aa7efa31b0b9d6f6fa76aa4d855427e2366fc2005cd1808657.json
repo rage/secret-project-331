@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_repositories\nSET status = 'failure',\n  sync_started_at = NULL,\n  error_message = COALESCE(error_message, 'The sync did not finish.')\nWHERE deleted_at IS NULL\n  AND status = 'pending'\n  AND sync_attempts >= $1\n  AND sync_started_at < $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "62d308ca480e61aa7efa31b0b9d6f6fa76aa4d855427e2366fc2005cd1808657"
+}

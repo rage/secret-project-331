@@ -28,9 +28,8 @@ use headless_lms_models::{
         NewRegistrationSubject, PayloadSnapshot, SubjectId, Transition,
     },
     external_completions::{self, ExternalCompletionFacts},
-    external_credit_targets::{
-        self, ExternalCreditTargetConfiguration, ExternalGrading, TierRange,
-    },
+    external_credit_target_codes::{self, ExternalCreditTargetCodeConfiguration, ExternalGrading},
+    external_credit_targets::{self, ExternalCreditTargetConfiguration},
     open_university_registration_links,
     roles::UserRole,
     secret::DbSecret,
@@ -111,19 +110,24 @@ pub const LINKING_TOKEN_CONFLICT: &str = concat!(
 /// The mooc.fi handler courses the seeded external credit targets register, as the mock mooc.fi
 /// keys its completions on them.
 pub const MOOCFI_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0011_4a5e_9e6e_c0de00000011);
-/// Tiers 2 and 3 register different course codes; tier 1 has no target.
+/// Tier 2 earns the intermediate code, tier 3 the advanced one as well; tier 1 earns none.
 pub const MOOCFI_TIERED_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0012_4a5e_9e6e_c0de00000012);
 pub const MOOCFI_PAUSED_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0013_4a5e_9e6e_c0de00000013);
 /// Graded numerically, unlike the other pass/fail targets.
 pub const MOOCFI_GRADED_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0014_4a5e_9e6e_c0de00000014);
 
 pub const MOOCFI_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a01_4a5e_9e6e_c0de00000a01);
-pub const MOOCFI_TIER_2_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a02_4a5e_9e6e_c0de00000a02);
-pub const MOOCFI_TIER_3_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a03_4a5e_9e6e_c0de00000a03);
+pub const MOOCFI_TIERED_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a02_4a5e_9e6e_c0de00000a02);
 /// Enabled but paused, with one completion and ledger row nothing may move, which also makes its
 /// cutoff fixed.
 pub const MOOCFI_PAUSED_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a04_4a5e_9e6e_c0de00000a04);
 pub const MOOCFI_GRADED_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a05_4a5e_9e6e_c0de00000a05);
+pub const MOOCFI_CODE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0b01_4a5e_9e6e_c0de00000b01);
+pub const MOOCFI_TIER_2_CODE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0b02_4a5e_9e6e_c0de00000b02);
+/// Waits for [`MOOCFI_TIER_2_CODE_ID`] in Sisu, which [`CRS_MOOCFI_TIER_2_OLD`] also counts as.
+pub const MOOCFI_TIER_3_CODE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0b03_4a5e_9e6e_c0de00000b03);
+pub const MOOCFI_PAUSED_CODE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0b04_4a5e_9e6e_c0de00000b04);
+pub const MOOCFI_GRADED_CODE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0b05_4a5e_9e6e_c0de00000b05);
 /// The paused target's completion on mooc.fi. A spec must seed the mock with it before syncing, or
 /// the sync marks the row removed upstream.
 pub const MOOCFI_PAUSED_COMPLETION_ID: Uuid =
@@ -1146,58 +1150,37 @@ async fn seed_moocfi(
         student_ids.push(user.id);
     }
 
-    let target = |moocfi_course_id: Uuid,
-                  moocfi_course_slug: &str,
-                  name: &str,
-                  tiers: Option<TierRange>,
-                  uh_course_code: &str| ExternalCreditTargetConfiguration {
-        moocfi_course_id,
-        moocfi_course_slug: moocfi_course_slug.to_string(),
+    let target = |moocfi_course_id: Uuid, moocfi_course_slug: &str, name: &str| {
+        ExternalCreditTargetConfiguration {
+            moocfi_course_id,
+            moocfi_course_slug: moocfi_course_slug.to_string(),
+            name: name.to_string(),
+            language_code: "fi-FI".to_string(),
+            delegated_at: cutoff,
+            enabled_at: Some(cutoff),
+        }
+    };
+    let code = |name: &str, uh_course_code: &str| ExternalCreditTargetCodeConfiguration {
         name: name.to_string(),
-        language_code: "fi-FI".to_string(),
-        tiers,
         uh_course_code: uh_course_code.to_string(),
+        minimum_tier: None,
         ects_credits: 5.0,
         grading: ExternalGrading::PassFail,
         enrolment_link: Some(seeded_enrolment_link(uh_course_code)),
-        delegated_at: cutoff,
-        enabled_at: Some(cutoff),
-    };
-    let tier = |tier: i32| {
-        Some(TierRange {
-            lowest: Some(tier),
-            highest: Some(tier),
-        })
+        prerequisite_code_id: None,
+        equivalent_course_codes: Vec::new(),
     };
     for (id, configuration) in [
         (
             MOOCFI_TARGET_ID,
-            target(
-                MOOCFI_COURSE_ID,
-                MOOCFI_COURSE_SLUG,
-                "Delegated course",
-                None,
-                CRS_MOOCFI_101,
-            ),
+            target(MOOCFI_COURSE_ID, MOOCFI_COURSE_SLUG, "Delegated course"),
         ),
         (
-            MOOCFI_TIER_2_TARGET_ID,
+            MOOCFI_TIERED_TARGET_ID,
             target(
                 MOOCFI_TIERED_COURSE_ID,
                 MOOCFI_TIERED_COURSE_SLUG,
-                "Tiered course, intermediate",
-                tier(2),
-                CRS_MOOCFI_TIER_2,
-            ),
-        ),
-        (
-            MOOCFI_TIER_3_TARGET_ID,
-            target(
-                MOOCFI_TIERED_COURSE_ID,
-                MOOCFI_TIERED_COURSE_SLUG,
-                "Tiered course, advanced",
-                tier(3),
-                CRS_MOOCFI_TIER_3,
+                "Tiered course",
             ),
         ),
         (
@@ -1206,25 +1189,64 @@ async fn seed_moocfi(
                 MOOCFI_PAUSED_COURSE_ID,
                 MOOCFI_PAUSED_COURSE_SLUG,
                 "Paused course",
-                None,
-                CRS_MOOCFI_PAUSED_101,
             ),
         ),
         (
             MOOCFI_GRADED_TARGET_ID,
-            ExternalCreditTargetConfiguration {
-                grading: ExternalGrading::Numeric,
-                ..target(
-                    MOOCFI_GRADED_COURSE_ID,
-                    MOOCFI_GRADED_COURSE_SLUG,
-                    "Graded course",
-                    None,
-                    CRS_MOOCFI_GRADED_101,
-                )
-            },
+            target(
+                MOOCFI_GRADED_COURSE_ID,
+                MOOCFI_GRADED_COURSE_SLUG,
+                "Graded course",
+            ),
         ),
     ] {
         external_credit_targets::insert(conn, PKeyPolicy::Fixed(id), &configuration).await?;
+    }
+    for (id, target_id, configuration) in [
+        (
+            MOOCFI_CODE_ID,
+            MOOCFI_TARGET_ID,
+            code("Delegated course", CRS_MOOCFI_101),
+        ),
+        (
+            MOOCFI_TIER_2_CODE_ID,
+            MOOCFI_TIERED_TARGET_ID,
+            ExternalCreditTargetCodeConfiguration {
+                minimum_tier: Some(2),
+                equivalent_course_codes: vec![CRS_MOOCFI_TIER_2_OLD.to_string()],
+                ..code("Tiered course, intermediate", CRS_MOOCFI_TIER_2)
+            },
+        ),
+        (
+            MOOCFI_TIER_3_CODE_ID,
+            MOOCFI_TIERED_TARGET_ID,
+            ExternalCreditTargetCodeConfiguration {
+                minimum_tier: Some(3),
+                prerequisite_code_id: Some(MOOCFI_TIER_2_CODE_ID),
+                ..code("Tiered course, advanced", CRS_MOOCFI_TIER_3)
+            },
+        ),
+        (
+            MOOCFI_PAUSED_CODE_ID,
+            MOOCFI_PAUSED_TARGET_ID,
+            code("Paused course", CRS_MOOCFI_PAUSED_101),
+        ),
+        (
+            MOOCFI_GRADED_CODE_ID,
+            MOOCFI_GRADED_TARGET_ID,
+            ExternalCreditTargetCodeConfiguration {
+                grading: ExternalGrading::Numeric,
+                ..code("Graded course", CRS_MOOCFI_GRADED_101)
+            },
+        ),
+    ] {
+        external_credit_target_codes::insert(
+            conn,
+            PKeyPolicy::Fixed(id),
+            target_id,
+            &configuration,
+        )
+        .await?;
     }
     external_credit_targets::set_paused(
         conn,
@@ -1242,6 +1264,7 @@ async fn seed_moocfi(
         conn,
         &ExternalCompletionFacts {
             external_credit_target_id: MOOCFI_PAUSED_TARGET_ID,
+            external_credit_target_code_id: MOOCFI_PAUSED_CODE_ID,
             user_id: paused_course_student,
             moocfi_completion_id: MOOCFI_PAUSED_COMPLETION_ID,
             moocfi_user_upstream_id: MOOCFI_STUDENTS[2].1,

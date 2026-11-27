@@ -59,6 +59,8 @@ import type {
   GetCmsPageResponses,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponses,
+  GetCmsRepositoryExercisesForExamData,
+  GetCmsRepositoryExercisesForExamResponses,
   GetExercisesWithSubmissionsData,
   GetExercisesWithSubmissionsResponses,
   LinkCmsPageCounterpartData,
@@ -116,6 +118,7 @@ import {
   zGetCmsPagePendingAgentChangesResponse,
   zGetCmsPageResponse,
   zGetCmsRepositoryExercisesForCourseResponse,
+  zGetCmsRepositoryExercisesForExamResponse,
   zGetExercisesWithSubmissionsResponse,
   zLinkCmsPageCounterpartResponse,
   zPreviewCmsEmailTemplateResponse,
@@ -830,6 +833,22 @@ export const getCmsPagePendingAgentChanges = <ThrowOnError extends boolean = tru
       await zGetCmsPagePendingAgentChangesResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/cms/pages/{page_id}/pending-agent-changes",
+    ...options,
+  })
+
+export const getCmsRepositoryExercisesForExam = <ThrowOnError extends boolean = true>(
+  options: Options<GetCmsRepositoryExercisesForExamData, ThrowOnError>,
+): RequestResult<GetCmsRepositoryExercisesForExamResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCmsRepositoryExercisesForExamResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCmsRepositoryExercisesForExamResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/repository-exercises/exam/{exam_id}",
     ...options,
   })
 

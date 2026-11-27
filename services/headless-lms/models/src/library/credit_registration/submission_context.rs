@@ -7,7 +7,7 @@ use crate::prelude::*;
 
 use super::payload::CompletionFacts;
 
-/// The module's or mooc.fi target's fields, the linked student number and the completion, for one
+/// The module's or mooc.fi code's fields, the linked student number and the completion, for one
 /// ledger row.
 #[derive(Debug, Clone)]
 pub struct SubmissionContext {

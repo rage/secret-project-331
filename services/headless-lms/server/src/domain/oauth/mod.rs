@@ -11,6 +11,7 @@ pub mod helpers;
 pub mod introspect_query;
 pub mod introspect_response;
 pub mod jwks;
+pub mod native_client_check;
 pub mod oauth_validate;
 pub mod oauth_validated;
 pub mod oidc;

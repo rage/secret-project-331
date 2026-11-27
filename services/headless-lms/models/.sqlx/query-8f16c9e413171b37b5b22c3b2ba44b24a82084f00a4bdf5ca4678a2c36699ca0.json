@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT reveal_after_deadline,\n  reveal_at\nFROM course_model_solution_settings\nWHERE course_id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "reveal_after_deadline",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_model_solution_settings",
+            "name": "reveal_after_deadline"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "reveal_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_model_solution_settings",
+            "name": "reveal_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "8f16c9e413171b37b5b22c3b2ba44b24a82084f00a4bdf5ca4678a2c36699ca0"
+}

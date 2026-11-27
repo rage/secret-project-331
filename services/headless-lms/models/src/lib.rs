@@ -44,6 +44,7 @@ pub mod course_exams;
 pub mod course_instance_enrollments;
 pub mod course_instances;
 pub mod course_language_groups;
+pub mod course_model_solution_settings;
 pub mod course_module_completion_registered_to_study_registries;
 pub mod course_module_completions;
 pub mod course_module_suotar_configurations;
@@ -60,6 +61,7 @@ pub mod credit_registration_enrolment_routes;
 pub mod credit_registration_events;
 pub mod credit_registration_phase_state;
 pub mod credit_registration_roster_schedules;
+pub mod credit_registration_sisu_code_checks;
 pub mod credit_registrations;
 pub mod email_address_mail_budgets;
 pub mod email_deliveries;
@@ -92,6 +94,7 @@ pub mod exercise_tasks;
 pub mod exercises;
 pub mod external_completions;
 pub mod external_courses;
+pub mod external_credit_target_codes;
 pub mod external_credit_targets;
 pub mod feedback;
 pub mod feedback_categories;
@@ -339,11 +342,13 @@ impl PKeyPolicy<Uuid> {
 ///   `Url`: The URL that the request is sent to (the exercise service's endpoint)
 ///   `&str`: Exercise type/service slug
 ///   `Option<Value>`: The Json for the request, for example the private spec in a public spec request
+///   `Option<RepositoryExercise>`: The current version of the repository exercise the task uses
 pub trait SpecFetcher:
     for<'a> Fn(
     Url,
     &'a str,
     Option<&'a serde_json::Value>,
+    Option<&'a repository_exercises::RepositoryExercise>,
 ) -> BoxFuture<'a, ModelResult<serde_json::Value>>
 {
 }
@@ -353,6 +358,7 @@ impl<
         Url,
         &'a str,
         Option<&'a serde_json::Value>,
+        Option<&'a repository_exercises::RepositoryExercise>,
     ) -> BoxFuture<'a, ModelResult<serde_json::Value>>,
 > SpecFetcher for T
 {

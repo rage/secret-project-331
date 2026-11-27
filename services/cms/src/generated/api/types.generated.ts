@@ -202,6 +202,10 @@ export type CmsPageExerciseTask = {
    * endpoint that produced it, since a derivation may upload files of its own.
    */
   private_spec_files?: Array<string>
+  /**
+   * The repository exercise the exercise editor picked, as it reported it beside the spec.
+   */
+  repository_exercise_id?: string | null
 }
 
 /**
@@ -768,8 +772,16 @@ export type PeerReviewProcessingStrategy =
 
 export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh"
 
+/**
+ * An exercise as the exercise editor's picker lists it, and as spec and grading requests carry
+ * it as `repository_exercise`, so the field set is part of the exercise services' contract.
+ */
 export type RepositoryExercise = {
   checksum: Array<number>
+  /**
+   * What the exercise service that prepared the repository reported about the exercise.
+   */
+  details?: unknown
   download_url: string
   id: string
   name: string
@@ -1653,6 +1665,28 @@ export type GetCmsPagePendingAgentChangesResponses = {
 
 export type GetCmsPagePendingAgentChangesResponse =
   GetCmsPagePendingAgentChangesResponses[keyof GetCmsPagePendingAgentChangesResponses]
+
+export type GetCmsRepositoryExercisesForExamData = {
+  body?: never
+  path: {
+    /**
+     * Exam id
+     */
+    exam_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/repository-exercises/exam/{exam_id}"
+}
+
+export type GetCmsRepositoryExercisesForExamResponses = {
+  /**
+   * Repository exercises for exam
+   */
+  200: Array<RepositoryExercise>
+}
+
+export type GetCmsRepositoryExercisesForExamResponse =
+  GetCmsRepositoryExercisesForExamResponses[keyof GetCmsRepositoryExercisesForExamResponses]
 
 export type GetCmsRepositoryExercisesForCourseData = {
   body?: never

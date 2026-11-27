@@ -575,6 +575,27 @@ WHERE user_id IN (
     Ok(res)
 }
 
+/// The exams the user has started and not handed in, whether or not their time is still running.
+/// Pair with [`verify_exam_submission_can_be_made`] to find the ones they can still answer.
+pub async fn get_unfinished_enrollment_exam_ids_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let ids = sqlx::query_scalar!(
+        "
+SELECT exam_id
+FROM exam_enrollments
+WHERE user_id = $1
+  AND (ended_at IS NULL OR is_teacher_testing)
+  AND deleted_at IS NULL
+",
+        user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(ids)
+}
+
 pub async fn get_ongoing_exam_enrollments(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<ExamEnrollment>> {

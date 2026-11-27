@@ -142,9 +142,11 @@ pub async fn create_credit_registration_handoff(
     }
 
     let mut conn = pool.acquire().await?;
-    let targets =
+    let targets: Vec<_> =
         models::external_credit_targets::get_by_moocfi_course_id(&mut conn, moocfi_course_id)
-            .await?;
+            .await?
+            .into_iter()
+            .collect();
     let is_cutoff_equal = |target: &models::external_credit_targets::ExternalCreditTarget| {
         // mooc.fi's timestamps go through JavaScript dates, which keep milliseconds only.
         target.delegated_at.timestamp_millis() == delegated_at.timestamp_millis()

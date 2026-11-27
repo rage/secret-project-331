@@ -89,7 +89,7 @@ const RegisterCompletion: React.FC<RegisterCompletionProps> = ({
             {t("course")}: {courseName}
           </p>
           {typeof ectsCredits === "number" ? (
-            <p className={noteCss}>{t("credits-n-ects", { n: ectsCredits })}</p>
+            <p className={noteCss}>{t("credits-n-ects", { count: ectsCredits, n: ectsCredits })}</p>
           ) : null}
         </header>
 

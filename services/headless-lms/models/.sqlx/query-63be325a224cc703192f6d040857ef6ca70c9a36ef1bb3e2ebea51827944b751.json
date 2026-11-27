@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_repositories\nSET status = 'pending',\n  sync_requested_at = clock_timestamp(),\n  sync_attempts = 0,\n  error_message = NULL\nWHERE id = $1\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "63be325a224cc703192f6d040857ef6ca70c9a36ef1bb3e2ebea51827944b751"
+}

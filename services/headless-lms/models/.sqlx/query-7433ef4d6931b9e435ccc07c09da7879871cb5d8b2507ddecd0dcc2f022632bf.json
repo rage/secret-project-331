@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercise_repositories (\n    id,\n    course_id,\n    exam_id,\n    url,\n    branch,\n    deploy_key,\n    public_key,\n    status,\n    error_message,\n    last_synced_at\n  )\nSELECT uuid_generate_v5($1, id::text),\n  CASE\n    WHEN course_id IS NOT NULL THEN $1\n  END,\n  CASE\n    WHEN exam_id IS NOT NULL THEN $1\n  END,\n  url,\n  branch,\n  deploy_key,\n  public_key,\n  status,\n  error_message,\n  last_synced_at\nFROM exercise_repositories\nWHERE (\n    course_id = $2\n    OR exam_id = $2\n  )\n  AND deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7433ef4d6931b9e435ccc07c09da7879871cb5d8b2507ddecd0dcc2f022632bf"
+}

@@ -2,9 +2,12 @@ import type { MyCreditRegistration, MyEnrolmentRoute } from "@/generated/api/typ
 
 import {
   canWithdrawEnrolmentConfirmation,
+  courseCodeOf,
   detourRoute,
+  ectsCreditsOf,
   isReachable,
   landingPage,
+  type StepperCourse,
   type StepperInput,
   statusPageOf,
   stepsFor,
@@ -274,4 +277,35 @@ describe("which pages the student may open", () => {
 test("linking is a step only without a linked number", () => {
   expect(stepsFor(false)).toEqual(["questions", "enrolment", "linking"])
   expect(stepsFor(true)).toEqual(["questions", "enrolment"])
+})
+
+const course = (overrides: Partial<StepperCourse> = {}): StepperCourse => ({
+  key: "course",
+  name: "Introduction to Programming",
+  uhCourseCode: " AYTKT10002 ",
+  ectsCredits: 5,
+  enrolmentLink: null,
+  prerequisiteName: null,
+  registration: null,
+  enrolmentRoute: null,
+  ...overrides,
+})
+
+describe("what a completion's courses are", () => {
+  test("one course is worth its own credits, unset or not", () => {
+    expect(ectsCreditsOf([course()])).toBe(5)
+    expect(ectsCreditsOf([course({ ectsCredits: undefined })])).toBeNull()
+  })
+
+  test("several courses are worth their credits together", () => {
+    expect(ectsCreditsOf([course(), course({ ectsCredits: 3 })])).toBe(8)
+  })
+
+  test("the code to enrol on is the registration's, else the configured one, trimmed", () => {
+    expect(courseCodeOf(course())).toBe("AYTKT10002")
+    expect(
+      courseCodeOf(course({ registration: registration({ uh_course_code: "AYTKT20002" }) })),
+    ).toBe("AYTKT20002")
+    expect(courseCodeOf(course({ uhCourseCode: "  " }))).toBeNull()
+  })
 })

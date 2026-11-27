@@ -28,6 +28,17 @@ jest.mock("@/shared-module/common/components/SessionVerificationDialog", () => (
   default: () => null,
 }))
 
+jest.mock("@/hooks/course-material/useUserDetails", () => ({
+  useUserDetails: () => ({
+    data: { first_name: "Ada", last_name: "Lovelace", email: "ada@example.com" },
+  }),
+}))
+
+jest.mock("@/shared-module/common/hooks/useLogout", () => ({
+  __esModule: true,
+  default: () => ({ logout: jest.fn() }),
+}))
+
 jest.mock("@/shared-module/common/hooks/usePageTitle", () => ({ usePageTitle: () => {} }))
 
 jest.mock("@/shared-module/common/hooks/useQueryParameter", () => ({
@@ -70,6 +81,9 @@ describe("OAuth device verification page", () => {
     expect(await screen.findByTestId("oauth-device-user-code")).toHaveTextContent("ABCD-1234")
     expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
       "TestMyCode for VS Code wants to access your account",
+    )
+    expect(screen.getByTestId("oauth-device-signed-in-account")).toHaveTextContent(
+      "You are signed in as Ada Lovelace (ada@example.com).",
     )
     expect(
       screen.getByText("Approve only if this code matches the one shown in your editor:"),

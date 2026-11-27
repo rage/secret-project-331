@@ -1,7 +1,7 @@
 //! Just-in-time hints placed inside structured results. Hints state facts; they never tell the
 //! agent to run a command (the skill holds the procedures).
 
-use headless_lms_utils::version::Version;
+use headless_lms_base::version::Version;
 use serde::Serialize;
 
 use crate::page_readiness::PlaceholderText;

@@ -14,6 +14,7 @@ import type { ExerciseFile, ExerciseIframeState } from "@/util/stateInterfaces"
 
 import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"
+import GradingFeedback from "./GradingFeedback"
 import ModelSolution from "./ModelSolution"
 import ViewSubmission from "./ViewSubmission"
 
@@ -119,6 +120,7 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
             fileUploadResponse={fileUploadResponse}
             grading={state.grading}
           />
+          <GradingFeedback grading={state.grading} showMessage={false} />
           <ModelSolution state={state} />
         </div>
       )

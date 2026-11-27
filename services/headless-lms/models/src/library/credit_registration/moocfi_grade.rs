@@ -1,6 +1,6 @@
 //! Reading mooc.fi's completion grades, which are free text there.
 
-use crate::external_credit_targets::ExternalGrading;
+use crate::external_credit_target_codes::ExternalGrading;
 
 /// A mooc.fi grade in the form the ledger reads grades in. Both `None` means the grade was not
 /// recognised.

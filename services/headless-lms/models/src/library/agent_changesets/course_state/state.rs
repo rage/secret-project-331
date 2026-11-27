@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::sync::Arc;
 
-use super::{ExerciseDeadline, ExerciseRecord, ExerciseReviewConfig, PageRecord};
+use super::{ExerciseDeadline, ExerciseRecord, ExerciseReviewConfig, PageRecord, TaskLayout};
 use crate::{
     agent_changeset_entities::AgentChangesetEntity,
     chapters, course_modules,
@@ -33,6 +33,9 @@ pub struct CourseState {
     pub exercises: Option<BTreeMap<Uuid, ExerciseRecord>>,
     /// By exercise id; loaded with the pages. Entries of exercises no page holds any more stay.
     pub exercise_deadlines: BTreeMap<Uuid, ExerciseDeadline>,
+    /// By exercise id: its tasks in slide and task order. Loaded and kept like
+    /// `exercise_deadlines`.
+    pub exercise_task_layouts: BTreeMap<Uuid, Vec<TaskLayout>>,
 }
 
 /// The state one entity has after an agent write call.
@@ -233,6 +236,10 @@ impl CourseState {
                     if let Some(deadline) = source.exercise_deadlines.get(&exercise_id) {
                         self.exercise_deadlines.insert(exercise_id, *deadline);
                     }
+                    if let Some(layout) = source.exercise_task_layouts.get(&exercise_id) {
+                        self.exercise_task_layouts
+                            .insert(exercise_id, layout.clone());
+                    }
                 }
                 put_by_id(&mut self.pages, page.clone(), |p| p.id)
             }
@@ -272,6 +279,16 @@ impl CourseState {
                     own: exercise.deadline,
                     chapter_id: page.chapter_id,
                 },
+            );
+        }
+    }
+
+    /// Sets the task layouts of the page's exercises from its snapshot.
+    pub fn set_page_exercise_task_layouts(&mut self, page: &PageSnapshot) {
+        for bundle in page.exercise_bundles() {
+            self.exercise_task_layouts.insert(
+                bundle.exercise.id,
+                bundle.tasks.iter().map(TaskLayout::from).collect(),
             );
         }
     }
@@ -537,6 +554,7 @@ impl InCourseState for PageSnapshot {
         put_by_id(&mut state.pages, PageRecord::from(self), |page| page.id);
         state.set_page_exercises(self.id, Some(self));
         state.set_page_exercise_deadlines(self);
+        state.set_page_exercise_task_layouts(self);
     }
 
     fn remove_from(state: &mut CourseState, id: Uuid) {
@@ -620,6 +638,7 @@ pub async fn load_live_course(
         course_default_review_config: None,
         exercises: None,
         exercise_deadlines: BTreeMap::new(),
+        exercise_task_layouts: BTreeMap::new(),
     };
     if parts.includes(ContentEntityType::CourseDefaultReviewConfig) {
         state.course_default_review_config =
@@ -671,6 +690,13 @@ pub async fn load_live_course(
                 (exercise.id, deadline)
             })
             .collect();
+        for task in crate::exercise_tasks::get_layout_rows_by_course_id(conn, course.id).await? {
+            state
+                .exercise_task_layouts
+                .entry(task.exercise_id)
+                .or_default()
+                .push(TaskLayout::from(task));
+        }
     }
     if parts.includes(ContentEntityType::GlossaryTerm) {
         state.glossary = glossary::fetch_for_course(conn, course.id)

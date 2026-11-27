@@ -22,6 +22,12 @@ impl From<RiskReason> for ExplainedRiskReason {
                 format!("removes exercise {exercise_id}, which has submissions"),
                 "students' answers and points for this exercise stop counting",
             ),
+            RiskReason::ExerciseTasksChangedWithSubmissions { exercise_id } => (
+                format!(
+                    "changes the tasks of exercise {exercise_id}, which has submissions"
+                ),
+                "students' earlier answers may no longer match the tasks and can lose their points",
+            ),
             RiskReason::PageWithSubmissionsRemoved => (
                 "removes the page, which has exercises with submissions".to_string(),
                 "students' answers and points on this page stop counting",

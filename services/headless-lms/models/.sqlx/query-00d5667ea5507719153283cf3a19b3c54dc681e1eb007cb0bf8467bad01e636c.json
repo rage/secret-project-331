@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT et.repository_exercise_id AS \"repository_exercise_id!\",\n  et.id AS exercise_task_id,\n  e.id AS exercise_id,\n  e.name AS exercise_name,\n  e.course_id\nFROM exercise_tasks et\n  JOIN exercise_slides es ON es.id = et.exercise_slide_id\n  AND es.deleted_at IS NULL\n  JOIN exercises e ON e.id = es.exercise_id\n  AND e.deleted_at IS NULL\nWHERE et.repository_exercise_id = ANY($1)\n  AND et.deleted_at IS NULL\nORDER BY e.name,\n  et.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "repository_exercise_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "repository_exercise_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "exercise_task_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "exercise_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      true,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "00d5667ea5507719153283cf3a19b3c54dc681e1eb007cb0bf8467bad01e636c"
+}

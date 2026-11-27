@@ -457,6 +457,51 @@ WHERE s.exercise_id = $1
     Ok(exercise_tasks)
 }
 
+/// A live task with what risk compares of it.
+#[derive(Debug, Clone)]
+pub struct ExerciseTaskLayoutRow {
+    pub exercise_id: Uuid,
+    pub exercise_slide_id: Uuid,
+    pub id: Uuid,
+    pub exercise_type: String,
+    pub private_spec: Option<serde_json::Value>,
+    pub repository_exercise_id: Option<Uuid>,
+}
+
+/// The live tasks of the course's exercises, in slide and task order within each exercise.
+pub async fn get_layout_rows_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<ExerciseTaskLayoutRow>> {
+    let tasks = sqlx::query_as!(
+        ExerciseTaskLayoutRow,
+        "
+SELECT s.exercise_id,
+  t.exercise_slide_id,
+  t.id,
+  t.exercise_type,
+  t.private_spec,
+  t.repository_exercise_id
+FROM exercise_tasks t
+  JOIN exercise_slides s ON s.id = t.exercise_slide_id
+  JOIN exercises e ON e.id = s.exercise_id
+WHERE e.course_id = $1
+  AND e.deleted_at IS NULL
+  AND s.deleted_at IS NULL
+  AND t.deleted_at IS NULL
+ORDER BY s.exercise_id,
+  s.order_number,
+  s.id,
+  t.order_number,
+  t.id
+",
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(tasks)
+}
+
 pub async fn delete_exercise_tasks_by_slide_ids(
     conn: &mut PgConnection,
     exercise_slide_ids: &[Uuid],

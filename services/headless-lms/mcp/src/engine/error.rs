@@ -198,4 +198,6 @@ pub enum WarningCode {
     OwnExerciseDeadline,
     /// An exercise's own deadline is before its chapter opens or after the chapter's deadline.
     DeadlineOutsideChapterWindow,
+    /// A private spec was staged without a schema check; its service checks it at publish.
+    PrivateSpecNotChecked,
 }

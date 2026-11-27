@@ -28,6 +28,7 @@ pub struct ExerciseServiceInfo {
     pub produces_file_answers: bool,
     pub declares_spec_files: bool,
     pub repository_preparation_endpoint_path: Option<String>,
+    pub private_spec_schema_endpoint_path: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -85,6 +86,10 @@ pub struct ExerciseServiceInfoApi {
     /// Exercise repositories need exactly one service to declare it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub repository_preparation_endpoint_path: Option<String>,
+    /// Where the service serves, on GET, the JSON Schema of its private specs as
+    /// `{ schema, examples?, notes? }`, for agents that write specs.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub private_spec_schema_endpoint_path: Option<String>,
 }
 
 pub async fn insert(
@@ -170,9 +175,10 @@ INSERT INTO exercise_service_info(
     supports_native_client,
     produces_file_answers,
     declares_spec_files,
-    repository_preparation_endpoint_path
+    repository_preparation_endpoint_path,
+    private_spec_schema_endpoint_path
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET user_interface_iframe_path = $2,
   grade_endpoint_path = $3,
@@ -184,7 +190,8 @@ SET user_interface_iframe_path = $2,
   supports_native_client = $9,
   produces_file_answers = $10,
   declares_spec_files = $11,
-  repository_preparation_endpoint_path = $12
+  repository_preparation_endpoint_path = $12,
+  private_spec_schema_endpoint_path = $13
 RETURNING *
     "#,
         exercise_service_id,
@@ -198,7 +205,8 @@ RETURNING *
         update.supports_native_client,
         update.produces_file_answers,
         update.declares_spec_files,
-        update.repository_preparation_endpoint_path.as_deref()
+        update.repository_preparation_endpoint_path.as_deref(),
+        update.private_spec_schema_endpoint_path.as_deref()
     )
     .fetch_one(conn)
     .await?;

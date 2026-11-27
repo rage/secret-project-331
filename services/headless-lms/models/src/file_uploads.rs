@@ -64,6 +64,43 @@ pub async fn store_and_insert<'c>(
     inserted
 }
 
+/// Like [`store_and_insert`], but only if no live row has the upload's path yet; `None` when one
+/// has or another call is storing at the path. Holds `conn` for the whole upload.
+pub async fn store_and_insert_once(
+    conn: &mut PgConnection,
+    file_store: &dyn FileStore,
+    upload: NewUpload<'_>,
+    contents: GenericPayload,
+) -> ModelResult<Option<Uuid>> {
+    let path_string = upload
+        .path
+        .to_str()
+        .context("the upload path isn't valid UTF-8")?;
+    let mut tx = Acquire::begin(conn).await?;
+    let is_locked = sqlx::query_scalar!(
+        r#"SELECT pg_try_advisory_xact_lock(hashtextextended('file_uploads.path:' || $1, 0)) AS "locked!""#,
+        path_string
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+    if !is_locked
+        || get_details_by_path(&mut tx, path_string)
+            .await
+            .optional()?
+            .is_some()
+    {
+        return Ok(None);
+    }
+    let id = store_and_insert(&mut *tx, file_store, upload, contents).await?;
+    if let Err(error) = tx.commit().await {
+        if file_store.delete(upload.path).await.is_err() {
+            warn!("Couldn't delete an uploaded file whose row wasn't committed: {path_string}");
+        }
+        return Err(error.into());
+    }
+    Ok(Some(id))
+}
+
 /// Records a stored object under an id the caller has already chosen.
 ///
 /// For paths that contain the id: the object reaches the store before this row exists, so a path

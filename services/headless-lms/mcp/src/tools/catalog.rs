@@ -7,7 +7,7 @@ use rmcp::model::{MetaObject, ToolAnnotations};
 use serde_json::{Map, Value, json};
 
 use super::schema::input_schema;
-use super::{McpScope, Tool, ToolHandler};
+use super::{McpPrincipal, McpScope, Tool, ToolHandler};
 use crate::engine::op::PatchTarget;
 use crate::hints::SKILL_DECLINED;
 
@@ -19,13 +19,28 @@ pub struct ToolDefinition {
     pub scope: McpScope,
     /// Whether calls without `skill_version` are refused; see [`crate::hints::skill_missing`].
     pub requires_skill: bool,
+    /// Listed to and callable by global admins only.
+    pub is_admin_only: bool,
     /// The arguments the tool promotes to `Mcp-Param-*` headers, with the header suffix.
     pub header_params: Vec<(String, String)>,
     /// The tool as `tools/list` lists it.
     pub listing: rmcp::model::Tool,
 }
 
+impl ToolDefinition {
+    /// Whether `principal` may see and call the tool.
+    pub fn is_available_to(&self, principal: &McpPrincipal) -> bool {
+        principal.has_scope(self.scope) && (!self.is_admin_only || principal.is_global_admin)
+    }
+}
+
 impl<S> Tool<S> {
+    /// Hides the tool from everyone but global admins.
+    fn admin_only(mut self) -> Self {
+        self.definition.is_admin_only = true;
+        self
+    }
+
     /// Lets agents without the skill call the tool.
     fn usable_without_skill(mut self) -> Self {
         self.definition.requires_skill = false;
@@ -111,6 +126,7 @@ fn define<S, H: ToolHandler<S> + 'static>(
             name,
             scope,
             requires_skill: true,
+            is_admin_only: false,
             header_params,
             listing: listing.with_annotations(annotations),
         },
@@ -199,7 +215,7 @@ pub fn get_exercise<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
         "get_exercise",
-        "Reads an exercise: name, tasks, own and effective deadline, whether it uses the course default review config or its own, read-only settings, has_submissions (only when students have answered), and an outline of each task's instructions and of the review instructions it shows. Selectors as in get_page_content, with paths starting at /tasks/<task id> or /review_instructions. /tasks/<task id>/specs (each task's specs_path) reads the task's private, public and model solution specs (answer keys included); /specs/<kind>/<JSON pointer> reads part of one when the whole is too large.",
+        "Reads an exercise: name, slides, tasks (with exercise_type and repository_exercise_id), own and effective deadline, whether it uses the course default review config or its own, read-only settings, has_submissions (only when students have answered), and an outline of each task's instructions and of the review instructions it shows. Selectors as in get_page_content, with paths starting at /tasks/<task id> or /review_instructions. /tasks/<task id>/specs (each task's specs_path) reads the task's private, public and model solution specs (answer keys included); /specs/<kind>/<JSON pointer> reads part of one when the whole is too large.",
         read("Read exercise"),
         McpScope::MaterialRead,
     )
@@ -311,6 +327,47 @@ pub fn patch_exercise<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     .taking_ops(PatchTarget::PageContent)
 }
 
+/// The `patch_exercise_tasks` tool, run by `handler`.
+pub fn patch_exercise_tasks<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
+    define(
+        handler,
+        "patch_exercise_tasks",
+        concat!(
+            "Global admins only. Edits an exercise's slides and tasks. ops: link_repository_exercise {task, repository_exercise, answer_type editor|browser} makes the task use a repository exercise (sets the exercise type and builds the private spec as the editor does; a TMC task needs a repository exercise to publish; browser is for Python exercises only); unlink_repository_exercise {task, exercise_type, private_spec?} switches the task from its repository exercise to another exercise service; ",
+            "replace_task {task, exercise_type, private_spec?} switches the task to another exercise service or replaces its private spec, checked against the service's schema when it serves one (guide exercise_types); a spec naming a repository exercise is rebuilt from it as link_repository_exercise does, keeping only its type; add_task {slide or before, exercise_type and private_spec?, or repository_exercise and answer_type?, label?} adds a task with empty instructions (patch_exercise edits them); remove_task {task}; move_task {task, slide or before}; add_slide {before?, label?}; remove_slide {slide} with its tasks. ",
+            "task, slide and before take ids or $labels of items added earlier in the call. Every slide keeps at least one task. Changing the tasks, slides, private specs or repository exercises of an exercise with submissions is risky. Repository exercises come from get_exercise_repositories.",
+            staging_note!()
+        ),
+        write("Edit exercise tasks", true),
+        McpScope::MaterialStage,
+    )
+    .admin_only()
+}
+
+/// The `get_exercise_repositories` tool, run by `handler`.
+pub fn get_exercise_repositories<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
+    define(
+        handler,
+        "get_exercise_repositories",
+        "Global admins only. Lists the course's exercise repositories (id, url, branch, sync status, error_message, last_sync_report, has_deploy_key, public_key, exercise and task counts). With repository: its exercises (id, part, name, plugin, used_by: the published tasks using each); part filters them. The ids go to patch_exercise_tasks link_repository_exercise.",
+        read("Read exercise repositories"),
+        McpScope::MaterialRead,
+    )
+    .admin_only()
+}
+
+/// The `manage_exercise_repository` tool, run by `handler`.
+pub fn manage_exercise_repository<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
+    define(
+        handler,
+        "manage_exercise_repository",
+        "Global admins only. Takes effect immediately; not staged, so it can't be discarded or reverted. action add {url, branch?, generate_deploy_key?}, update {repository, url?, branch? (null clears), generate_deploy_key?}, sync {repository} or delete {repository, even_if_in_use?}. add, update and sync queue a background sync; read its outcome with get_exercise_repositories. A private repository needs a deploy key: generate_deploy_key makes a key pair on the server and returns only the public key, which someone adds to the repository as a read-only deploy key before syncing. Private keys are never taken. delete is refused while published or staged tasks use the repository's exercises unless even_if_in_use, which needs the teacher's agreement.",
+        write("Manage exercise repository", true),
+        McpScope::MaterialStage,
+    )
+    .admin_only()
+}
+
 /// The `find_replace` tool, run by `handler`.
 pub fn find_replace<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
@@ -333,13 +390,13 @@ pub fn structural_replace<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> 
     )
 }
 
-/// The `upload_file` tool, run by `handler`.
-pub fn upload_file<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
+/// The `start_file_upload` tool, run by `handler`.
+pub fn start_file_upload<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
-        "upload_file",
-        "Uploads an image or file for the course and returns its URL, to use in image or file block attributes.",
-        write("Upload a file", false),
+        "start_file_upload",
+        "Uploads one image or file for the course in two steps: this returns upload_url, a single-use link valid 15 minutes, and url, the address the file will have. Then send the file's raw bytes with one PUT, e.g. curl -sS -T <local file> <upload_url>; the answer confirms url, mime_type and size_bytes. Needs an agent that can run a shell. Images may be at most 10 MiB; the type comes from the content, which must match the file name's extension, and HEIC/HEIF is refused. guide topic uploads explains the ways to add an image.",
+        write("Start a file upload", false),
         McpScope::MaterialStage,
     )
 }
@@ -476,7 +533,7 @@ mod tests {
         let names: Vec<_> = tools.iter().map(|t| t.name).collect();
         assert_eq!(names.first(), Some(&"list_courses"));
         assert_eq!(names.last(), Some(&"guide"));
-        assert_eq!(names.len(), 23);
+        assert_eq!(names.len(), 26);
         let mut unique = names.clone();
         unique.sort_unstable();
         unique.dedup();

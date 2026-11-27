@@ -16,6 +16,7 @@ function getImpl() {
     produces_file_answers: true,
     declares_spec_files: true,
     repository_preparation_endpoint_path: `${prefix}/api/prepare-repository`,
+    private_spec_schema_endpoint_path: `${prefix}/api/private-spec-schema`,
   })
 }
 

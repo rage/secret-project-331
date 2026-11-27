@@ -225,15 +225,19 @@ async fn structure_settings_and_glossary_edits_publish_together() {
 #[tokio::test]
 async fn uploads_preview_links_and_discard() {
     let fixture = Fixture::new().await;
-    let png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAwS2OUAAAAABJRU5ErkJggg==";
-    let uploaded = fixture
+    let link = fixture
         .call(
-            "upload_file",
-            json!({"course": fixture.course_id, "file_name": "dot.png", "content_base64": png}),
+            "start_file_upload",
+            json!({"course": fixture.course_id, "file_name": "dot.png"}),
         )
         .await;
-    assert_eq!(uploaded["mime_type"], json!("image/png"));
-    assert!(uploaded["url"].as_str().unwrap().ends_with(".png"));
+    assert!(link["url"].as_str().unwrap().ends_with(".png"));
+    assert!(
+        link["upload_url"]
+            .as_str()
+            .unwrap()
+            .contains("/api/v0/mcp-uploads/")
+    );
 
     let unstaged = fixture
         .call(

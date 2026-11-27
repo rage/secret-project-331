@@ -21,11 +21,11 @@ reads another course on courses.mooc.fi as reference only, never as one you edit
 - Edit: `patch_page_content` (one page's blocks), `patch_course_structure` (modules, chapters, \
 pages, titles, paths, chapter dates; the only way to create pages), `patch_course_settings`, \
 `patch_course_glossary_and_references`, `patch_exercise` (an exercise's name, own deadline and instructions), \
-`find_replace`, `structural_replace`, `upload_file`.
+`find_replace`, `structural_replace`, `start_file_upload` (images and files).
 - Publish and undo: `list_changesets`, `get_preview_link`, `publish_changeset`, \
 `discard_changeset`, `get_history`, `revert_change`.
 - Learn: `guide` (block types and topics: course-structure, course-settings, publishing-and-risk, \
-previews-and-checks, citations-and-glossary, rich-text, editing, exercises).
+previews-and-checks, citations-and-glossary, rich-text, editing, exercises, uploads).
 
 Invariants:
 - Ids come from read and write results; never invent them. The server assigns ids to new items. \

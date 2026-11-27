@@ -28722,7 +28722,11 @@
           "exercise_name",
           "exercise_deadline",
           "task_instructions",
-          "review_config"
+          "review_config",
+          "exercise_tasks",
+          "task_exercise_type",
+          "task_private_spec",
+          "task_repository_exercise"
         ]
       },
       "EntityRef": {
@@ -29150,7 +29154,7 @@
           "task_id": {
             "type": ["string", "null"],
             "format": "uuid",
-            "description": "The task, for [`EntityField::TaskInstructions`]."
+            "description": "The task, for the `Task*` fields."
           }
         }
       },
@@ -37146,6 +37150,21 @@
               "code": {
                 "type": "string",
                 "enum": ["exercise_with_submissions_removed"]
+              },
+              "exercise_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Tasks of the exercise on the page, which has submissions, are added, removed or switched\nto another exercise service.",
+            "required": ["exercise_id", "code"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": ["exercise_tasks_changed_with_submissions"]
               },
               "exercise_id": {
                 "type": "string",

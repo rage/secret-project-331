@@ -14,5 +14,6 @@ describe("router", () => {
     expect(ids.some((p) => p.includes("/api/testrun"))).toBe(true)
     expect(ids.some((p) => p.includes("/api/pack-browser-answer"))).toBe(false)
     expect(ids.some((p) => p.includes("/api/prepare-repository"))).toBe(true)
+    expect(ids.some((p) => p.includes("/api/private-spec-schema"))).toBe(true)
   })
 })

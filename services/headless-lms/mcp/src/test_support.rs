@@ -144,3 +144,29 @@ impl BlockValidator for StubValidator {
         })
     }
 }
+
+/// Repository rules for tests that never touch exercise repositories.
+pub struct NoRepositoryRules;
+
+#[async_trait(?Send)]
+impl crate::state::ExerciseRepositoryRules for NoRepositoryRules {
+    async fn check_url_and_branch(
+        &self,
+        _url: &str,
+        _branch: Option<&str>,
+    ) -> Result<Option<String>, String> {
+        Err("the tests have no exercise repositories".into())
+    }
+
+    fn generate_deploy_key(&self) -> Result<(String, secrecy::SecretString), String> {
+        Err("the tests have no exercise repositories".into())
+    }
+
+    async fn delete(
+        &self,
+        _conn: &mut sqlx::PgConnection,
+        _repository_id: Uuid,
+    ) -> Result<(), String> {
+        Err("the tests have no exercise repositories".into())
+    }
+}

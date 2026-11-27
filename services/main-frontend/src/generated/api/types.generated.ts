@@ -5034,6 +5034,10 @@ export type EntityField =
   | "exercise_deadline"
   | "task_instructions"
   | "review_config"
+  | "exercise_tasks"
+  | "task_exercise_type"
+  | "task_private_spec"
+  | "task_repository_exercise"
 
 /**
  * A content entity and what people call it.
@@ -5196,7 +5200,7 @@ export type ExerciseFieldOwner = {
    */
   exercise_name: string
   /**
-   * The task, for [`EntityField::TaskInstructions`].
+   * The task, for the `Task*` fields.
    */
   task_id?: string | null
 }
@@ -8341,6 +8345,10 @@ export type ReviewingStage =
 export type RiskReason =
   | {
       code: "exercise_with_submissions_removed"
+      exercise_id: string
+    }
+  | {
+      code: "exercise_tasks_changed_with_submissions"
       exercise_id: string
     }
   | {

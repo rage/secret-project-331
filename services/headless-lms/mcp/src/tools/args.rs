@@ -248,13 +248,11 @@ pub struct StructuralReplaceArgs {
 
 #[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-pub struct UploadFileArgs {
+pub struct StartFileUploadArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
     pub course: IdArgument,
-    /// File name with extension, e.g. diagram.png.
+    /// File name with an extension that matches the content, e.g. diagram.png.
     pub file_name: String,
-    /// The file's bytes, base64-encoded.
-    pub content_base64: String,
 }
 
 #[derive(Debug, Deserialize, JsonSchema)]
@@ -340,4 +338,110 @@ pub struct GuideArgs {
     /// e.g. ["core/paragraph", "moocfi/infobox"].
     pub block_types: Option<Vec<String>>,
     pub topics: Option<Vec<GuideTopic>>,
+    /// Global admins: exercise service slugs whose private spec schema to return, e.g. ["tmc"].
+    pub exercise_types: Option<Vec<String>>,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct GetExerciseRepositoriesArgs {
+    #[schemars(extend("x-mcp-header" = "Course"))]
+    pub course: IdArgument,
+    /// List this repository's exercises; without it, only the repositories are listed.
+    pub repository: Option<IdArgument>,
+    /// With repository: only exercises of this part, e.g. "part01".
+    pub part: Option<String>,
+}
+
+/// What `manage_exercise_repository` does.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum RepositoryAction {
+    Add,
+    Update,
+    Sync,
+    Delete,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct ManageExerciseRepositoryArgs {
+    #[schemars(extend("x-mcp-header" = "Course"))]
+    pub course: IdArgument,
+    pub action: RepositoryAction,
+    /// The repository to update, sync or delete.
+    pub repository: Option<IdArgument>,
+    /// Clone URL: https://, ssh:// or git@host:path. Required for add.
+    pub url: Option<String>,
+    /// Branch to sync; leave out for the default branch, null to clear it on update.
+    #[serde(default, deserialize_with = "present")]
+    #[schemars(with = "Option<String>")]
+    pub branch: Option<Option<String>>,
+    /// Generate a new deploy key pair; the result has the public key to add to the repository (read-only).
+    #[serde(default)]
+    pub generate_deploy_key: bool,
+    /// delete: delete even though exercise tasks use the repository's exercises.
+    #[serde(default)]
+    pub even_if_in_use: bool,
+}
+
+/// An operation of `patch_exercise_tasks`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum TaskOpKind {
+    LinkRepositoryExercise,
+    UnlinkRepositoryExercise,
+    ReplaceTask,
+    AddTask,
+    RemoveTask,
+    MoveTask,
+    AddSlide,
+    RemoveSlide,
+}
+
+/// How students answer a TMC task.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum AnswerType {
+    /// Students download the exercise and submit from their own editor.
+    Editor,
+    /// Students solve it in the browser; Python exercises only.
+    Browser,
+}
+
+/// One op; which fields it takes depends on `op`.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct TaskOp {
+    pub op: TaskOpKind,
+    /// Task id or $label.
+    pub task: Option<String>,
+    /// Slide id or $label: add_task's and move_task's target, remove_slide's slide.
+    pub slide: Option<String>,
+    /// Task or slide id or $label to put the new or moved item before; default: the end.
+    pub before: Option<String>,
+    /// Repository exercise id from get_exercise_repositories.
+    pub repository_exercise: Option<IdArgument>,
+    /// With a repository exercise; default editor.
+    pub answer_type: Option<AnswerType>,
+    /// Exercise service slug, e.g. quizzes; replace_task's and unlink_repository_exercise's target.
+    pub exercise_type: Option<String>,
+    /// The new private spec; checked against the service's schema when it serves one.
+    pub private_spec: Option<Value>,
+    /// "$name" for the task or slide add_task or add_slide creates.
+    pub label: Option<String>,
+}
+
+/// Serialized as the call's audit record, without the course the record has already.
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct PatchExerciseTasksArgs {
+    #[schemars(extend("x-mcp-header" = "Course"))]
+    #[serde(skip_serializing)]
+    pub course: IdArgument,
+    pub exercise: IdArgument,
+    /// Applied in order; all or nothing.
+    pub ops: Vec<TaskOp>,
+    #[serde(default)]
+    pub dry_run: bool,
 }

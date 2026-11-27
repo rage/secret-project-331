@@ -90,6 +90,9 @@ pub struct McpPrincipal {
     pub actor: CallActor,
     /// The token's scopes still allowed by its grant.
     pub scopes: Vec<McpScope>,
+    /// Whether the user is a global admin. False from [`authenticate_mcp_access_token`]; the MCP
+    /// server's authentication layer sets it from the user's roles.
+    pub is_global_admin: bool,
 }
 
 impl McpPrincipal {
@@ -134,5 +137,6 @@ pub async fn authenticate_mcp_access_token(
             client_name: token.client_name,
         },
         scopes,
+        is_global_admin: false,
     })
 }

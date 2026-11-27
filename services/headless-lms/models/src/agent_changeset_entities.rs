@@ -38,6 +38,8 @@ impl AgentChangesetEntityOperation {
 pub enum RiskReason {
     /// The page loses an exercise that has submissions.
     ExerciseWithSubmissionsRemoved { exercise_id: Uuid },
+    /// An exercise on the page that has submissions gets changed tasks or slides.
+    ExerciseTasksChangedWithSubmissions { exercise_id: Uuid },
     /// The page is removed, with exercises that have submissions.
     PageWithSubmissionsRemoved,
     /// The chapter is removed, with exercises that have submissions.
@@ -538,4 +540,37 @@ ORDER BY created_at,
             (row.changeset_id, summary)
         })
         .collect())
+}
+
+/// Tasks that open changesets' staged pages link to the repository's exercises, leaving out those
+/// linked to them live already, which `ExerciseRepository::exercise_task_count` counts.
+pub async fn count_staged_tasks_using_repository(
+    conn: &mut PgConnection,
+    repository_id: Uuid,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(DISTINCT task.value->>'id') AS "count!"
+FROM agent_changeset_entities ace
+  JOIN agent_changesets ac ON ac.id = ace.changeset_id
+  CROSS JOIN LATERAL jsonb_array_elements(ace.after_snapshot->'exercise_tasks') AS task
+  JOIN repository_exercises re ON re.id = (task.value->>'repository_exercise_id')::uuid
+WHERE ac.status = 'open'
+  AND ace.entity_type = 'page'
+  AND re.repository_id = $1
+  AND re.deleted_at IS NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM exercise_tasks et
+      JOIN repository_exercises live_re ON live_re.id = et.repository_exercise_id
+    WHERE et.id = (task.value->>'id')::uuid
+      AND et.deleted_at IS NULL
+      AND live_re.repository_id = $1
+  )
+        "#,
+        repository_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
 }

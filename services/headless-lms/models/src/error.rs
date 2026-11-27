@@ -184,6 +184,12 @@ pub enum ModelErrorType {
         id: Uuid,
         description: &'static str,
     },
+    /// An exercise service answered a spec derivation of the task with an error status.
+    ExerciseServiceRefusedSpec {
+        task_id: Uuid,
+        status_code: u16,
+        response_body: String,
+    },
     InvalidRequest,
     Conversion,
     Database,

@@ -14,6 +14,7 @@ import { Route as IframeRouteImport } from './routes/iframe'
 import { Route as ApiGradeRouteImport } from './routes/api/grade'
 import { Route as ApiModelSolutionRouteImport } from './routes/api/model-solution'
 import { Route as ApiPrepareRepositoryRouteImport } from './routes/api/prepare-repository'
+import { Route as ApiPrivateSpecSchemaRouteImport } from './routes/api/private-spec-schema'
 import { Route as ApiPublicSpecRouteImport } from './routes/api/public-spec'
 import { Route as ApiSandboxResultsRouteImport } from './routes/api/sandbox-results'
 import { Route as ApiServiceInfoRouteImport } from './routes/api/service-info'
@@ -44,6 +45,11 @@ const ApiModelSolutionRoute = ApiModelSolutionRouteImport.update({
 const ApiPrepareRepositoryRoute = ApiPrepareRepositoryRouteImport.update({
   id: '/api/prepare-repository',
   path: '/api/prepare-repository',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPrivateSpecSchemaRoute = ApiPrivateSpecSchemaRouteImport.update({
+  id: '/api/private-spec-schema',
+  path: '/api/private-spec-schema',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicSpecRoute = ApiPublicSpecRouteImport.update({
@@ -83,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/api/grade': typeof ApiGradeRoute
   '/api/model-solution': typeof ApiModelSolutionRoute
   '/api/prepare-repository': typeof ApiPrepareRepositoryRoute
+  '/api/private-spec-schema': typeof ApiPrivateSpecSchemaRoute
   '/api/public-spec': typeof ApiPublicSpecRoute
   '/api/sandbox-results': typeof ApiSandboxResultsRoute
   '/api/service-info': typeof ApiServiceInfoRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/api/grade': typeof ApiGradeRoute
   '/api/model-solution': typeof ApiModelSolutionRoute
   '/api/prepare-repository': typeof ApiPrepareRepositoryRoute
+  '/api/private-spec-schema': typeof ApiPrivateSpecSchemaRoute
   '/api/public-spec': typeof ApiPublicSpecRoute
   '/api/sandbox-results': typeof ApiSandboxResultsRoute
   '/api/service-info': typeof ApiServiceInfoRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/api/grade': typeof ApiGradeRoute
   '/api/model-solution': typeof ApiModelSolutionRoute
   '/api/prepare-repository': typeof ApiPrepareRepositoryRoute
+  '/api/private-spec-schema': typeof ApiPrivateSpecSchemaRoute
   '/api/public-spec': typeof ApiPublicSpecRoute
   '/api/sandbox-results': typeof ApiSandboxResultsRoute
   '/api/service-info': typeof ApiServiceInfoRoute
@@ -125,6 +134,7 @@ export interface FileRouteTypes {
     | '/api/grade'
     | '/api/model-solution'
     | '/api/prepare-repository'
+    | '/api/private-spec-schema'
     | '/api/public-spec'
     | '/api/sandbox-results'
     | '/api/service-info'
@@ -138,6 +148,7 @@ export interface FileRouteTypes {
     | '/api/grade'
     | '/api/model-solution'
     | '/api/prepare-repository'
+    | '/api/private-spec-schema'
     | '/api/public-spec'
     | '/api/sandbox-results'
     | '/api/service-info'
@@ -151,6 +162,7 @@ export interface FileRouteTypes {
     | '/api/grade'
     | '/api/model-solution'
     | '/api/prepare-repository'
+    | '/api/private-spec-schema'
     | '/api/public-spec'
     | '/api/sandbox-results'
     | '/api/service-info'
@@ -165,6 +177,7 @@ export interface RootRouteChildren {
   ApiGradeRoute: typeof ApiGradeRoute
   ApiModelSolutionRoute: typeof ApiModelSolutionRoute
   ApiPrepareRepositoryRoute: typeof ApiPrepareRepositoryRoute
+  ApiPrivateSpecSchemaRoute: typeof ApiPrivateSpecSchemaRoute
   ApiPublicSpecRoute: typeof ApiPublicSpecRoute
   ApiSandboxResultsRoute: typeof ApiSandboxResultsRoute
   ApiServiceInfoRoute: typeof ApiServiceInfoRoute
@@ -208,6 +221,13 @@ declare module '@tanstack/react-router' {
       path: '/api/prepare-repository'
       fullPath: '/api/prepare-repository'
       preLoaderRoute: typeof ApiPrepareRepositoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/private-spec-schema': {
+      id: '/api/private-spec-schema'
+      path: '/api/private-spec-schema'
+      fullPath: '/api/private-spec-schema'
+      preLoaderRoute: typeof ApiPrivateSpecSchemaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public-spec': {
@@ -261,6 +281,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGradeRoute: ApiGradeRoute,
   ApiModelSolutionRoute: ApiModelSolutionRoute,
   ApiPrepareRepositoryRoute: ApiPrepareRepositoryRoute,
+  ApiPrivateSpecSchemaRoute: ApiPrivateSpecSchemaRoute,
   ApiPublicSpecRoute: ApiPublicSpecRoute,
   ApiSandboxResultsRoute: ApiSandboxResultsRoute,
   ApiServiceInfoRoute: ApiServiceInfoRoute,

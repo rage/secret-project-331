@@ -1,7 +1,7 @@
 //! Changeset tools: listing, publishing, discarding and previewing staged changes.
 
 use async_trait::async_trait;
-use headless_lms_authorization::{fetch_user_roles, is_user_global_admin};
+use headless_lms_authorization::fetch_user_roles;
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
     ModelErrorType,
@@ -258,14 +258,12 @@ impl ToolHandler<McpState> for PublishChangeset {
         let rendering_change_count =
             page_readiness::pages_with_content_changes(&view.staged, &view.live).count();
         let review_url = state.review_url(changeset.id);
-        let can_add_global_admin_only_exercise_services =
-            is_user_global_admin(&mut conn, ctx.principal.actor.user_id).await?;
         let spec_fetcher = (state.exercise_services.spec_fetcher)();
         let outcome = publish(
             &mut conn,
             changeset.id,
             PublishOptions {
-                can_add_global_admin_only_exercise_services,
+                can_add_global_admin_only_exercise_services: ctx.principal.is_global_admin,
                 reviewed_revision: None,
                 // Refusing for confirmation can bump the revision, and on the retry the teacher has
                 // already seen the changeset on the review page.

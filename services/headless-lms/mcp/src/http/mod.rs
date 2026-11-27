@@ -6,7 +6,7 @@ pub mod auth;
 use actix_web::{
     HttpRequest, HttpResponse,
     http::{StatusCode, header},
-    web::{self, Bytes, ServiceConfig},
+    web::{self, Bytes, BytesMut, ServiceConfig},
 };
 use futures::stream::{self, StreamExt};
 use headless_lms_models::library::oauth::mcp::McpPrincipal;
@@ -15,12 +15,10 @@ use secrecy::ExposeSecret;
 use serde_json::Value;
 use tokio::sync::{mpsc, oneshot};
 
+use crate::handlers::{UploadLink, UploadLinkError};
 use crate::protocol::dispatch::{self, McpServer, ServerConfig};
 use crate::protocol::headers::RequestHeaders;
 use crate::state::McpState;
-
-/// Room for `upload_file`'s largest file (25 MB) base64-encoded.
-const MAX_REQUEST_BYTES: usize = 36 * 1024 * 1024;
 
 /// The MCP server with the state its tools run against, shared by every worker.
 pub struct McpEndpoint {
@@ -56,9 +54,80 @@ fn request_state_key(secret: &str) -> [u8; 32] {
 /// Adds the endpoint's route to a scope that is wrapped in [`auth::authenticate`] and has an
 /// [`McpEndpoint`] in its app data.
 pub fn configure(cfg: &mut ServiceConfig) {
-    cfg.app_data(web::PayloadConfig::new(MAX_REQUEST_BYTES))
-        .route("", web::route().to(handle))
+    cfg.route("", web::route().to(handle))
         .route("/", web::route().to(handle));
+}
+
+/// Adds the route upload links point to, `PUT /{token}` with the file as the body, to a scope
+/// mounted at `/api/v0/mcp-uploads` without [`auth::authenticate`]: the signed
+/// link is the credential. The scope needs an [`McpEndpoint`] in its app data.
+pub fn configure_upload_links(cfg: &mut ServiceConfig) {
+    cfg.route("/{token}", web::put().to(upload_with_link))
+        .route("/{token}", web::post().to(upload_with_link));
+}
+
+fn upload_refused(error: UploadLinkError) -> HttpResponse {
+    tracing::info!(status = error.status, "MCP upload link refused");
+    HttpResponse::build(
+        StatusCode::from_u16(error.status).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
+    )
+    .json(serde_json::json!({ "error": error.message }))
+}
+
+fn too_large(limit: usize) -> UploadLinkError {
+    UploadLinkError {
+        status: 413,
+        message: format!("the file is larger than this file type's limit of {limit} bytes"),
+    }
+}
+
+/// The body, refused once it exceeds `limit` bytes.
+async fn read_capped(
+    req: &HttpRequest,
+    mut payload: web::Payload,
+    limit: usize,
+) -> Result<Bytes, UploadLinkError> {
+    let declared_len = req
+        .headers()
+        .get(header::CONTENT_LENGTH)
+        .and_then(|v| v.to_str().ok())
+        .and_then(|v| v.parse::<usize>().ok());
+    if declared_len.is_some_and(|len| len > limit) {
+        return Err(too_large(limit));
+    }
+    let mut body = BytesMut::with_capacity(declared_len.unwrap_or_default());
+    while let Some(chunk) = payload.next().await {
+        let chunk = chunk.map_err(|e| UploadLinkError {
+            status: 400,
+            message: format!("reading the upload failed: {e}"),
+        })?;
+        if body.len() + chunk.len() > limit {
+            return Err(too_large(limit));
+        }
+        body.extend_from_slice(&chunk);
+    }
+    Ok(body.freeze())
+}
+
+async fn upload_with_link(
+    req: HttpRequest,
+    endpoint: web::Data<McpEndpoint>,
+    token: web::Path<String>,
+    payload: web::Payload,
+) -> HttpResponse {
+    let state = &endpoint.state;
+    let link = match UploadLink::open(state, &token) {
+        Ok(link) => link,
+        Err(error) => return upload_refused(error),
+    };
+    let body = match read_capped(&req, payload, link.size_limit_bytes()).await {
+        Ok(body) => body,
+        Err(error) => return upload_refused(error),
+    };
+    match crate::handlers::upload_with_link(state, link, body).await {
+        Ok(stored) => HttpResponse::Ok().json(stored),
+        Err(error) => upload_refused(error),
+    }
 }
 
 fn into_actix(response: dispatch::HttpResponse) -> HttpResponse {

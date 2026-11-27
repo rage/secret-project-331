@@ -399,6 +399,40 @@ fn fetch_service_info_with_timeout(
     .boxed()
 }
 
+/// Fetches what an exercise service serves at its `private_spec_schema_endpoint_path`; `None`
+/// when it answers 404.
+pub fn fetch_private_spec_schema(
+    url: Url,
+) -> BoxFuture<'static, ModelResult<Option<serde_json::Value>>> {
+    async move {
+        let res = reqwest::Client::new()
+            .get(url)
+            .timeout(std::time::Duration::from_secs(10))
+            .send()
+            .await
+            .map_err(ModelError::from)?;
+        let status = res.status();
+        if status == reqwest::StatusCode::NOT_FOUND {
+            return Ok(None);
+        }
+        if !status.is_success() {
+            let body = res.text().await.map_err(ModelError::from)?;
+            return Err(ModelError::new(
+                ModelErrorType::HttpRequest {
+                    status_code: status.as_u16(),
+                    response_body: body.clone(),
+                },
+                format!(
+                    "The exercise service could not serve its private spec schema: {status} {body}"
+                ),
+                None,
+            ));
+        }
+        parse_response_json(res).await.map(Some)
+    }
+    .boxed()
+}
+
 /// How long an exercise service may take to prepare a repository.
 pub const REPOSITORY_PREPARATION_TIMEOUT: std::time::Duration =
     std::time::Duration::from_secs(20 * 60);

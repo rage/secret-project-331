@@ -140,6 +140,7 @@ pub fn classify(
     let pages_losing_submissions = classifier.classify_pages();
     classifier.classify_chapters(&pages_losing_submissions);
     classifier.classify_exercise_deadlines();
+    classifier.classify_exercise_tasks();
     classifier.classify_modules();
     classifier.classify_settings();
     classifier.reasons
@@ -353,6 +354,36 @@ impl Classifier<'_> {
                     },
                 ),
                 _ => {}
+            }
+        }
+    }
+
+    /// Task, slide, private spec and repository exercise changes of answered exercises on pages
+    /// students see.
+    fn classify_exercise_tasks(&mut self) {
+        let staged_exercises: BTreeMap<Uuid, Uuid> =
+            self.staged.exercise_page_ids().into_iter().collect();
+        for (exercise_id, page) in staged_exercises {
+            if !self
+                .activity
+                .exercises_with_submissions
+                .contains(&exercise_id)
+                || !self.page_is_live(page)
+            {
+                continue;
+            }
+            let (Some(live), Some(staged)) = (
+                self.live.exercise_task_layouts.get(&exercise_id),
+                self.staged.exercise_task_layouts.get(&exercise_id),
+            ) else {
+                continue;
+            };
+            if live != staged {
+                self.add(
+                    ContentEntityType::Page,
+                    page,
+                    RiskReason::ExerciseTasksChangedWithSubmissions { exercise_id },
+                );
             }
         }
     }

@@ -8,6 +8,7 @@ mod patch;
 mod paths;
 mod review_config;
 mod specs;
+mod tasks;
 
 use chrono::{DateTime, Utc};
 use headless_lms_models::library::agent_changesets::course_state::{CourseState, CourseView};
@@ -21,6 +22,7 @@ use crate::tools::{RequestContext, ToolError};
 pub use get::GetExercise;
 pub use list::ListExercises;
 pub use patch::PatchExercise;
+pub use tasks::PatchExerciseTasks;
 
 const REVIEW_INSTRUCTIONS: &str = "review_instructions";
 

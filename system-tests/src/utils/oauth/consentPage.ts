@@ -27,7 +27,7 @@ export class ConsentPage {
     return this.page.getByTestId("oauth-consent-form")
   }
   private get title() {
-    return this.container.locator("h2").first()
+    return this.container.locator("h1").first()
   }
 
   public get clientId() {

@@ -2,7 +2,7 @@
 
 import "@testing-library/jest-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 
 import type { DeviceVerificationInfo } from "@/generated/api/types.generated"
 
@@ -21,11 +21,6 @@ jest.mock("next/navigation", () => ({ useRouter: () => ({ replace: jest.fn() }) 
 
 jest.mock("@/shared-module/common/contexts/LoginStateContext", () => ({
   withSignedIn: <T,>(Component: T) => Component,
-}))
-
-jest.mock("@/shared-module/common/components/SessionVerificationDialog", () => ({
-  __esModule: true,
-  default: () => null,
 }))
 
 jest.mock("@/hooks/course-material/useUserDetails", () => ({
@@ -61,8 +56,8 @@ jest.mock("@/generated/api/@tanstack/react-query.generated", () => ({
 }))
 
 jest.mock("@/generated/api/sdk.generated", () => ({
-  approveOauthDeviceVerification: jest.fn(),
-  denyOauthDeviceVerification: jest.fn(),
+  approveOauthDeviceVerification: jest.fn(() => Promise.resolve({ status: "approved" })),
+  denyOauthDeviceVerification: jest.fn(() => Promise.resolve({ status: "denied" })),
 }))
 
 function renderPage() {
@@ -79,7 +74,7 @@ describe("OAuth device verification page", () => {
     renderPage()
 
     expect(await screen.findByTestId("oauth-device-user-code")).toHaveTextContent("ABCD-1234")
-    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       "TestMyCode for VS Code wants to access your account",
     )
     expect(screen.getByTestId("oauth-device-signed-in-account")).toHaveTextContent(
@@ -89,5 +84,15 @@ describe("OAuth device verification page", () => {
       screen.getByText("Approve only if this code matches the one shown in your editor:"),
     ).toBeVisible()
     expect(screen.getByTestId("oauth-device-approve-button")).toBeEnabled()
+  })
+
+  it("announces the result and moves focus to its heading after approving", async () => {
+    renderPage()
+
+    fireEvent.click(await screen.findByTestId("oauth-device-approve-button"))
+
+    const heading = await screen.findByRole("heading", { level: 1, name: "Access granted" })
+    await waitFor(() => expect(heading).toHaveFocus())
+    expect(screen.getByRole("status")).toHaveTextContent("You can now return to your editor.")
   })
 })

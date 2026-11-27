@@ -7,6 +7,7 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { AuthCard, authCardStackCss } from "@/components/auth/AuthCard"
 import {
   approveOauthConsentMutation,
   denyOauthConsentMutation,
@@ -38,6 +39,7 @@ const DetailValue: React.FC<{ "data-testid": string; children: string }> = ({
   <span
     className={css`
       font-family: ${monospaceFont};
+      overflow-wrap: anywhere;
     `}
     data-testid={testId}
   >
@@ -120,116 +122,98 @@ const ConsentForm: React.FC<ConsentFormProps> = ({ consentInfo, request }) => {
   }
 
   return (
-    <form
-      onSubmit={onApprove}
-      className={css`
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-        width: 100%;
-      `}
-    >
-      <h2
-        className={css`
-          margin: 0;
-        `}
-      >
-        {consentInfo.client_name}
-      </h2>
+    <AuthCard title={consentInfo.client_name} lede={t("oauth-application-requesting-access")}>
+      <form onSubmit={onApprove} className={authCardStackCss}>
+        {/* oxlint-disable-next-line i18next/no-literal-string */}
+        <DescriptionList layout="stacked" items={details} />
 
-      <p
-        className={css`
-          margin: 0;
-        `}
-      >
-        {t("oauth-application-requesting-access")}
-      </p>
+        {consentInfo.is_metadata_document_client && (
+          <Infobox tone={TONE.INFO} data-testid="oauth-consent-agent-note">
+            <p>{t("oauth-consent-any-name-note")}</p>
+            {consentInfo.is_loopback_redirect && <p>{t("oauth-consent-loopback-note")}</p>}
+          </Infobox>
+        )}
 
-      {/* oxlint-disable-next-line i18next/no-literal-string */}
-      <DescriptionList layout="stacked" items={details} />
-
-      {consentInfo.is_metadata_document_client && (
-        <Infobox tone={TONE.INFO} data-testid="oauth-consent-agent-note">
-          <p>{t("oauth-consent-any-name-note")}</p>
-          {consentInfo.is_loopback_redirect && <p>{t("oauth-consent-loopback-note")}</p>}
-        </Infobox>
-      )}
-
-      <fieldset
-        className={css`
-          border: none;
-          margin: 0;
-          padding: 0;
-        `}
-      >
-        <legend
+        <fieldset
           className={css`
-            font-weight: ${fontWeights.semibold};
-            margin-bottom: 0.5rem;
-          `}
-        >
-          {t("oauth-consent-choose-permissions")}
-        </legend>
-        <ul
-          className={css`
-            list-style: none;
+            border: none;
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
+          `}
+        >
+          <legend
+            className={css`
+              font-weight: ${fontWeights.semibold};
+              margin-bottom: 0.5rem;
+            `}
+          >
+            {t("oauth-consent-choose-permissions")}
+          </legend>
+          <ul
+            className={css`
+              list-style: none;
+              margin: 0;
+              padding: 0;
+              display: flex;
+              flex-direction: column;
+              gap: 0.75rem;
+            `}
+          >
+            {consentInfo.scopes.map((scope, index) => (
+              <li key={scope.scope} data-testid={`oauth-consent-scope-${scope.scope}`}>
+                <Checkbox<ConsentFormValues>
+                  control={control}
+                  name={`approved.${index}`}
+                  isDisabled={scope.is_required}
+                  label={
+                    <>
+                      <strong>{scope.scope}</strong>:{" "}
+                      {scopeDescriptions[scope.scope] ||
+                        t("oauth-scope-description-no-description")}
+                    </>
+                  }
+                  description={
+                    scope.is_required
+                      ? t("oauth-consent-scope-required")
+                      : scope.was_previously_granted
+                        ? t("oauth-consent-scope-previously-granted")
+                        : undefined
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+        </fieldset>
+
+        <div
+          className={css`
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 0.75rem;
           `}
         >
-          {consentInfo.scopes.map((scope, index) => (
-            <li key={scope.scope} data-testid={`oauth-consent-scope-${scope.scope}`}>
-              <Checkbox<ConsentFormValues>
-                control={control}
-                name={`approved.${index}`}
-                isDisabled={scope.is_required}
-                label={
-                  <>
-                    <strong>{scope.scope}</strong>:{" "}
-                    {scopeDescriptions[scope.scope] || t("oauth-scope-description-no-description")}
-                  </>
-                }
-                description={
-                  scope.is_required
-                    ? t("oauth-consent-scope-required")
-                    : scope.was_previously_granted
-                      ? t("oauth-consent-scope-previously-granted")
-                      : undefined
-                }
-              />
-            </li>
-          ))}
-        </ul>
-      </fieldset>
-
-      <div
-        className={css`
-          display: flex;
-          gap: 10px;
-        `}
-      >
-        <Button
-          type="submit"
-          variant="primary"
-          size="large"
-          isLoading={formState.isSubmitting}
-          data-testid="oauth-consent-approve-button"
-        >
-          {t("approve")}
-        </Button>
-        <Button
-          onPress={onDeny}
-          variant="danger"
-          size="large"
-          data-testid="oauth-consent-deny-button"
-        >
-          {t("button-text-cancel")}
-        </Button>
-      </div>
-    </form>
+          <Button
+            type="submit"
+            variant="primary"
+            size="large"
+            isFullWidth
+            isLoading={formState.isSubmitting}
+            data-testid="oauth-consent-approve-button"
+          >
+            {t("approve")}
+          </Button>
+          <Button
+            onPress={onDeny}
+            variant="danger"
+            size="large"
+            isFullWidth
+            data-testid="oauth-consent-deny-button"
+          >
+            {t("button-text-cancel")}
+          </Button>
+        </div>
+      </form>
+    </AuthCard>
   )
 }
 
@@ -263,22 +247,10 @@ export default function ConsentPage() {
   )
 
   return (
-    <section
-      aria-label={t("oauth-application-requesting-access")}
-      data-testid="oauth-consent-form"
-      className={css`
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        max-width: 600px;
-        margin: auto;
-      `}
-    >
+    <div data-testid="oauth-consent-form">
       <QueryResult query={consentInfoQuery}>
         {(consentInfo) => <ConsentForm consentInfo={consentInfo} request={request} />}
       </QueryResult>
-    </section>
+    </div>
   )
 }

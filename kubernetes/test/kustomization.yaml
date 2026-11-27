@@ -40,6 +40,10 @@ patches:
     target:
       version: v1
       labelSelector: "deploymentType=with-init-container-cronjob"
+  - path: patch-tmc-pod-sandbox.yml
+    target:
+      kind: Deployment
+      name: tmc
   - path: main-frontend/patch-env.yml
   - path: headless-lms/env-local-patch.secret.yml
 

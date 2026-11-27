@@ -6,7 +6,7 @@ export const Route = createFileRoute("/api/sandbox-results")({
   server: {
     handlers: {
       GET: () => sandboxResultsHandlers.GET(),
-      POST: () => sandboxResultsHandlers.POST(),
+      POST: ({ request }) => sandboxResultsHandlers.POST(request),
       PUT: () => sandboxResultsHandlers.PUT(),
       PATCH: () => sandboxResultsHandlers.PATCH(),
       DELETE: () => sandboxResultsHandlers.DELETE(),

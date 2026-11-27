@@ -29,7 +29,11 @@ export default defineConfig({
     // still run at runtime. The build prerenders only the app shell (dist/client/_shell.html).
     // maskPath needs a trailing slash: the router redirects "/{base}" -> "/{base}/" (307) and the
     // shell prerender treats a redirect as failure.
-    tanstackStart({ spa: { enabled: true, maskPath: BASE_PATH ? `${BASE_PATH}/` : "/" } }),
+    tanstackStart({
+      spa: { enabled: true, maskPath: BASE_PATH ? `${BASE_PATH}/` : "/" },
+      // Not `server.ts`, which would sit beside the src/server directory.
+      server: { entry: "serverEntry" },
+    }),
     pluginReact(),
     // The answer-exercise view extracts tar.zst stubs in the browser (tar-stream + zstddec need the
     // events/buffer/stream node builtins). Next polyfilled these automatically; rsbuild needs this.

@@ -7,8 +7,7 @@ import { temporaryDirectory, temporaryFile } from "tempy"
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
-import type { Compression, RunStatus, StyleValidationResult, TestResult } from "@/tmc/cli"
-import { isRunResult, isStyleValidationResult } from "@/tmc/cli.guard"
+import type { Compression } from "@/tmc/cli"
 import {
   LangsError,
   extractProject,
@@ -18,17 +17,21 @@ import {
 } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
 import { ZIP_ARCHIVE_EXTENSION } from "@/util/archiveTypes"
-import type { ExerciseTaskGradingResult, GradingProgress } from "@/util/exerciseServiceApi"
+import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
 import type { GradingFeedbackExtras, GradingFeedbackKey } from "@/util/gradingFeedback"
 import { createLogger } from "@/util/logger"
 import { runInSandboxPod } from "@/util/podExecution"
 
+import { gradingResultFromRun, SERVER_ERROR_FEEDBACK } from "./gradingResult"
+import { sendGradingUpdate } from "./gradingUpdate"
+import { gradingSandboxMode } from "./remoteSandbox/config"
+import { remoteGradings } from "./remoteSandbox/remoteGradings"
 import type { GradeRequest, GradingRequestFile } from "./requestSchemas"
 import { currentRepositoryExercise, gradeRequestSchema } from "./requestSchemas"
 
 const { log, debug, error } = createLogger("grade")
 
-/** What /grade answers with: grading runs in a sandbox pod for longer than a client waits on a request. */
+/** What /grade answers with: grading runs in a sandbox for longer than a client waits on a request. */
 const PENDING_RESULT: ExerciseTaskGradingResult = {
   grading_progress: "Pending",
   score_given: 0,
@@ -36,9 +39,6 @@ const PENDING_RESULT: ExerciseTaskGradingResult = {
   feedback_text: null,
   feedback_json: null,
 }
-
-const GRADING_UPDATE_ATTEMPTS = 5
-const GRADING_UPDATE_RETRY_DELAY_MS = 2000
 
 /** tmc-langs' naive submission extraction, which a project archive never needs. */
 const EXTRACT_SUBMISSION_NAIVELY = false
@@ -110,7 +110,10 @@ async function withGradingSlot<T>(grade: () => Promise<T>): Promise<T> {
   }
 }
 
-/** Grades an answer after /grade has answered, and sends the result to the host's grading-update URL. */
+/**
+ * Grades an answer after /grade has answered, and sends the result to the host's grading-update
+ * URL. A remote sandbox's result arrives later through `/api/sandbox-results` instead.
+ */
 async function gradeAndReport(
   req: GradeRequest,
   answerArchive: GradingRequestFile,
@@ -119,11 +122,13 @@ async function gradeAndReport(
   const queuedAt = Date.now()
   let result: ExerciseTaskGradingResult | null
   try {
-    result = await withGradingSlot(() =>
-      Date.now() - queuedAt < HOST_GIVES_UP_AFTER_MS
-        ? gradeAnswer(req, answerArchive)
-        : Promise.resolve(null),
-    )
+    result = await withGradingSlot(() => {
+      if (Date.now() - queuedAt >= HOST_GIVES_UP_AFTER_MS) {
+        log("Skipped a grading that waited longer than the host waits for its result")
+        return Promise.resolve(null)
+      }
+      return gradeAnswer(req, answerArchive, gradingUpdateClaim)
+    })
   } catch (e) {
     error("Failed to grade", e)
     result = {
@@ -132,11 +137,9 @@ async function gradeAndReport(
       ...failedGrading(e),
     }
   }
-  if (result === null) {
-    log("Skipped a grading that waited longer than the host waits for its result")
-    return
+  if (result !== null) {
+    await sendGradingUpdate(req.grading_update_url, gradingUpdateClaim, result)
   }
-  await sendGradingUpdate(req.grading_update_url, gradingUpdateClaim, result)
 }
 
 /**
@@ -174,7 +177,7 @@ export function gradingFailureFeedback(e: unknown): string {
     }
     return `The submission could not be graded: ${withoutServerPaths(e.rootCause)}`
   }
-  return "The submission could not be graded because of an error on the server. Try submitting again later."
+  return SERVER_ERROR_FEEDBACK
 }
 
 /** The feedback key that says which kind of failure `gradingFailureFeedback` describes. */
@@ -216,48 +219,12 @@ function withoutServerPaths(cause: string): string {
   })
 }
 
-/**
- * Posts a grading result to the host, retrying because the host commits the pending grading only
- * after /grade has answered, so an early update can find no grading to update.
- */
-async function sendGradingUpdate(
-  url: string,
-  gradingUpdateClaim: string | null,
-  result: ExerciseTaskGradingResult,
-): Promise<void> {
-  const headers: Record<string, string> = { "content-type": "application/json" }
-  if (gradingUpdateClaim) {
-    headers[EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER] = gradingUpdateClaim
-  }
-  for (let attempt = 1; attempt <= GRADING_UPDATE_ATTEMPTS; attempt++) {
-    try {
-      const res = await fetch(url, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(result),
-      })
-      if (res.ok) {
-        return
-      }
-      error(
-        `Grading update attempt ${attempt.toString()} failed: ${res.status.toString()} ${await res.text()}`,
-      )
-    } catch (e) {
-      error(`Grading update attempt ${attempt.toString()} failed: ${String(e)}`)
-    }
-    if (attempt < GRADING_UPDATE_ATTEMPTS) {
-      await new Promise((resolve) => {
-        setTimeout(resolve, GRADING_UPDATE_RETRY_DELAY_MS * attempt)
-      })
-    }
-  }
-  error(`Gave up sending a grading update to ${url}`)
-}
-
+/** The grading, or null when a remote sandbox took the answer and will call back with the result. */
 const gradeAnswer = async (
   req: GradeRequest,
   answerArchive: GradingRequestFile,
-): Promise<ExerciseTaskGradingResult> => {
+  gradingUpdateClaim: string | null,
+): Promise<ExerciseTaskGradingResult | null> => {
   const tempPaths: string[] = []
   try {
     const { exercise_spec } = req
@@ -303,6 +270,17 @@ const gradeAnswer = async (
       log,
     )
 
+    if (gradingSandboxMode() === "remote") {
+      log("sending to a remote sandbox")
+      return await remoteGradings.start({
+        archive: await fs.readFile(preparedSubmissionArchivePath),
+        image: sandboxImage,
+        points,
+        gradingUpdateUrl: req.grading_update_url,
+        gradingUpdateClaim,
+      })
+    }
+
     log("grading in pod")
     const gradingResult = await gradeInPod(
       preparedSubmissionArchivePath,
@@ -332,94 +310,5 @@ const gradeInPod = async (
     return { grading_progress: "Failed", score_given: 0, score_maximum: 0, ...failedGrading(e) }
   }
 
-  if (outcome.timedOut) {
-    return {
-      grading_progress: "Failed",
-      score_given: 0,
-      score_maximum: 0,
-      feedback_text: TIMED_OUT_FEEDBACK,
-      feedback_json: { feedback_key: "timed_out" } satisfies GradingFeedbackExtras,
-    }
-  }
-
-  const run = outcome.parsed
-  if (!isRunResult(run)) {
-    throw new Error(`/tmc-run wrote no tmc-langs run result: ${JSON.stringify(run)}`)
-  }
-  const validations = isStyleValidationResult(outcome.validations) ? outcome.validations : null
-  const styleFailed = isStyleFailure(validations)
-  // "Failed" is for runs that say nothing about the answer: the host does not count them as tries.
-  let gradingProgress: GradingProgress = "Failed"
-  let feedback: { text: string; key: GradingFeedbackKey } | null = null
-  if (run.status === "COMPILE_FAILED") {
-    gradingProgress = "FullyGraded"
-    feedback = { text: "Could not compile the submission", key: "compile_failed" }
-  } else if (run.status === "GENERIC_ERROR") {
-    feedback = { text: "The tests could not be run", key: "generic_error" }
-  } else if (run.status === "TESTRUN_INTERRUPTED") {
-    feedback = { text: "Tests were interrupted", key: "interrupted" }
-  } else {
-    // The score already says whether the tests passed; clients show it as the result.
-    gradingProgress = "FullyGraded"
-    if (run.timedOutAfterMs !== undefined) {
-      feedback = { text: TIMED_OUT_FEEDBACK, key: "timed_out" }
-    } else if (styleFailed) {
-      feedback = {
-        text: "The code style check failed, so no points were given",
-        key: "style_check_failed",
-      }
-    }
-  }
-
-  const extras: GradingFeedbackExtras = {
-    feedback_key: feedback?.key ?? null,
-    validations,
-  }
-  return {
-    grading_progress: gradingProgress,
-    ...runScore(run, points, { styleFailed }),
-    feedback_text: feedback?.text ?? null,
-    feedback_json: { ...run, ...extras },
-  }
-}
-
-const TIMED_OUT_FEEDBACK = "Test timed out"
-
-function isStyleFailure(validations: StyleValidationResult | null): boolean {
-  return (
-    validations?.strategy === "FAIL" && Object.keys(validations.validation_errors ?? {}).length > 0
-  )
-}
-
-/**
- * Points as tmc-server awards them: each available point whose tests all passed. An exercise that
- * declares no points, such as a no-tests one, is scored out of one point, because the host awards
- * nothing for 0 of 0. A failed style check, or a run that did not finish the tests, earns nothing.
- */
-export function runScore(
-  run: { status: RunStatus; testResults: Pick<TestResult, "successful" | "points">[] },
-  availablePoints: string[],
-  checks: { styleFailed?: boolean } = {},
-): { score_given: number; score_maximum: number } {
-  const available = new Set(availablePoints)
-  const scoreMaximum = Math.max(available.size, 1)
-  const ranTests = run.status === "PASSED" || run.status === "TESTS_FAILED"
-  if (!ranTests || checks.styleFailed === true) {
-    return { score_given: 0, score_maximum: scoreMaximum }
-  }
-  if (available.size === 0) {
-    const allPassed =
-      run.status === "PASSED" &&
-      run.testResults.length > 0 &&
-      run.testResults.every((tr) => tr.successful)
-    return { score_given: allPassed ? 1 : 0, score_maximum: 1 }
-  }
-  const pointPassed = new Map<string, boolean>()
-  for (const test of run.testResults) {
-    for (const point of test.points) {
-      pointPassed.set(point, (pointPassed.get(point) ?? true) && test.successful)
-    }
-  }
-  const earned = [...available].filter((point) => pointPassed.get(point) === true)
-  return { score_given: earned.length, score_maximum: scoreMaximum }
+  return gradingResultFromRun(outcome, points)
 }

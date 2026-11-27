@@ -26,6 +26,13 @@ export function isGradingPending(exercise: CourseMaterialExercise | undefined): 
   )
 }
 
+/** Identifies the pending gradings, so a new submission is told apart from the one still pending. */
+function pendingGradingKey(exercise: CourseMaterialExercise | undefined): string {
+  return (exercise?.current_exercise_slide.exercise_tasks ?? [])
+    .map((task) => task.previous_submission_grading?.id ?? task.previous_submission?.id ?? "")
+    .join(",")
+}
+
 /**
  * Milliseconds until the next refetch while a grading has been pending for `pendingForMs`, or
  * false once it is time to give up. Most gradings finish within seconds, so the first polls are
@@ -57,7 +64,8 @@ const useCourseMaterialExerciseQuery = (
   showExercise: boolean,
   pollPendingGrading = false,
 ) => {
-  const pendingSinceRef = useRef<number | null>(null)
+  // Keyed by the pending gradings, so giving up on them lasts across re-renders until a new submission.
+  const pendingRef = useRef<{ key: string; since: number } | null>(null)
   const getCourseMaterialExercise = useQuery({
     ...getCourseMaterialExerciseOptions({
       path: {
@@ -68,17 +76,15 @@ const useCourseMaterialExerciseQuery = (
     select: (data): CourseMaterialExercise => data,
     refetchInterval: (query) => {
       if (!pollPendingGrading || !isGradingPending(query.state.data)) {
-        pendingSinceRef.current = null
+        pendingRef.current = null
         return false
       }
+      const key = pendingGradingKey(query.state.data)
       const now = Date.now()
-      pendingSinceRef.current ??= now
-      const delay = gradingPollDelay(now - pendingSinceRef.current)
-      if (delay === false) {
-        // A later submission starts a new window.
-        pendingSinceRef.current = null
+      if (pendingRef.current?.key !== key) {
+        pendingRef.current = { key, since: now }
       }
-      return delay
+      return gradingPollDelay(now - pendingRef.current.since)
     },
   })
   return getCourseMaterialExercise

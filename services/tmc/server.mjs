@@ -100,9 +100,14 @@ const PRECOMPRESSED = [
 
 /** The precompressed sibling of `filePath` the client accepts, if one exists. */
 async function precompressedVariant(filePath, acceptEncoding) {
-  const accepted = new Set(
-    (acceptEncoding ?? "").split(",").map((part) => part.split(";")[0].trim().toLowerCase()),
-  )
+  const accepted = new Set()
+  for (const part of (acceptEncoding ?? "").split(",")) {
+    const [coding, ...params] = part.split(";").map((piece) => piece.trim().toLowerCase())
+    const refused = params.some((param) => /^q=0(\.0*)?$/.test(param))
+    if (coding && !refused) {
+      accepted.add(coding)
+    }
+  }
   for (const { encoding, extension } of PRECOMPRESSED) {
     if (!accepted.has(encoding)) {
       continue

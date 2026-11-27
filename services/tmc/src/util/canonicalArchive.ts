@@ -9,6 +9,10 @@ const LONG_NAME_ENTRY = "././@LongLink"
 
 const encoder = new TextEncoder()
 
+/** Loaded once: each load instantiates the wasm module again. */
+let zstdModule: Promise<import("@hpcc-js/wasm-zstd").Zstd> | null = null
+
+/** One file to pack, at its path inside the exercise. */
 export interface ArchiveEntry {
   /** Relative to the exercise root, `/`-separated. */
   path: string
@@ -95,8 +99,8 @@ export async function packAnswerArchive(
     prefix,
     files.map((file) => ({ path: file.filepath, contents: encoder.encode(file.contents) })),
   )
-  const { Zstd } = await import("@hpcc-js/wasm-zstd")
-  const zstd = await Zstd.load()
+  zstdModule ??= import("@hpcc-js/wasm-zstd").then(({ Zstd }) => Zstd.load())
+  const zstd = await zstdModule
   const compressed = zstd.compress(tar)
   return new File([new Uint8Array(compressed)], ARCHIVE_NAME, { type: ARCHIVE_MIME })
 }

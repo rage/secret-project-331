@@ -89,4 +89,5 @@ export function usePythonWorker() {
   return useMemo(() => ({ acquire, discard }), [acquire, discard])
 }
 
+/** The handle `usePythonWorker` returns. */
 export type PythonWorker = ReturnType<typeof usePythonWorker>

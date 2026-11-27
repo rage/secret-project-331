@@ -27,6 +27,10 @@ patches:
     target:
       version: v1
       labelSelector: "needs-db=job"
+  - path: ./tmc/patch-remote-sandbox.yml
+    target:
+      kind: Deployment
+      name: tmc
 
 # Patch image names
 images:

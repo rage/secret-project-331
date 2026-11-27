@@ -10,9 +10,9 @@ import {
   gradingFailureFeedback,
   gradingFailureKey,
   handleGrade,
-  runScore,
   TemplateError,
 } from "./grade"
+import { runScore } from "./gradingResult"
 
 vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
   reportErrorOccurrence: vi.fn(() => Promise.resolve(undefined)),

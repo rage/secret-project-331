@@ -57,7 +57,11 @@ export function stdinServiceWorker(): Promise<ServiceWorker | null> {
 
 /** Answers the Python worker's blocking `input()` call `id`. */
 export async function postStdinLine(id: string, line: string): Promise<void> {
-  const worker = await stdinServiceWorker()
+  const registered = await stdinServiceWorker()
+  // The controller at send time: it may have taken control after registration timed out, or
+  // replaced the registered worker after an update.
+  const worker =
+    (navigator.serviceWorker as ServiceWorkerContainer | undefined)?.controller ?? registered
   // oxlint-disable-next-line unicorn/require-post-message-target-origin -- ServiceWorker.postMessage has no targetOrigin
   worker?.postMessage({ type: "stdin_line", id, line })
 }

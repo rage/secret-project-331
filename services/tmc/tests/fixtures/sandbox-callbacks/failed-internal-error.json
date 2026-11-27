@@ -1,0 +1,5 @@
+{
+  "token": "t",
+  "status": "failed",
+  "error": "Invalid tar header. Maybe the tar is corrupted or it needs to be gunzipped?"
+}

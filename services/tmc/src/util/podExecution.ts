@@ -17,10 +17,11 @@ const SETUP_EXEC_TIMEOUT_MS = 60_000
 const TEST_RUN_OVERHEAD_MS = 120_000
 const MAX_TEST_RUN_BUDGET_MS = 15 * 60_000
 /** Longest tail of `/tmc-run`'s stdout and stderr kept for the feedback. */
-const MAX_CAPTURED_RUN_LOG_BYTES = 8 * 1024
+export const MAX_CAPTURED_RUN_LOG_BYTES = 8 * 1024
 const CONTAINER_NAME = "tmc-submission-execution-sandbox"
 
-const delay = (ms: number) =>
+/** Resolves after `ms` milliseconds. */
+export const delay = (ms: number): Promise<void> =>
   new Promise((resolve) => {
     setTimeout(resolve, ms)
   })

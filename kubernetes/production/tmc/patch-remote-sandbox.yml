@@ -1,0 +1,18 @@
+# Grading runs on the shared sandbox servers, so the service needs no rights to create pods.
+# The tmc-remote-sandbox Secret holds the TMC_REMOTE_SANDBOX_* settings (services/tmc/README.md).
+# Keep one replica: pending gradings and their resend timers live in the process.
+- op: remove
+  path: /spec/template/spec/serviceAccountName
+- op: add
+  path: /spec/template/spec/automountServiceAccountToken
+  value: false
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: TMC_GRADING_SANDBOX
+    value: remote
+- op: add
+  path: /spec/template/spec/containers/0/envFrom
+  value:
+    - secretRef:
+        name: tmc-remote-sandbox

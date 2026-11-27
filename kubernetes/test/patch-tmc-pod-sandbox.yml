@@ -1,0 +1,13 @@
+# Undoes production/tmc/patch-remote-sandbox.yml: local and CI clusters grade in pods.
+- op: add
+  path: /spec/template/spec/serviceAccountName
+  value: tmc-account
+- op: remove
+  path: /spec/template/spec/automountServiceAccountToken
+- op: test
+  path: /spec/template/spec/containers/0/env/1/name
+  value: TMC_GRADING_SANDBOX
+- op: remove
+  path: /spec/template/spec/containers/0/env/1
+- op: remove
+  path: /spec/template/spec/containers/0/envFrom

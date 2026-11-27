@@ -1,0 +1,11 @@
+{
+  "token": "slow1",
+  "test_output": "",
+  "stdout": "",
+  "stderr": "",
+  "valgrind": "",
+  "validations": "",
+  "vm_log": "Copying tmc-run from the image\r\nUser id: uid=1000(user) gid=1000(user) groups=1000(user)\r\nSetting error_msg_locale\r\nCopying tmc-langs-cli from the image\r\nRunning tests...\r\n[2026-11-26T13:14:35Z DEBUG tmc_langs_framework::file_util::lock_unix] locking .\r\n[2026-11-26T13:14:35Z DEBUG tmc_langs_framework::file_util::lock_unix] locked .\r\n[2026-11-26T13:14:35Z DEBUG tmc_langs_framework::tmc_project_yml] reading .tmcproject.yml from ./.tmcproject.yml\r\n[2026-11-26T13:14:35Z INFO  tmc_langs_util::task_executor] Detected project at . as python3\r\n[2026-11-26T13:14:35Z DEBUG tmc_langs_framework::tmc_project_yml] reading .tmcproject.yml from ./.tmcproject.yml\r\n[2026-11-26T13:14:35Z DEBUG tmc_langs_framework::tmc_project_yml] reading .tmcproject.yml from ./.tmcproject.yml\r\n[2026-11-26T13:14:35Z DEBUG tmc_langs_python3::plugin] detected unix\r\n[2026-11-26T13:14:35Z INFO  tmc_langs_framework::command] executing python3 -c 'import sys; print(sys.version_info.major); print(sys.version_info.minor); print(sys.version_info.micro);'\r\n[2026-11-26T13:14:35Z INFO  tmc_langs_framework::command] finished executing python3 -c 'import sys; print(sys.version_info.major); print(sys.version_info.minor); print(sys.version_info.micro);'\r\n[2026-11-26T13:14:35Z DEBUG tmc_langs_framework::command] stderr: \r\n[2026-11-26T13:14:35Z DEBUG tmc_langs_python3::plugin] running tmc command at /app\r\n[2026-11-26T13:14:35Z INFO  tmc_langs_framework::command] executing python3 -m tmc\r\n",
+  "status": "timeout",
+  "exit_code": ""
+}

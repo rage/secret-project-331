@@ -1,4 +1,12 @@
+import { createContext } from "react"
+
 import type { Block } from "@/types/courseMaterialBlock"
+
+/**
+ * Gap in rem between the blocks of every block list below, replacing the gaps chosen by block kind.
+ * For blocks that lay out their content as one card.
+ */
+export const FixedBlockGapContext = createContext<number | null>(null)
 
 const TEXT_BLOCKS = new Set(["core/paragraph", "core/list"])
 
@@ -10,6 +18,14 @@ const GROUPING_BLOCKS = new Set([
   "moocfi/instructionbox",
   "core/image",
   "core/buttons",
+])
+
+/** Parts of a parent block that space themselves, so they sit flush against their siblings. */
+const FLUSH_BLOCKS = new Set([
+  "core/list-item",
+  "moocfi/front-card",
+  "moocfi/back-card",
+  "moocfi/expandable-content-inner-block",
 ])
 
 const headingLevel = (block: Block<unknown>): number | null => {
@@ -38,6 +54,9 @@ const gapAboveHeadingRem = (level: number): number => {
  */
 export function blockGapRem(previous: Block<unknown> | undefined, next: Block<unknown>): number {
   if (previous === undefined) {
+    return 0
+  }
+  if (FLUSH_BLOCKS.has(next.name)) {
     return 0
   }
   // A spacer is the author's explicit gap.

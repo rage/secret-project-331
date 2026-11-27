@@ -110,7 +110,5 @@ const ExpandableContentInnerBlock: React.FC<
 }
 
 const exported = withErrorBoundary(ExpandableContentInnerBlock)
-// @ts-expect-error: Custom property
-exported.dontUseDefaultBlockMargin = true
 
 export default exported

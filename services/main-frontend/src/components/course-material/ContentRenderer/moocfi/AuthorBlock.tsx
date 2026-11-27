@@ -8,11 +8,14 @@ import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 import type { BlockRendererProps } from ".."
+import { FixedBlockGapContext } from "../util/blockGap"
 import InnerBlocks from "../util/InnerBlocks"
+
+const AUTHOR_GAP_REM = 1.25
 
 const Wrapper = styled.div`
   background: #f7f8f9;
-  padding: 1.25rem 1.4rem 0.4rem 1.4rem;
+  padding: 1.25rem 1.4rem 1.65rem 1.4rem;
   margin-bottom: 1rem;
 
   h2 {
@@ -22,17 +25,6 @@ const Wrapper = styled.div`
     font-weight: 600;
     font-size: 22px;
     margin-bottom: 1.4rem;
-  }
-
-  /*Overwrite InnerBlock Component styles*/
-
-  .course-material-block {
-    margin: 1.25rem 0 !important;
-  }
-
-  /* The name, bio and image credit inside a column read as one card. */
-  .course-material-block .course-material-block {
-    margin: 0 !important;
   }
 
   figure {
@@ -73,7 +65,9 @@ const AuthorBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Record<st
     <Wrapper>
       <h2>{t("author")}</h2>
       <div>
-        <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+        <FixedBlockGapContext.Provider value={AUTHOR_GAP_REM}>
+          <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+        </FixedBlockGapContext.Provider>
       </div>
     </Wrapper>
   )

@@ -82,7 +82,7 @@ import RevealableHiddenContentBlock from "./moocfi/RevealableContentBlock/Reveal
 import TableBox from "./moocfi/TableBox"
 import TerminologyBlock from "./moocfi/TerminologyBlock"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
-import { blockGapRem } from "./util/blockGap"
+import { blockGapRem, FixedBlockGapContext } from "./util/blockGap"
 import { isEmptyBlock } from "./util/isEmptyBlock"
 
 /** The props that this component receives */
@@ -206,7 +206,6 @@ const highlightedBlockStyles = css`
 `
 
 // Blocks own no outer margin: the gap above each one depends on it and the block before it (blockGapRem).
-// Blocks that sit flush against their siblings, like list items, set dontUseDefaultBlockMargin.
 const blockMarginStyles = (topRem: number, bottomRem: number) => css`
   margin: ${topRem}rem 0 ${bottomRem}rem;
 `
@@ -230,6 +229,7 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
   const { t } = useTranslation()
   const blockRendererOverrides = useContext(BlockRendererOverridesContext)
   const isNested = useContext(NestedContentRendererContext)
+  const fixedGapRem = useContext(FixedBlockGapContext)
   if (data.constructor !== Array) {
     return (
       <div>
@@ -283,7 +283,6 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
         const Component =
           blockRendererOverrides[block.name] ?? blockToRendererMap[block.name] ?? DefaultBlock
         const isHighlighted = highlightBlocks.includes(block.clientId)
-        const dontUseDefaultBlockMargin = Component.dontUseDefaultBlockMargin === true
         // The page's own block list keeps room at its top and bottom edges.
         const isOutermost = !isNested
         const topRem =
@@ -291,7 +290,9 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
             ? HERO_BLOCKS.has(block.name)
               ? 0
               : COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM
-            : blockGapRem(visibleBlocks[index - 1], block)
+            : index > 0 && fixedGapRem !== null
+              ? fixedGapRem
+              : blockGapRem(visibleBlocks[index - 1], block)
         const bottomRem =
           isOutermost && index === visibleBlocks.length - 1
             ? COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM
@@ -299,7 +300,7 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
         const wrapperClassName = cx(
           courseMaterialBlockClass,
           (isHighlighted && highlightedBlockStyles) ?? undefined,
-          dontUseDefaultBlockMargin ? undefined : blockMarginStyles(topRem, bottomRem),
+          blockMarginStyles(topRem, bottomRem),
         )
 
         // In some cases we cannot use the wrapper div to get the correct HTML.

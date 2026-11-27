@@ -112,9 +112,8 @@ An exercise block on a page holds only the exercise id (exercise_id in reads). g
 - find_replace and structural_replace include instructions by default (include_exercise_instructions) and find_replace exercise names with include_exercise_names; matches in the course default review instructions are listed once and change every exercise using it. Bulk tools never fork. Regexes (find_replace regex: true, structural_replace text_regex) use Rust regex syntax: no backreferences or lookaround; (?i) for case-insensitive.";
 
 const UPLOADS: &str = "\
-Ways to get an image or file into the course, best first:
-- Agents that can run a shell: create_upload_link {course, file_name} returns upload_url and url. Send the file with one PUT before expires_at: curl -sS -T <local file> '<upload_url>'. Each link takes one upload.
-- Tiny files of a few kilobytes, such as a small SVG you wrote: upload_file with content_base64. Base64 is too slow and error-prone for real photos and screenshots.
+Ways to get an image or file into the course:
+- Agents that can run a shell: start_file_upload {course, file_name} returns upload_url and url. Send the file with one PUT before expires_at: curl -sS -T <local file> '<upload_url>'. Each link takes one upload.
 - Chat clients that can't read the file's bytes: ask the teacher to upload the image in the course editor and give you its URL.
 Then add a core/image block with url set to the returned url and alt saying what the image shows for someone who can't see it (alt \"\" only for purely decorative images), and check it with get_preview_link.
 The file type comes from its content and must match the file name's extension. HEIC/HEIF photos are refused because browsers can't show them: convert them to JPEG, PNG or WebP first. Images may be at most 10 MiB.";
@@ -214,8 +213,7 @@ fn block_guide(schemas: &BlockSchemas, name: &str) -> Result<Value, EditError> {
         json!({"op": "add", "path": "", "position": "end", "value": schema.example});
     if name == "core/image" {
         // The schema export fills rich-text attributes only; an image is useless without these.
-        example_op["value"]["attributes"]["url"] =
-            json!("<url from create_upload_link or upload_file>");
+        example_op["value"]["attributes"]["url"] = json!("<url from start_file_upload>");
         example_op["value"]["attributes"]["alt"] = json!("<what the image shows>");
     }
     if schema

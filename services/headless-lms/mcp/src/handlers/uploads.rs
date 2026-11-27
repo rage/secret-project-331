@@ -1,11 +1,10 @@
-//! `upload_file` and `create_upload_link`: store an image or file for the course the way the CMS
-//! media upload does, from base64 in the call or from bytes sent to a signed upload link.
+//! `start_file_upload`: stores an image or file for the course the way the CMS media upload
+//! does, from bytes sent to a signed upload link.
 
 use std::path::{Path, PathBuf};
 
 use actix_web::web::Bytes;
 use async_trait::async_trait;
-use base64::Engine;
 use chrono::{Duration, Utc};
 use futures::stream;
 use headless_lms_base::{
@@ -26,36 +25,16 @@ use uuid::Uuid;
 
 use crate::access::{authorize_course, connection};
 use crate::state::McpState;
-use crate::tools::args::{CreateUploadLinkArgs, UploadFileArgs};
+use crate::tools::args::StartFileUploadArgs;
 use crate::tools::{RequestContext, ToolError, ToolHandler, ToolOutcome, ToolResult};
 
-/// Handler of the `upload_file` tool.
-pub struct UploadFile;
-
-/// Handler of the `create_upload_link` tool.
-pub struct CreateUploadLink;
+/// Handler of the `start_file_upload` tool.
+pub struct StartFileUpload;
 
 const UPLOAD_LINK_LIFETIME_MINUTES: i64 = 15;
 
 /// Where upload links point; the server mounts [`crate::http::configure_upload_links`] here.
 const UPLOAD_LINK_ROUTE: &str = "/api/v0/mcp-uploads";
-
-/// Decodes on a blocking thread: the content can be tens of megabytes.
-async fn decode(content_base64: String) -> Result<Vec<u8>, ToolError> {
-    tokio::task::spawn_blocking(move || {
-        let compact = if content_base64.contains(char::is_whitespace) {
-            content_base64.split_whitespace().collect()
-        } else {
-            content_base64
-        };
-        base64::engine::general_purpose::STANDARD.decode(compact)
-    })
-    .await
-    .map_err(|e| ToolError::Internal(format!("the decoding task failed: {e}")))?
-    .map_err(|e| ToolError::InvalidArguments {
-        message: format!("content_base64 isn't valid base64: {e}"),
-    })
-}
 
 fn is_heif(mime: &str) -> bool {
     matches!(
@@ -217,39 +196,6 @@ fn stored_file(
     })
 }
 
-#[async_trait(?Send)]
-impl ToolHandler<McpState> for UploadFile {
-    type Args = UploadFileArgs;
-
-    async fn call(
-        &self,
-        state: &McpState,
-        ctx: &RequestContext,
-        args: UploadFileArgs,
-    ) -> Result<ToolOutcome, ToolError> {
-        let course_id = args.course.id();
-        let file = NamedFile::new(&args.file_name)?;
-        let contents = Bytes::from(decode(args.content_base64).await?);
-        let mime = file.checked_content(&contents)?;
-        let file_name = file.name;
-        let user_id = ctx.principal.actor.user_id;
-        let mut conn = connection(state).await?;
-        authorize_course(&mut conn, user_id, course_id).await?;
-        drop(conn);
-        let path = course_media_path(course_id, &file_name, &mime);
-        let size_bytes = contents.len();
-        file_uploads::store_and_insert(
-            &state.pool,
-            state.file_store.as_ref(),
-            new_upload(user_id, &path, &file_name, &mime, size_bytes),
-            payload(contents),
-        )
-        .await
-        .map_err(storing_failed)?;
-        Ok(ToolResult::success(stored_file(state, &path, &file_name, &mime, size_bytes)).into())
-    }
-}
-
 /// What an upload link lets its holder store, signed with the server's JWT key.
 #[derive(Debug, Serialize, Deserialize)]
 struct UploadLinkClaim {
@@ -264,14 +210,14 @@ struct UploadLinkClaim {
 }
 
 #[async_trait(?Send)]
-impl ToolHandler<McpState> for CreateUploadLink {
-    type Args = CreateUploadLinkArgs;
+impl ToolHandler<McpState> for StartFileUpload {
+    type Args = StartFileUploadArgs;
 
     async fn call(
         &self,
         state: &McpState,
         ctx: &RequestContext,
-        args: CreateUploadLinkArgs,
+        args: StartFileUploadArgs,
     ) -> Result<ToolOutcome, ToolError> {
         let course_id = args.course.id();
         let file = NamedFile::new(&args.file_name)?;
@@ -341,7 +287,7 @@ impl UploadLink {
             validate_hs256_claim(token, &state.jwt_key).map_err(|_| UploadLinkError {
                 status: 403,
                 message:
-                    "the upload link is invalid or expired; make a new one with create_upload_link"
+                    "the upload link is invalid or expired; call start_file_upload again for a new one"
                         .into(),
             })?;
         let file = NamedFile::new(&claim.file_name)?;
@@ -390,7 +336,7 @@ pub async fn upload_with_link(
         return Err(UploadLinkError {
             status: 409,
             message:
-                "the upload link has been used already; make a new one with create_upload_link"
+                "the upload link has been used already; call start_file_upload again for a new one"
                     .into(),
         });
     }

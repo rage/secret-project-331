@@ -248,18 +248,7 @@ pub struct StructuralReplaceArgs {
 
 #[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
-pub struct UploadFileArgs {
-    #[schemars(extend("x-mcp-header" = "Course"))]
-    pub course: IdArgument,
-    /// File name with extension, e.g. diagram.png.
-    pub file_name: String,
-    /// The file's bytes, base64-encoded.
-    pub content_base64: String,
-}
-
-#[derive(Debug, Deserialize, JsonSchema)]
-#[serde(deny_unknown_fields)]
-pub struct CreateUploadLinkArgs {
+pub struct StartFileUploadArgs {
     #[schemars(extend("x-mcp-header" = "Course"))]
     pub course: IdArgument,
     /// File name with an extension that matches the content, e.g. diagram.png.

@@ -390,24 +390,13 @@ pub fn structural_replace<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> 
     )
 }
 
-/// The `upload_file` tool, run by `handler`.
-pub fn upload_file<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
+/// The `start_file_upload` tool, run by `handler`.
+pub fn start_file_upload<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
     define(
         handler,
-        "upload_file",
-        "Uploads a tiny image or file for the course from base64 in the call and returns its URL, for image or file block attributes. Base64 only suits files of a few kilobytes: for anything larger, such as a real photo or screenshot, use create_upload_link. The type comes from the content, which must match the file name's extension; HEIC/HEIF is refused.",
-        write("Upload a file", false),
-        McpScope::MaterialStage,
-    )
-}
-
-/// The `create_upload_link` tool, run by `handler`.
-pub fn create_upload_link<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S> {
-    define(
-        handler,
-        "create_upload_link",
-        "Returns a single-use upload link for one image or file of the course, valid 15 minutes, and the URL the file will have. Send the file's raw bytes with one PUT, e.g. curl -sS -T <local file> <upload_url>; the answer confirms url, mime_type and size_bytes. For agents that can run a shell; use it instead of upload_file for anything but tiny files. Images may be at most 10 MiB; the type comes from the content, which must match the file name's extension, and HEIC/HEIF is refused. guide topic uploads explains the ways to add an image.",
-        write("Create upload link", false),
+        "start_file_upload",
+        "Uploads one image or file for the course in two steps: this returns upload_url, a single-use link valid 15 minutes, and url, the address the file will have. Then send the file's raw bytes with one PUT, e.g. curl -sS -T <local file> <upload_url>; the answer confirms url, mime_type and size_bytes. Needs an agent that can run a shell. Images may be at most 10 MiB; the type comes from the content, which must match the file name's extension, and HEIC/HEIF is refused. guide topic uploads explains the ways to add an image.",
+        write("Start a file upload", false),
         McpScope::MaterialStage,
     )
 }
@@ -544,7 +533,7 @@ mod tests {
         let names: Vec<_> = tools.iter().map(|t| t.name).collect();
         assert_eq!(names.first(), Some(&"list_courses"));
         assert_eq!(names.last(), Some(&"guide"));
-        assert_eq!(names.len(), 27);
+        assert_eq!(names.len(), 26);
         let mut unique = names.clone();
         unique.sort_unstable();
         unique.dedup();

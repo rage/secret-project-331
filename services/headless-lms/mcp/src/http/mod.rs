@@ -20,9 +20,6 @@ use crate::protocol::dispatch::{self, McpServer, ServerConfig};
 use crate::protocol::headers::RequestHeaders;
 use crate::state::McpState;
 
-/// Room for `upload_file`'s largest file (25 MB) base64-encoded.
-const MAX_REQUEST_BYTES: usize = 36 * 1024 * 1024;
-
 /// The MCP server with the state its tools run against, shared by every worker.
 pub struct McpEndpoint {
     pub server: McpServer<McpState>,
@@ -57,8 +54,7 @@ fn request_state_key(secret: &str) -> [u8; 32] {
 /// Adds the endpoint's route to a scope that is wrapped in [`auth::authenticate`] and has an
 /// [`McpEndpoint`] in its app data.
 pub fn configure(cfg: &mut ServiceConfig) {
-    cfg.app_data(web::PayloadConfig::new(MAX_REQUEST_BYTES))
-        .route("", web::route().to(handle))
+    cfg.route("", web::route().to(handle))
         .route("/", web::route().to(handle));
 }
 

@@ -186,13 +186,13 @@ const ImageBlock: React.FC<
           align === "right" &&
           `
         float: right;
-        margin-left: 1rem;`
+        margin: 0 0 1rem 1rem;`
         }
         ${
           align === "left" &&
           `
         float: left;
-        margin-right: 1em;`
+        margin: 0 1em 1rem 0;`
         }
       `}
     >

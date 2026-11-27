@@ -10,6 +10,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 
 import type { BlockRendererProps } from ".."
+import { TableBoxContext } from "../core/formatting/TableBlock"
 import InnerBlocks from "../util/InnerBlocks"
 
 interface TableBoxAttributes {
@@ -94,7 +95,9 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
           }
         `}
       >
-        <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+        <TableBoxContext.Provider value={true}>
+          <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+        </TableBoxContext.Provider>
       </div>
     </div>
   )

@@ -211,6 +211,9 @@ const blockMarginStyles = (topRem: number, bottomRem: number) => css`
   margin: ${topRem}rem 0 ${bottomRem}rem;
 `
 
+// Heroes open the page flush under the header.
+const HERO_BLOCKS = new Set(["moocfi/hero-section", "moocfi/landing-page-hero-section"])
+
 // True inside a block's own block list (hero, column, flip card...), which must not get the page's edge spacing.
 const NestedContentRendererContext = createContext(false)
 
@@ -285,7 +288,9 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
         const isOutermost = !isNested
         const topRem =
           isOutermost && index === 0
-            ? COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM
+            ? HERO_BLOCKS.has(block.name)
+              ? 0
+              : COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM
             : blockGapRem(visibleBlocks[index - 1], block)
         const bottomRem =
           isOutermost && index === visibleBlocks.length - 1

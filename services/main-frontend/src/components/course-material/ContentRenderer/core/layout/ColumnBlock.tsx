@@ -9,7 +9,8 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { BlockRendererProps } from "../.."
 import InnerBlocks from "../../util/InnerBlocks"
 
-const ALIGN_SELF: Record<string, string> = {
+/** Gutenberg's vertical alignment values as flexbox alignments. */
+export const FLEX_ALIGNMENT: Record<string, string> = {
   top: "flex-start",
   center: "center",
   bottom: "flex-end",
@@ -31,7 +32,7 @@ interface ColumnBlockProps extends BlockRendererProps<ColumnAttributes> {
 /** One cell of a Columns block; its blocks render like top-level blocks but break out of it only when it is the only column. */
 const ColumnBlock: React.FC<React.PropsWithChildren<ColumnBlockProps>> = (props) => {
   const { verticalAlignment, width } = props.data.attributes
-  const alignSelf = verticalAlignment ? ALIGN_SELF[verticalAlignment] : undefined
+  const alignSelf = verticalAlignment ? FLEX_ALIGNMENT[verticalAlignment] : undefined
   const percent = columnWidthPercent(width)
   // Percentages become proportional shares of the space left after the gaps, so 33% + 67% still fit on one row.
   const flex =
@@ -56,7 +57,9 @@ const ColumnBlock: React.FC<React.PropsWithChildren<ColumnBlockProps>> = (props)
     >
       <InnerBlocks
         parentBlockProps={props}
-        dontAllowInnerBlocksToBeWiderThanParentBlock={!props.isOnlyColumn}
+        dontAllowInnerBlocksToBeWiderThanParentBlock={
+          !props.isOnlyColumn || props.dontAllowBlockToBeWiderThanContainerWidth === true
+        }
       />
     </div>
   )

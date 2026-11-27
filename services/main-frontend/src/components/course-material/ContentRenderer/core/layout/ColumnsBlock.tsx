@@ -7,7 +7,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { Block } from "@/types/courseMaterialBlock"
 
 import type { BlockRendererProps } from "../.."
-import ColumnBlock, { columnWidthPercent } from "./ColumnBlock"
+import ColumnBlock, { columnWidthPercent, FLEX_ALIGNMENT } from "./ColumnBlock"
 
 const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsAttributes>>> = (
   props,
@@ -27,7 +27,7 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
         display: flex;
         flex-wrap: wrap;
         gap: 1.5rem 2rem;
-        ${verticalAlignment && `align-items: ${verticalAlignment};`}
+        ${verticalAlignment && FLEX_ALIGNMENT[verticalAlignment] && `align-items: ${FLEX_ALIGNMENT[verticalAlignment]};`}
       `}
     >
       {innerBlocks.map((block) => (
@@ -36,6 +36,9 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
           data={block}
           id={block.clientId}
           isExam={props.isExam}
+          dontAllowBlockToBeWiderThanContainerWidth={
+            props.dontAllowBlockToBeWiderThanContainerWidth === true
+          }
           unsetWidthShare={unsetWidthShare}
           isOnlyColumn={innerBlocks.length === 1}
           isStackedOnMobile={isStackedOnMobile !== false}

@@ -29,6 +29,10 @@ const wideContainerStyles = css`
 /** Holds the copy button in the code's top corner. */
 const frameStyles = css`
   position: relative;
+  /* Room on the right for the copy button; .highlighted-line in styles.ts reaches into it. */
+  code.hljs {
+    padding-right: 3rem;
+  }
 `
 
 const NORMAL_FONT_SIZE_PX = 16

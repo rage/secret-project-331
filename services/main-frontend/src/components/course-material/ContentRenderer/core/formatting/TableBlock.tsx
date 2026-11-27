@@ -1,7 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { useMemo, useRef, useState } from "react"
+import React, { createContext, useContext, useMemo, useRef, useState } from "react"
 
 import type { CellAttributes, Cells, TableAttributes } from "@/../types/GutenbergBlockAttributes"
 import ParsedText from "@/components/course-material/ParsedText"
@@ -73,6 +73,9 @@ const numericCellStyles = css`
 
 const NUMBER = /^[-+−]?[\d\s.,:/%€$£]*\d[\d\s.,:/%€$£]*$/
 
+/** True inside a table box, which draws its own header colours and cell padding. */
+export const TableBoxContext = createContext(false)
+
 const hasMergedCells = (rows: Cells[]): boolean =>
   rows.some((row) =>
     row.cells?.some((cell) => (spanOf(cell.colspan) ?? 1) > 1 || (spanOf(cell.rowspan) ?? 1) > 1),
@@ -135,6 +138,7 @@ const TableBlock: React.FC<
   const shouldUseSmallerFont = hasManyColumns && dontAllowBlockToBeWiderThanContainerWidth
 
   const isStriped = className === "is-style-stripes"
+  const isInTableBox = useContext(TableBoxContext)
   const numericColumnIndexes = useMemo(() => numericColumns(head, body), [head, body])
   // Authors use one-cell tables as framed boxes, so those keep their frame.
   const isFramedBox =
@@ -174,6 +178,7 @@ const TableBlock: React.FC<
             ${
               !isStriped &&
               !isFramedBox &&
+              !isInTableBox &&
               `td:first-child, th:first-child { padding-left: 0; } td:last-child, th:last-child { padding-right: 0; }`
             }
             th {
@@ -181,7 +186,7 @@ const TableBlock: React.FC<
             }
             thead th {
               vertical-align: bottom;
-              color: ${baseTheme.colors.gray[600]};
+              ${!isInTableBox && `color: ${baseTheme.colors.gray[600]};`}
             }
             tbody tr {
               border-bottom: 1px solid ${baseTheme.colors.gray[100]};
@@ -272,7 +277,7 @@ const TableBlock: React.FC<
                         tagProps={{
                           // oxlint-disable-next-line i18next/no-literal-string
                           scope: "col",
-                          className: fetchAlignment(cell.align),
+                          className: fetchAlignment(cell.align, numericColumnIndexes.has(i)),
                           colSpan: spanOf(cell.colspan),
                           rowSpan: spanOf(cell.rowspan),
                         }}

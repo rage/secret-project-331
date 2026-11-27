@@ -6,7 +6,6 @@ import type { DetailedHTMLProps, HTMLAttributes } from "react"
 import { useId } from "react"
 
 import type { HeadingAttributes } from "@/../types/GutenbergBlockAttributes"
-import { baseTheme } from "@/shared-module/common/styles"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
 import {
   HEADING_ANCHOR_ID_PART_LENGTH,
@@ -65,7 +64,7 @@ const HeadingBlock: React.FC<
           level >= 5 &&
           !fontSize &&
           !fitText &&
-          `font-size: 0.9375rem; text-transform: uppercase; letter-spacing: 0.06em; color: ${baseTheme.colors.gray[500]};`
+          `font-size: 0.9375rem; text-transform: uppercase; letter-spacing: 0.06em; color: color-mix(in srgb, currentColor 75%, transparent);`
         }
 
         &:hover .${HEADING_ANCHOR_LINK_CLASS}, &:focus-within .${HEADING_ANCHOR_LINK_CLASS} {

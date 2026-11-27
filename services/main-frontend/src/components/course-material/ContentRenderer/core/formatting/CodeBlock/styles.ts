@@ -37,10 +37,6 @@ export const codeBlockStyles = css`
   .code-line {
     display: block;
   }
-  /* Room on the right for the copy button. */
-  &.hljs {
-    padding-right: 3rem;
-  }
   /* Spans the code's padding on both sides, so the highlight reaches the block's edges. */
   .highlighted-line {
     background-color: rgba(255, 255, 100, 0.1);

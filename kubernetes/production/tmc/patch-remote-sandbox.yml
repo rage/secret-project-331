@@ -1,6 +1,6 @@
 # Grading runs on the shared sandbox servers, so the service needs no rights to create pods.
-# The tmc-remote-sandbox Secret holds the TMC_REMOTE_SANDBOX_* settings (services/tmc/README.md).
-# Keep one replica: pending gradings and their resend timers live in the process.
+# The tmc-remote-sandbox Secret holds the TMC_REMOTE_SANDBOX_* settings, including the Redis URL
+# for pending gradings (services/tmc/README.md).
 - op: remove
   path: /spec/template/spec/serviceAccountName
 - op: add

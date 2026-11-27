@@ -21,6 +21,8 @@ export interface RemoteSandboxConfig {
   notifySecret: string | null
   /** AES-256 keys for the callback token: the first seals, all of them open. */
   tokenKeys: Buffer[]
+  /** The Redis that holds pending gradings, shared by every replica. */
+  redisUrl: string
 }
 
 /** The grading sandbox configuration is invalid. */
@@ -82,6 +84,15 @@ export function parseRemoteSandboxConfig(env: Env): RemoteSandboxConfig {
     )
   }
 
+  const redisUrl = env.TMC_REMOTE_SANDBOX_REDIS_URL?.trim() ?? ""
+  const parsedRedisUrl = URL.parse(redisUrl)
+  if (
+    !parsedRedisUrl ||
+    (parsedRedisUrl.protocol !== "redis:" && parsedRedisUrl.protocol !== "rediss:")
+  ) {
+    problems.push("TMC_REMOTE_SANDBOX_REDIS_URL must be a redis:// or rediss:// URL")
+  }
+
   if (problems.length > 0) {
     throw new GradingConfigError(problems)
   }
@@ -90,6 +101,7 @@ export function parseRemoteSandboxConfig(env: Env): RemoteSandboxConfig {
     notifyUrl,
     notifySecret: env.TMC_REMOTE_SANDBOX_NOTIFY_SECRET?.trim() || null,
     tokenKeys,
+    redisUrl,
   }
 }
 

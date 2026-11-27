@@ -43,7 +43,7 @@ async function postImpl(request: Request): Promise<Response> {
     logger.log("Rejected a sandbox result with an invalid or expired token")
     return Response.json({ message: "Invalid token" }, { status: 401 })
   }
-  if (!remoteGradings.handleCallback(payload, outcomeFromCallback(parsed.data, logger))) {
+  if (!(await remoteGradings().handleCallback(payload, outcomeFromCallback(parsed.data, logger)))) {
     logger.log("Ignored a repeated sandbox result")
   }
   return jsonOk({ message: "ok" })

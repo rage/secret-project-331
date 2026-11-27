@@ -9,8 +9,13 @@ import {
 } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import type { CourseMaterialExercise } from "@/generated/course-material-api/types.generated"
 
-/** How long to keep polling an automatic grading that stays pending, e.g. one lost in a restart. */
-const GRADING_POLL_LIMIT_MS = 10 * 60 * 1000
+/**
+ * How long to keep polling an automatic grading that stays pending: a remote sandbox can take
+ * tens of minutes when busy, and the host fails a grading still pending after an hour.
+ */
+const GRADING_POLL_LIMIT_MS = 60 * 60 * 1000
+/** After this, a pending grading is waiting on busy or resent sandboxes, so polls slow down. */
+const SLOW_POLL_AFTER_MS = 5 * 60 * 1000
 
 /**
  * Whether an automatic grading of the student's latest answer is still running. Manual review
@@ -51,7 +56,10 @@ export function gradingPollDelay(pendingForMs: number): number | false {
   if (pendingForMs < 6000) {
     return 3000
   }
-  return 5000
+  if (pendingForMs < SLOW_POLL_AFTER_MS) {
+    return 5000
+  }
+  return 30_000
 }
 
 /**

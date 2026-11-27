@@ -10,6 +10,7 @@ const VALID = {
   TMC_REMOTE_SANDBOX_NOTIFY_URL: "https://courses.mooc.fi/tmc/api/sandbox-results",
   TMC_REMOTE_SANDBOX_NOTIFY_SECRET: "secret",
   TMC_REMOTE_SANDBOX_TOKEN_KEY: `${KEY},${Buffer.alloc(32, 8).toString("base64")}`,
+  TMC_REMOTE_SANDBOX_REDIS_URL: "redis://redis.default.svc.cluster.local/3",
 }
 
 function parseWithMalformedUrl() {
@@ -30,7 +31,7 @@ describe("grading sandbox configuration", () => {
 
   it("rejects remote mode without its settings", () => {
     expect(() => validateGradingConfig({ TMC_GRADING_SANDBOX: "remote" })).toThrow(
-      /TMC_REMOTE_SANDBOX_URLS.*TMC_REMOTE_SANDBOX_NOTIFY_URL.*TMC_REMOTE_SANDBOX_TOKEN_KEY/,
+      /TMC_REMOTE_SANDBOX_URLS.*TMC_REMOTE_SANDBOX_NOTIFY_URL.*TMC_REMOTE_SANDBOX_TOKEN_KEY.*TMC_REMOTE_SANDBOX_REDIS_URL/,
     )
   })
 
@@ -68,6 +69,12 @@ describe("grading sandbox configuration", () => {
         TMC_REMOTE_SANDBOX_NOTIFY_URL: "https://a:b@courses.mooc.fi/tmc/api/sandbox-results",
       }),
     ).toThrow(/TMC_REMOTE_SANDBOX_NOTIFY_URL/)
+  })
+
+  it("rejects a Redis URL of another scheme", () => {
+    expect(() =>
+      parseRemoteSandboxConfig({ ...VALID, TMC_REMOTE_SANDBOX_REDIS_URL: "http://redis" }),
+    ).toThrow(/TMC_REMOTE_SANDBOX_REDIS_URL/)
   })
 
   it("leaves requests unsigned without a notify secret", () => {

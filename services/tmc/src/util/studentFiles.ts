@@ -45,20 +45,22 @@ export function isStudentFile(path: string, publicSpec: PublicSpec): boolean {
 
 /**
  * The student files of an archive in the order the browser editor shows them: the spec's main file
- * first, then by path. Works for stubs, browser answers, VS Code answers and answers stored before
- * browser answers held only student files.
+ * first and `__init__.py` files last, else by path. The editor opens the first, so a spec stored
+ * without a main file still opens a source file. Works for stubs, browser answers, VS Code answers
+ * and answers stored before browser answers held only student files.
  */
 export function studentFilesInEditorOrder(
   files: readonly ExerciseFile[],
   publicSpec: PublicSpec,
 ): ExerciseFile[] {
   const main = publicSpec.main_file
+  const rank = (path: string) => {
+    if (path === main) {
+      return 0
+    }
+    return path === "__init__.py" || path.endsWith("/__init__.py") ? 2 : 1
+  }
   return files
     .filter((file) => isStudentFile(file.filepath, publicSpec))
-    .toSorted((a, b) => {
-      if (a.filepath === main || b.filepath === main) {
-        return a.filepath === main ? -1 : 1
-      }
-      return comparePaths(a.filepath, b.filepath)
-    })
+    .toSorted((a, b) => rank(a.filepath) - rank(b.filepath) || comparePaths(a.filepath, b.filepath))
 }

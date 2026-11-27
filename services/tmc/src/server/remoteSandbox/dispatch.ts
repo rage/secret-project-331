@@ -67,14 +67,20 @@ export async function dispatchToSandbox(
   const form = taskForm(task, config)
   const giveUpAt = clock.now() + BUSY_BUDGET_MS
   for (;;) {
+    let didEveryServerRefuse = true
     for (const server of clock.shuffle(config.servers)) {
       const outcome = await postTask(server, task.submissionId, form)
       if (outcome === "accepted") {
         return { accepted: true }
       }
-      if (outcome !== "busy" && outcome !== "unavailable") {
+      if (outcome !== "busy" && outcome !== "unavailable" && outcome !== "refused") {
         return { accepted: false, result: outcome }
       }
+      didEveryServerRefuse &&= outcome === "refused"
+    }
+    // Credentials or URLs that every server refuses will not start working while we wait.
+    if (didEveryServerRefuse) {
+      return { accepted: false, result: serverErrorResult() }
     }
     const delayMs =
       MIN_BUSY_RETRY_DELAY_MS + Math.random() * (MAX_BUSY_RETRY_DELAY_MS - MIN_BUSY_RETRY_DELAY_MS)
@@ -115,7 +121,7 @@ async function postTask(
   server: SandboxServer,
   submissionId: string,
   form: FormData,
-): Promise<"accepted" | "busy" | "unavailable" | ExerciseTaskGradingResult> {
+): Promise<"accepted" | "busy" | "unavailable" | "refused" | ExerciseTaskGradingResult> {
   const headers: HeadersInit = server.authorization ? { authorization: server.authorization } : {}
 
   let response: Response
@@ -145,6 +151,16 @@ async function postTask(
     }
     log(`Grading server ${server.baseUrl} failed: ${response.status.toString()} ${body}`)
     return "unavailable"
+  }
+  if (response.status === 429) {
+    return "busy"
+  }
+  if (response.status === 401 || response.status === 403 || response.status === 404) {
+    // One server's credentials or route, not the task: the others may take it.
+    error(
+      `Grading server ${server.baseUrl} refused the task: ${response.status.toString()} ${body}`,
+    )
+    return "refused"
   }
   if (response.status === 413) {
     return failedGradingResult("The submission is too large to be graded", {

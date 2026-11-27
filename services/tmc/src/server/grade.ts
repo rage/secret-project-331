@@ -2,34 +2,25 @@ import { promises as fs } from "fs"
 import os from "node:os"
 import path from "node:path"
 
-import { temporaryDirectory, temporaryFile } from "tempy"
-
-import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
-import type { Compression } from "@/tmc/cli"
-import {
-  LangsError,
-  extractProject,
-  fastAvailablePoints,
-  getTestsTimeoutMs,
-  prepareSubmission,
-} from "@/tmc/langs"
+import { LangsError } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
-import { ZIP_ARCHIVE_EXTENSION } from "@/util/archiveTypes"
 import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
 import type { GradingFeedbackExtras, GradingFeedbackKey } from "@/util/gradingFeedback"
 import { createLogger } from "@/util/logger"
 import { runInSandboxPod } from "@/util/podExecution"
 
 import { gradingResultFromRun, SERVER_ERROR_FEEDBACK } from "./gradingResult"
-import { sendGradingUpdate } from "./gradingUpdate"
+import { HOST_GIVES_UP_AFTER_MS, sendGradingUpdate } from "./gradingUpdate"
+import type { SubmissionSource } from "./preparedSubmission"
+import { withGradingSlot, withPreparedSubmission } from "./preparedSubmission"
 import { gradingSandboxMode } from "./remoteSandbox/config"
 import { remoteGradings } from "./remoteSandbox/remoteGradings"
 import type { GradeRequest, GradingRequestFile } from "./requestSchemas"
 import { currentRepositoryExercise, gradeRequestSchema } from "./requestSchemas"
 
-const { log, debug, error } = createLogger("grade")
+const { log, error } = createLogger("grade")
 
 /** What /grade answers with: grading runs in a sandbox for longer than a client waits on a request. */
 const PENDING_RESULT: ExerciseTaskGradingResult = {
@@ -39,9 +30,6 @@ const PENDING_RESULT: ExerciseTaskGradingResult = {
   feedback_text: null,
   feedback_json: null,
 }
-
-/** tmc-langs' naive submission extraction, which a project archive never needs. */
-const EXTRACT_SUBMISSION_NAIVELY = false
 
 async function postImpl(request: Request): Promise<Response> {
   let body: unknown
@@ -76,41 +64,6 @@ async function postImpl(request: Request): Promise<Response> {
 export const handleGrade = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /grade" })
 
 /**
- * Gradings run at once in this process. Each holds a sandbox pod and its archives in memory, and the
- * service's own memory limit is small; the rest wait their turn, which the host's stale-grading
- * timeout bounds.
- */
-const MAX_CONCURRENT_GRADINGS = 4
-let runningGradings = 0
-const waitingGradings: (() => void)[] = []
-
-/**
- * The host fails a grading whose result has not arrived in this time (`STALE_GRADING_AFTER` in
- * headless-lms' regrader) and discards a later result, so one that waited this long is not run.
- */
-const HOST_GIVES_UP_AFTER_MS = 60 * 60_000
-
-async function withGradingSlot<T>(grade: () => Promise<T>): Promise<T> {
-  if (runningGradings >= MAX_CONCURRENT_GRADINGS) {
-    await new Promise<void>((resolve) => {
-      waitingGradings.push(resolve)
-    })
-  } else {
-    runningGradings++
-  }
-  try {
-    return await grade()
-  } finally {
-    const next = waitingGradings.shift()
-    if (next) {
-      next()
-    } else {
-      runningGradings--
-    }
-  }
-}
-
-/**
  * Grades an answer after /grade has answered, and sends the result to the host's grading-update
  * URL. A remote sandbox's result arrives later through `/api/sandbox-results` instead.
  */
@@ -140,26 +93,6 @@ async function gradeAndReport(
   if (result !== null) {
     await sendGradingUpdate(req.grading_update_url, gradingUpdateClaim, result)
   }
-}
-
-/**
- * The exercise template could not be extracted or read. The fault is the service's, so the student
- * gets the server-error feedback even when tmc-langs names a cause.
- */
-export class TemplateError extends Error {
-  public constructor(cause: unknown) {
-    super("Failed to prepare the exercise template", { cause })
-    this.name = "TemplateError"
-  }
-}
-
-/** How an answer archive is compressed: a zip upload by its name or mime, else the `.tar.zst` the service packs. */
-export function answerCompression(file: Pick<GradingRequestFile, "name" | "mime">): Compression {
-  const isZip =
-    file.name.toLowerCase().endsWith(ZIP_ARCHIVE_EXTENSION) ||
-    file.mime === "application/zip" ||
-    file.mime === "application/x-zip-compressed"
-  return isZip ? "zip" : "zstd"
 }
 
 /** The cause tmc-langs gives when an answer archive holds nothing it recognises as the exercise. */
@@ -220,79 +153,42 @@ function withoutServerPaths(cause: string): string {
 }
 
 /** The grading, or null when a remote sandbox took the answer and will call back with the result. */
-const gradeAnswer = async (
+const gradeAnswer = (
   req: GradeRequest,
   answerArchive: GradingRequestFile,
   gradingUpdateClaim: string | null,
 ): Promise<ExerciseTaskGradingResult | null> => {
-  const tempPaths: string[] = []
-  try {
-    const { exercise_spec } = req
-
-    debug("downloading the submitted archive and the exercise template")
-    const submissionArchivePath = temporaryFile()
-    const templateArchivePath = temporaryFile()
-    tempPaths.push(submissionArchivePath, templateArchivePath)
-    const repositoryExercise = currentRepositoryExercise(req, exercise_spec)
-    // Both settle before a failure is thrown, so neither writes a temp file after its removal.
-    const downloads = await Promise.allSettled([
-      downloadStream(answerArchive.download_url, submissionArchivePath),
-      downloadStream(repositoryExercise.download_url, templateArchivePath),
-    ])
-    for (const download of downloads) {
-      if (download.status === "rejected") {
-        throw download.reason
-      }
-    }
-
-    debug("extracting template")
-    const extractedTemplatePath = temporaryDirectory()
-    tempPaths.push(extractedTemplatePath)
-    let points: string[]
-    let testsTimeoutMs: number
-    try {
-      await extractProject(templateArchivePath, extractedTemplatePath, log)
-      ;[points, testsTimeoutMs] = await Promise.all([
-        fastAvailablePoints(extractedTemplatePath, log),
-        getTestsTimeoutMs(extractedTemplatePath, log),
-      ])
-    } catch (e) {
-      throw new TemplateError(e)
-    }
-    const preparedSubmissionArchivePath = temporaryFile()
-    tempPaths.push(preparedSubmissionArchivePath)
-    const sandboxImage = await prepareSubmission(
-      extractedTemplatePath,
-      preparedSubmissionArchivePath,
-      submissionArchivePath,
-      answerCompression(answerArchive),
-      EXTRACT_SUBMISSION_NAIVELY,
-      log,
-    )
-
+  const submission: SubmissionSource = {
+    answer: {
+      name: answerArchive.name,
+      mime: answerArchive.mime,
+      downloadUrl: answerArchive.download_url,
+    },
+    templateDownloadUrl: currentRepositoryExercise(req, req.exercise_spec).download_url,
+  }
+  return withPreparedSubmission(submission, async (prepared) => {
     if (gradingSandboxMode() === "remote") {
       log("sending to a remote sandbox")
-      return await remoteGradings.start({
-        archive: await fs.readFile(preparedSubmissionArchivePath),
-        image: sandboxImage,
-        points,
-        gradingUpdateUrl: req.grading_update_url,
-        gradingUpdateClaim,
-      })
+      await remoteGradings().start(
+        { submission, gradingUpdateUrl: req.grading_update_url, gradingUpdateClaim },
+        {
+          archive: await fs.readFile(prepared.archivePath),
+          image: prepared.image,
+          points: prepared.points,
+        },
+      )
+      return null
     }
-
     log("grading in pod")
     const gradingResult = await gradeInPod(
-      preparedSubmissionArchivePath,
-      sandboxImage,
-      points,
-      testsTimeoutMs,
+      prepared.archivePath,
+      prepared.image,
+      prepared.points,
+      prepared.testsTimeoutMs,
     )
     log("grading finished")
     return gradingResult
-  } finally {
-    await Promise.allSettled(tempPaths.map((p) => fs.rm(p, { recursive: true, force: true })))
-  }
+  })
 }
 
 const gradeInPod = async (

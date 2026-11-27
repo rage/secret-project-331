@@ -33,25 +33,39 @@ function whenLoaded(worker: Worker): Promise<Worker> {
   })
 }
 
+/** Bounds loading Python, so a stalled download or service worker install cannot leave Run or Test waiting for good. */
+const LOAD_TIMEOUT_MS = 3 * 60_000
+
 function startWorker(): LoadingWorker {
   let worker: Worker | null = null
   let terminated = false
+  const terminate = () => {
+    terminated = true
+    worker?.terminate()
+  }
   // The worker must start after the stdin service worker controls the page, or it is not
   // controlled and input() cannot block on it.
-  const ready = stdinServiceWorker().then(() => {
+  const loaded = stdinServiceWorker().then(() => {
     if (terminated) {
       throw new Error("The Python worker was stopped while starting")
     }
     worker = new Worker(pythonWorkerUrl(), { type: "module" })
     return whenLoaded(worker)
   })
-  return {
-    ready,
-    terminate: () => {
-      terminated = true
-      worker?.terminate()
-    },
-  }
+  let timeout: ReturnType<typeof setTimeout> | undefined
+  const timedOut = new Promise<never>((_resolve, reject) => {
+    timeout = setTimeout(() => {
+      terminate()
+      reject(new Error("Loading Python took too long. Reload the page to try again."))
+    }, LOAD_TIMEOUT_MS)
+  })
+  const ready = Promise.race([loaded, timedOut]).finally(() => {
+    clearTimeout(timeout)
+  })
+  // Whichever loses the race settles unobserved.
+  loaded.catch(() => {})
+  timedOut.catch(() => {})
+  return { ready, terminate }
 }
 
 /**

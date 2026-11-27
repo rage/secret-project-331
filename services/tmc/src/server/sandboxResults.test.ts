@@ -11,10 +11,21 @@ import { sandboxResultsHandlers } from "./sandboxResults"
 import { handleTest } from "./testEndpoint"
 import { handleTestrun } from "./testrun"
 
-vi.mock("./gradingUpdate", () => ({ sendGradingUpdate: vi.fn(() => Promise.resolve()) }))
+vi.mock("./gradingUpdate", () => ({ sendGradingUpdate: vi.fn(() => Promise.resolve(true)) }))
 vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
   reportErrorOccurrence: vi.fn(() => Promise.resolve(undefined)),
 }))
+vi.mock("./remoteSandbox/redisGradingStore", async () => {
+  const { MemoryRemoteGradingStore } = await import("./remoteSandbox/gradingStore")
+  return {
+    connectRedis: () => null,
+    RedisRemoteGradingStore: class extends MemoryRemoteGradingStore {
+      public constructor() {
+        super(Date.now)
+      }
+    },
+  }
+})
 
 const KEY = Buffer.alloc(32, 3)
 
@@ -22,6 +33,7 @@ vi.stubEnv("TMC_GRADING_SANDBOX", "remote")
 vi.stubEnv("TMC_REMOTE_SANDBOX_URLS", "http://127.0.0.1:9")
 vi.stubEnv("TMC_REMOTE_SANDBOX_NOTIFY_URL", "http://localhost/api/sandbox-results")
 vi.stubEnv("TMC_REMOTE_SANDBOX_TOKEN_KEY", KEY.toString("base64"))
+vi.stubEnv("TMC_REMOTE_SANDBOX_REDIS_URL", "redis://127.0.0.1:9")
 
 const passedBody = JSON.parse(
   readFileSync(

@@ -112,6 +112,8 @@ export function useIframeProtocol() {
   const latestPublicSpecRequestRef = useRef(0)
   const latestSubmissionRequestRef = useRef(0)
   const pendingFileUploadRequestIdRef = useRef<string | null>(null)
+  /** What the editor opens without a draft: the previous submission's files, else the stub's. */
+  const filesOpenedWithoutDraftRef = useRef<ExerciseFile[] | null>(null)
   const packedFilesRef = useRef<ExerciseFile[] | null>(null)
   const latestPackRequestRef = useRef(0)
 
@@ -195,6 +197,7 @@ export function useIframeProtocol() {
                 if (draftLocation !== null && draft !== null && !restoreDraft) {
                   clearDraft(draftLocation.key)
                 }
+                filesOpenedWithoutDraftRef.current = files
                 const publicSpecClone = cloneDeep(newPublicSpec)
                 setStateAndSend(messagePort, () => ({
                   view_type: "answer-exercise" as const,
@@ -320,15 +323,15 @@ export function useIframeProtocol() {
   const [debouncedFilesToPack] = useDebounce(filesToPack, PACK_IDLE_MS)
   const archivePrefix = answerToPack?.public_spec.archive_prefix ?? FALLBACK_ARCHIVE_PREFIX
   const draftTarget = answerToPack?.draft ?? null
-  const startingFiles = answerToPack?.starting_files ?? null
 
   useEffect(() => {
     if (debouncedFilesToPack === null || debouncedFilesToPack.length === 0) {
       return
     }
     if (draftTarget !== null) {
-      // A stale copy of the starting code would outlive a template update.
-      if (isEqual(debouncedFilesToPack, startingFiles)) {
+      // A draft of what the editor opens anyway would outlive a template update. A reset to the
+      // stub after a submission differs from that, so it is kept.
+      if (isEqual(debouncedFilesToPack, filesOpenedWithoutDraftRef.current)) {
         clearDraft(draftTarget.key)
       } else {
         saveDraft(draftTarget.key, debouncedFilesToPack, draftTarget.basis)

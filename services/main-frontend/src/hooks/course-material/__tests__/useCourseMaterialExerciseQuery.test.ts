@@ -41,15 +41,17 @@ describe("isGradingPending", () => {
 })
 
 describe("gradingPollDelay", () => {
-  it("polls quickly at first, then every five seconds", () => {
+  it("polls quickly at first, then every five seconds, then every half minute", () => {
     expect(gradingPollDelay(0)).toBe(1000)
     expect(gradingPollDelay(1000)).toBe(2000)
     expect(gradingPollDelay(3000)).toBe(3000)
     expect(gradingPollDelay(6000)).toBe(5000)
-    expect(gradingPollDelay(9 * 60 * 1000)).toBe(5000)
+    expect(gradingPollDelay(4 * 60 * 1000)).toBe(5000)
+    expect(gradingPollDelay(5 * 60 * 1000)).toBe(30_000)
+    expect(gradingPollDelay(59 * 60 * 1000)).toBe(30_000)
   })
 
-  it("gives up after ten minutes", () => {
-    expect(gradingPollDelay(10 * 60 * 1000)).toBe(false)
+  it("gives up once the host would have failed the grading", () => {
+    expect(gradingPollDelay(60 * 60 * 1000)).toBe(false)
   })
 })

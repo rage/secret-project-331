@@ -8,6 +8,7 @@
  * - TMC_LIVE_LANGS_CLI: a tmc-langs-cli binary
  * - TMC_LIVE_PYTHON_COURSE: a directory with tmc-vscode's test-python-course exercises
  *   `part01-01_passing_exercise` and `part01-02_failing_exercise`
+ * - TMC_LIVE_REDIS_URL: a Redis database for pending gradings; the test deletes its keys
  * - TMC_LIVE_SANDBOX_NOTIFY_SECRET (optional): the sandbox's SANDBOX_CALLBACK_SECRET
  */
 import * as actualChildProcess from "child_process"
@@ -18,15 +19,18 @@ import { createServer } from "node:http"
 import type { AddressInfo } from "node:net"
 import { join } from "node:path"
 
+import { Redis } from "ioredis"
 import { temporaryDirectory } from "tempy"
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest"
 
+import { REDIS_KEY_PREFIX } from "@/server/remoteSandbox/redisGradingStore"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
 
 const sandboxUrl = process.env.TMC_LIVE_SANDBOX_URL
 const langsCli = process.env.TMC_LIVE_LANGS_CLI
 const pythonCourse = process.env.TMC_LIVE_PYTHON_COURSE
+const redisUrl = process.env.TMC_LIVE_REDIS_URL
 
 vi.mock("child_process", async (importOriginal) => {
   const original = await importOriginal<typeof actualChildProcess>()
@@ -98,123 +102,179 @@ interface ReceivedUpdate {
   result: ExerciseTaskGradingResult
 }
 
-describe.skipIf(!sandboxUrl || !langsCli || !pythonCourse)("grading on a live sandbox", () => {
-  const archives = new Map<string, Buffer>()
-  const updates = new Map<string, (update: ReceivedUpdate) => void>()
-  let hostUrl: string
+describe.skipIf(!sandboxUrl || !langsCli || !pythonCourse || !redisUrl)(
+  "grading on a live sandbox",
+  () => {
+    const archives = new Map<string, Buffer>()
+    const updates = new Map<string, (update: ReceivedUpdate) => void>()
+    let hostUrl: string
+    /** Callbacks to turn away, as if the service were down when they came. */
+    let callbacksToDrop = 0
+    let droppedCallbacks = 0
 
-  beforeAll(async () => {
-    const callbackUrl = await listen((req, res) => {
-      void readBody(req).then(async (body) => {
-        const { sandboxResultsHandlers } = await import("@/server/sandboxResults")
-        const response = await sandboxResultsHandlers.POST(
-          new Request("http://tmc/api/sandbox-results", {
-            method: "POST",
-            body: new Uint8Array(body),
+    beforeAll(async () => {
+      const callbackUrl = await listen((req, res) => {
+        void readBody(req).then(async (body) => {
+          if (callbacksToDrop > 0) {
+            callbacksToDrop--
+            droppedCallbacks++
+            res.writeHead(503).end()
+            return
+          }
+          const { sandboxResultsHandlers } = await import("@/server/sandboxResults")
+          const response = await sandboxResultsHandlers.POST(
+            new Request("http://tmc/api/sandbox-results", {
+              method: "POST",
+              body: new Uint8Array(body),
+            }),
+          )
+          res.writeHead(response.status, { "content-type": "application/json" })
+          res.end(await response.text())
+        })
+      })
+      hostUrl = await listen((req, res) => {
+        const url = req.url ?? ""
+        if (req.method === "GET" && archives.has(url)) {
+          res.end(archives.get(url))
+          return
+        }
+        const resolve = updates.get(url)
+        if (req.method === "POST" && resolve) {
+          void readBody(req).then((body) => {
+            res.end("{}")
+            resolve({
+              claim: req.headers[EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER] as
+                | string
+                | undefined,
+              result: JSON.parse(body.toString()) as ExerciseTaskGradingResult,
+            })
+          })
+          return
+        }
+        res.writeHead(404).end()
+      })
+      vi.stubEnv("TMC_GRADING_SANDBOX", "remote")
+      vi.stubEnv("TMC_REMOTE_SANDBOX_URLS", sandboxUrl)
+      vi.stubEnv("TMC_REMOTE_SANDBOX_NOTIFY_URL", `${callbackUrl}/api/sandbox-results`)
+      vi.stubEnv("TMC_REMOTE_SANDBOX_NOTIFY_SECRET", process.env.TMC_LIVE_SANDBOX_NOTIFY_SECRET)
+      vi.stubEnv("TMC_REMOTE_SANDBOX_TOKEN_KEY", randomBytes(32).toString("base64"))
+      vi.stubEnv("TMC_REMOTE_SANDBOX_REDIS_URL", redisUrl)
+    })
+
+    afterAll(async () => {
+      vi.unstubAllEnvs()
+      const redis = new Redis(redisUrl as string)
+      const keys = await redis.keys(`${REDIS_KEY_PREFIX}*`)
+      if (keys.length > 0) {
+        await redis.del(...keys)
+      }
+      await redis.quit()
+      await Promise.all(
+        servers.map(
+          (server) =>
+            new Promise((resolve) => {
+              server.close(resolve)
+            }),
+        ),
+      )
+    })
+
+    async function gradeOnSandbox(exercise: string): Promise<ReceivedUpdate> {
+      return await (
+        await startGrading(exercise)
+      ).update
+    }
+
+    /** Resolves once /grade has answered, to the grading update still to come. */
+    async function startGrading(exercise: string): Promise<{ update: Promise<ReceivedUpdate> }> {
+      const { handleGrade } = await import("@/server/grade")
+      const submissionId = randomUUID()
+      archives.set(`/files/${submissionId}/template.tar.zst`, templateArchive(exercise))
+      archives.set(`/files/${submissionId}/answer.tar.zst`, answerArchive(exercise))
+      const updatePath = `/grading-update/${submissionId}`
+      const update = new Promise<ReceivedUpdate>((resolve) => {
+        updates.set(updatePath, resolve)
+      })
+      const repositoryExercise = {
+        id: randomUUID(),
+        repository_id: randomUUID(),
+        part: "part01",
+        name: exercise,
+        repository_url: "https://example.com/course",
+        checksum: [1],
+        download_url: `${hostUrl}/files/${submissionId}/template.tar.zst`,
+      }
+      const response = await handleGrade(
+        new Request("http://tmc/api/grade", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            [EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER]: "live-claim",
+          },
+          body: JSON.stringify({
+            grading_update_url: `${hostUrl}${updatePath}`,
+            exercise_spec: { type: "editor", repository_exercise: repositoryExercise },
+            submission_files: [
+              {
+                id: randomUUID(),
+                name: "answer.tar.zst",
+                mime: "application/zstd",
+                download_url: `${hostUrl}/files/${submissionId}/answer.tar.zst`,
+              },
+            ],
           }),
-        )
-        res.writeHead(response.status, { "content-type": "application/json" })
-        res.end(await response.text())
+        }),
+      )
+      expect(response.status).toBe(200)
+      return { update }
+    }
+
+    it("grades a passing exercise", { timeout: 15 * 60_000 }, async () => {
+      const { claim, result } = await gradeOnSandbox("part01-01_passing_exercise")
+      expect(claim).toBe("live-claim")
+      expect(result).toMatchObject({
+        grading_progress: "FullyGraded",
+        score_given: 1,
+        score_maximum: 1,
       })
     })
-    hostUrl = await listen((req, res) => {
-      const url = req.url ?? ""
-      if (req.method === "GET" && archives.has(url)) {
-        res.end(archives.get(url))
-        return
-      }
-      const resolve = updates.get(url)
-      if (req.method === "POST" && resolve) {
-        void readBody(req).then((body) => {
-          res.end("{}")
-          resolve({
-            claim: req.headers[EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER] as string | undefined,
-            result: JSON.parse(body.toString()) as ExerciseTaskGradingResult,
-          })
+
+    it(
+      "resends from a restarted service when the first result is lost",
+      { timeout: 15 * 60_000 },
+      async () => {
+        callbacksToDrop = 1
+        const { update } = await startGrading("part01-01_passing_exercise")
+        await vi.waitFor(
+          () => {
+            expect(droppedCallbacks).toBe(1)
+          },
+          { timeout: 10 * 60_000, interval: 1000 },
+        )
+        vi.resetModules()
+        const restarted = await import("@/server/remoteSandbox/remoteGradings")
+        const redis = new Redis(redisUrl as string)
+        const due = `${REDIS_KEY_PREFIX}due`
+        for (const id of await redis.zrange(due, "0", "-1")) {
+          await redis.zadd(due, "0", id)
+        }
+        await redis.quit()
+        await restarted.remoteGradings().sweep()
+        expect((await update).result).toMatchObject({
+          grading_progress: "FullyGraded",
+          score_given: 1,
         })
-        return
-      }
-      res.writeHead(404).end()
-    })
-    vi.stubEnv("TMC_GRADING_SANDBOX", "remote")
-    vi.stubEnv("TMC_REMOTE_SANDBOX_URLS", sandboxUrl)
-    vi.stubEnv("TMC_REMOTE_SANDBOX_NOTIFY_URL", `${callbackUrl}/api/sandbox-results`)
-    vi.stubEnv("TMC_REMOTE_SANDBOX_NOTIFY_SECRET", process.env.TMC_LIVE_SANDBOX_NOTIFY_SECRET)
-    vi.stubEnv("TMC_REMOTE_SANDBOX_TOKEN_KEY", randomBytes(32).toString("base64"))
-  })
-
-  afterAll(async () => {
-    vi.unstubAllEnvs()
-    await Promise.all(
-      servers.map(
-        (server) =>
-          new Promise((resolve) => {
-            server.close(resolve)
-          }),
-      ),
+      },
     )
-  })
 
-  async function gradeOnSandbox(exercise: string): Promise<ReceivedUpdate> {
-    const { handleGrade } = await import("@/server/grade")
-    const submissionId = randomUUID()
-    archives.set(`/files/${submissionId}/template.tar.zst`, templateArchive(exercise))
-    archives.set(`/files/${submissionId}/answer.tar.zst`, answerArchive(exercise))
-    const updatePath = `/grading-update/${submissionId}`
-    const update = new Promise<ReceivedUpdate>((resolve) => {
-      updates.set(updatePath, resolve)
+    it("grades a failing exercise", { timeout: 15 * 60_000 }, async () => {
+      const { result } = await gradeOnSandbox("part01-02_failing_exercise")
+      expect(result).toMatchObject({
+        grading_progress: "FullyGraded",
+        score_given: 0,
+        score_maximum: 1,
+        feedback_json: { status: "TESTS_FAILED" },
+      })
     })
-    const repositoryExercise = {
-      id: randomUUID(),
-      repository_id: randomUUID(),
-      part: "part01",
-      name: exercise,
-      repository_url: "https://example.com/course",
-      checksum: [1],
-      download_url: `${hostUrl}/files/${submissionId}/template.tar.zst`,
-    }
-    const response = await handleGrade(
-      new Request("http://tmc/api/grade", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          [EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER]: "live-claim",
-        },
-        body: JSON.stringify({
-          grading_update_url: `${hostUrl}${updatePath}`,
-          exercise_spec: { type: "editor", repository_exercise: repositoryExercise },
-          submission_files: [
-            {
-              id: randomUUID(),
-              name: "answer.tar.zst",
-              mime: "application/zstd",
-              download_url: `${hostUrl}/files/${submissionId}/answer.tar.zst`,
-            },
-          ],
-        }),
-      }),
-    )
-    expect(response.status).toBe(200)
-    return await update
-  }
-
-  it("grades a passing exercise", { timeout: 15 * 60_000 }, async () => {
-    const { claim, result } = await gradeOnSandbox("part01-01_passing_exercise")
-    expect(claim).toBe("live-claim")
-    expect(result).toMatchObject({
-      grading_progress: "FullyGraded",
-      score_given: 1,
-      score_maximum: 1,
-    })
-  })
-
-  it("grades a failing exercise", { timeout: 15 * 60_000 }, async () => {
-    const { result } = await gradeOnSandbox("part01-02_failing_exercise")
-    expect(result).toMatchObject({
-      grading_progress: "FullyGraded",
-      score_given: 0,
-      score_maximum: 1,
-      feedback_json: { status: "TESTS_FAILED" },
-    })
-  })
-})
+  },
+)

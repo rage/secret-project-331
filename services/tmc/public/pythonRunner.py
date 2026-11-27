@@ -9,6 +9,10 @@ from pyodide.ffi import can_run_sync, run_sync
 
 
 _builtin_input = builtins.input
+# What a Run may change in the interpreter it shares with Test, as it was before any Run.
+_initial_builtins = dict(vars(builtins))
+_initial_modules = set(sys.modules)
+_initial_recursion_limit = sys.getrecursionlimit()
 
 
 async def _input_async(prompt=""):
@@ -98,6 +102,17 @@ async def run_main(source, filename, input_mode=None):
     return None
 
 
-def restore_input():
-    """Undoes `run_main`'s `input()` so code that is not a Run (tests) gets the builtin back."""
+def reset_interpreter():
+    """Undoes what Runs changed in builtins and `sys`, and forgets modules they imported, so tests
+    see the interpreter much as it was loaded. Attributes a Run set on modules imported before
+    stay. Also undoes `run_main`'s `input()`."""
+    current = vars(builtins)
+    current.clear()
+    current.update(_initial_builtins)
     builtins.input = _builtin_input
+    for name in set(sys.modules) - _initial_modules:
+        del sys.modules[name]
+    sys.setrecursionlimit(_initial_recursion_limit)
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
+    sys.stdin = sys.__stdin__

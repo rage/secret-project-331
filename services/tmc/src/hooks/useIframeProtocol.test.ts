@@ -210,20 +210,31 @@ describe("useIframeProtocol", () => {
   })
 })
 
-/** Serves the same answer archive for the stub and the previous submission. */
-async function serveArchive() {
-  const tar = tarStudentFiles("ex01", [
-    { path: "src/main.py", contents: new TextEncoder().encode("print('submitted')\n") },
-  ])
-  const archive = (await Zstd.load()).compress(tar)
+/**
+ * Serves an answer archive whose `src/main.py` is `submitted` for the previous submission, and
+ * `stub` (the same by default) for the stub.
+ */
+async function serveArchive(stub = "print('submitted')\n") {
+  const zstd = await Zstd.load()
+  const pack = (contents: string) =>
+    zstd.compress(
+      tarStudentFiles("ex01", [
+        { path: "src/main.py", contents: new TextEncoder().encode(contents) },
+      ]),
+    )
+  const previousArchive = pack("print('submitted')\n")
+  const stubArchive = pack(stub)
   const realFetch = globalThis.fetch
   vi.stubGlobal(
     "fetch",
-    vi.fn((input: RequestInfo | URL, init?: RequestInit) =>
-      String(input).startsWith("http://files.example/")
-        ? Promise.resolve(new Response(new Uint8Array(archive), { status: 200 }))
-        : realFetch(input, init),
-    ),
+    vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (!url.startsWith("http://files.example/")) {
+        return realFetch(input, init)
+      }
+      const archive = url === PUBLIC_SPEC.stub_download_url ? stubArchive : previousArchive
+      return Promise.resolve(new Response(new Uint8Array(archive), { status: 200 }))
+    }),
   )
 }
 
@@ -263,6 +274,23 @@ describe("useIframeProtocol drafts", () => {
         ).toBe(true),
       { timeout: 3000 },
     )
+  })
+
+  it("keeps a reset to the stub after a submission as a draft", async () => {
+    await serveArchive("# write your code here\n")
+    const { result } = renderHook(() => useIframeProtocol())
+    const host = connectAsHost()
+    await act(() => host.postAndSettle(setStateMessage([PREVIOUS_ARCHIVE], BROWSER_SPEC)))
+    await waitFor(() =>
+      expect(result.current.state).toMatchObject({ uploaded_archive_id: PREVIOUS_ARCHIVE.id }),
+    )
+    const stub = [{ filepath: "src/main.py", contents: "# write your code here\n" }]
+
+    act(() => {
+      result.current.setAnswerFiles(stub)
+    })
+
+    await waitFor(() => expect(loadDraft(KEY)?.files).toEqual(stub), { timeout: 3000 })
   })
 
   it("keeps a newer submission and forgets a draft edited from an older starting point", async () => {

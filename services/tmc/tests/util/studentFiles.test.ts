@@ -50,6 +50,16 @@ describe("isStudentFile", () => {
 })
 
 describe("studentFilesInEditorOrder", () => {
+  it("opens a source file rather than an __init__.py when the spec names no main file", () => {
+    const { main_file: _main, ...withoutMain } = SPEC
+    expect(
+      studentFilesInEditorOrder(
+        ["src/__init__.py", "src/hello.py"].map((p) => file(p)),
+        withoutMain,
+      ).map((f) => f.filepath),
+    ).toEqual(["src/hello.py", "src/__init__.py"])
+  })
+
   it("drops non-student files and puts the main file first", () => {
     const files = [".tmcproject.yml", "src/a.py", "test/test_b.py", "src/b.py"].map((p) => file(p))
     expect(studentFilesInEditorOrder(files, SPEC).map((f) => f.filepath)).toEqual([

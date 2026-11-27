@@ -2,6 +2,8 @@ import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto"
 
 import { z } from "zod"
 
+import { parseJsonWithSchema } from "@/shared-module/common/utils/parseJsonWithSchema"
+
 const ALGORITHM = "aes-256-gcm"
 const IV_BYTES = 12
 const TAG_BYTES = 16
@@ -59,11 +61,8 @@ export function openToken(
     } catch {
       continue
     }
-    const parsed = tokenPayloadSchema.safeParse(JSON.parse(plaintext))
-    if (!parsed.success || parsed.data.exp < nowMs) {
-      return null
-    }
-    return parsed.data
+    const payload = parseJsonWithSchema(plaintext, tokenPayloadSchema)
+    return payload && payload.exp >= nowMs ? payload : null
   }
   return null
 }

@@ -114,7 +114,7 @@ async function run({ source, filename }) {
 
 async function test({ script }) {
   const { pyodide, runner } = await loaded
-  pyodide.runPython("restore_input()", { globals: runner })
+  pyodide.runPython("reset_interpreter()", { globals: runner })
   pyodide.setStdin({ stdin: () => undefined })
   let stdout = ""
   const stderr = []

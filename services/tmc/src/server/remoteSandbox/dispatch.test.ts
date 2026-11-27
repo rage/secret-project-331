@@ -87,6 +87,7 @@ function config(
     notifyUrl: "https://courses.mooc.fi/tmc/api/sandbox-results",
     notifySecret,
     tokenKeys: [Buffer.alloc(32)],
+    redisUrl: "redis://localhost",
   }
 }
 
@@ -154,7 +155,10 @@ describe("dispatchToSandbox", () => {
     ["503 busy", BUSY],
     ["master's 500 busy with a status", { status: 500, body: { status: "busy" } }],
     ["another 5xx", { status: 500, body: { error: "Internal server error", statusCode: 500 } }],
+    ["429 too many requests", { status: 429, body: { error: "Too Many Requests" } }],
+    ["401 bad credentials", { status: 401, body: { error: "Unauthorized" } }],
   ])("tries the next server after %s", async (_name, reply) => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
     const first = await fakeSandbox([reply])
     const second = await fakeSandbox([ACCEPTED])
     const clock = fakeClock()
@@ -199,6 +203,20 @@ describe("dispatchToSandbox", () => {
     })
     expect(clock.now()).toBeLessThanOrEqual(15 * 60_000)
     expect(clock.now()).toBeGreaterThan(15 * 60_000 - 10_000)
+  })
+
+  it("fails as a server error when every server refuses the credentials", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {})
+    const first = await fakeSandbox([{ status: 401, body: { error: "Unauthorized" } }])
+    const second = await fakeSandbox([{ status: 404, body: { error: "Not Found" } }])
+    const clock = fakeClock()
+    expect(
+      await dispatchToSandbox(TASK, config([first.server, second.server]), clock),
+    ).toMatchObject({
+      accepted: false,
+      result: { feedback_json: { feedback_key: "server_error" } },
+    })
+    expect(clock.sleeps).toEqual([])
   })
 
   it("fails a submission the server finds too large", async () => {

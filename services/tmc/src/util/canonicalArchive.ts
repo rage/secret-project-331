@@ -99,7 +99,13 @@ export async function packAnswerArchive(
     prefix,
     files.map((file) => ({ path: file.filepath, contents: encoder.encode(file.contents) })),
   )
-  zstdModule ??= import("@hpcc-js/wasm-zstd").then(({ Zstd }) => Zstd.load())
+  zstdModule ??= import("@hpcc-js/wasm-zstd")
+    .then(({ Zstd }) => Zstd.load())
+    .catch((e: unknown) => {
+      // A failed load is not cached, so the next save can try again.
+      zstdModule = null
+      throw e
+    })
   const zstd = await zstdModule
   const compressed = zstd.compress(tar)
   return new File([new Uint8Array(compressed)], ARCHIVE_NAME, { type: ARCHIVE_MIME })

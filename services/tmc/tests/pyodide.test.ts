@@ -119,6 +119,20 @@ async function runBrowserTests(studentCode: string) {
 }
 
 describe("Test", () => {
+  it("passes after a Run has replaced print, stdout and the recursion limit", async () => {
+    const runner = pyodide.toPy({})
+    pyodide.runPython(RUNNER, { globals: runner })
+    runner.set(
+      "source",
+      "import builtins, io, sys\nbuiltins.print = lambda *a, **k: None\nsys.stdout = io.StringIO()\nsys.setrecursionlimit(60)\n",
+    )
+    await pyodide.runPythonAsync("await run_main(source, 'src/main.py', 'none')", {
+      globals: runner,
+    })
+    pyodide.runPython("reset_interpreter()", { globals: runner })
+    expect((await runBrowserTests(SOLUTION)).status).toBe("PASSED")
+  })
+
   it("passes the model solution of a course-shaped exercise", async () => {
     expect((await runBrowserTests(SOLUTION)).status).toBe("PASSED")
   })

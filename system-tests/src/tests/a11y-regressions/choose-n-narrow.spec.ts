@@ -3,7 +3,8 @@ import { expect, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { getLocatorForNthExerciseServiceIframe, waitForViewType } from "../../utils/iframeLocators"
 
-test.use({ storageState: "src/states/user@example.com.json" })
+// Submits the exercise, so it has its own student: the other Choose N tests need it unanswered.
+test.use({ storageState: "src/states/student8@example.com.json" })
 
 test("Choose-N answer summary with a long word fits the iframe at 320 px", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 800 })

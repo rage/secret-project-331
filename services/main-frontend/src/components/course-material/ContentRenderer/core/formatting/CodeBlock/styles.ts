@@ -2,11 +2,14 @@ import { css } from "@emotion/css"
 
 import { monospaceFont } from "@/shared-module/common/styles"
 
+/** The .hljs background in highlight.js/styles/atom-one-dark.css; the frame, fade and copy button match it. */
+export const CODE_BACKGROUND_COLOR = "#282c34"
+
 /** Long lines scroll sideways instead of wrapping, so a wrapped line can't read as a new statement. */
 export const scrollerStyles = css`
   overflow-x: auto;
   border-radius: 4px;
-  background-color: #282c34;
+  background-color: ${CODE_BACKGROUND_COLOR};
 `
 
 export const getPreStyles = (fontSizePx: number) => css`
@@ -20,13 +23,12 @@ export const getPreStyles = (fontSizePx: number) => css`
 `
 
 export const codeBlockStyles = css`
-  /* Must track the .hljs background in highlight.js/styles/atom-one-dark.css. Set here too so the
-     colour does not depend on whether emotion or the theme sheet is injected last. */
-  background-color: #282c34;
+  /* Set here too so the colour does not depend on whether emotion or the theme sheet is injected last. */
+  background-color: ${CODE_BACKGROUND_COLOR};
   border-radius: 4px;
   font-variant-ligatures: none;
   font-feature-settings: "liga" 0;
-  /* atom-one-dark comment (2.3:1) and subst (4.4:1) fall short of 4.5:1 on #282c34. */
+  /* atom-one-dark comment (2.3:1) and subst (4.4:1) fall short of 4.5:1 on the background. */
   .hljs-comment,
   .hljs-quote {
     color: #9ca3af;
@@ -102,6 +104,6 @@ export const scrollHintStyles = css`
   bottom: 0;
   width: 3rem;
   border-radius: 0 4px 4px 0;
-  background: linear-gradient(to right, rgba(40, 44, 52, 0), #282c34);
+  background: linear-gradient(to right, transparent, ${CODE_BACKGROUND_COLOR});
   pointer-events: none;
 `

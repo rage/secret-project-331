@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useEffect, useMemo } from "react"
+import React, { useEffect, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import { headingCss, pageTitleCss } from "@/components/credit-registration/styles"
@@ -24,6 +24,32 @@ const CertificateImage: React.FC<CertificateImageProps> = ({ certificateBlob, de
   useEffect(() => {
     return () => {
       URL.revokeObjectURL(objectUrl)
+    }
+  }, [objectUrl])
+
+  const imageRef = useRef<HTMLImageElement>(null)
+  // A scaled image ends between pixels, and the antialiased edges of everything below it then differ
+  // from one render to the next. Stretching it by under half a pixel puts its bottom on a whole pixel.
+  useEffect(() => {
+    const image = imageRef.current
+    if (!image) {
+      return
+    }
+    const snapBottomToWholePixel = () => {
+      if (image.naturalWidth === 0) {
+        return
+      }
+      image.style.height = ""
+      const { bottom, height } = image.getBoundingClientRect()
+      const borderHeight = image.offsetHeight - image.clientHeight
+      image.style.height = `${height - borderHeight + Math.round(bottom) - bottom}px`
+    }
+    snapBottomToWholePixel()
+    image.addEventListener("load", snapBottomToWholePixel)
+    window.addEventListener("resize", snapBottomToWholePixel)
+    return () => {
+      image.removeEventListener("load", snapBottomToWholePixel)
+      window.removeEventListener("resize", snapBottomToWholePixel)
     }
   }, [objectUrl])
 
@@ -54,6 +80,7 @@ const CertificateImage: React.FC<CertificateImageProps> = ({ certificateBlob, de
           : t("certificate-for-completing-a-course-module")}
       </h1>
       <img
+        ref={imageRef}
         id="certificate-image"
         alt={details ? t("certificate-image-alt") : t("certificate-for-completing-a-course-module")}
         src={objectUrl}

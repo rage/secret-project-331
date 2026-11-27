@@ -37,10 +37,11 @@ export const paragraphDefaultBlockStyles = `
   }
 `
 
-export const baseParagraphStyles = (hideOverflow = false) => css`
-  margin: 1.25rem 0;
+// flow-root contains a drop cap's float without clipping long words, glossary popovers or citations.
+export const baseParagraphStyles = css`
+  margin: 0;
   min-width: 1px;
-  ${hideOverflow && `overflow-x: hidden; overflow-y: hidden;`}
+  display: flow-root;
   height: auto;
 `
 
@@ -48,13 +49,14 @@ export const getParagraphStyles = (
   textColor: string | undefined,
   backgroundColor: string | undefined,
   fontSize: string | undefined,
-  hideOverflow: boolean,
   dropCap: boolean,
   align: string | undefined,
   fitText?: boolean,
 ) => css`
   ${paragraphBaseDefaults}
-  ${hideOverflow && `overflow-x: hidden; overflow-y: hidden;`}
+  /* The renderer spaces blocks apart. */
+  margin: 0;
+  display: flow-root;
   color: ${colorMapper(textColor)};
   background-color: ${colorMapper(backgroundColor, UNSET_COLOR)};
   font-size: ${mobileFontSizeMapper(fontSize)};
@@ -77,7 +79,7 @@ export const getEditingStyles = (
   backgroundColor: string | undefined,
   fontSize: string | undefined,
 ) => css`
-  ${baseParagraphStyles(true)}
+  ${baseParagraphStyles}
   color: ${colorMapper(textColor)};
   background-color: ${colorMapper(backgroundColor, UNSET_COLOR)};
   font-size: ${fontSizeMapper(fontSize)};

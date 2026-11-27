@@ -16,7 +16,7 @@ export const ThingLinkEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribut
         className={css`
           width: 100%;
           max-width: 1000px;
-          margin: 4rem auto;
+          margin: 0 auto;
         `}
       >
         <iframe

@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
+import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -20,22 +21,13 @@ const AsideBLock: React.FC<React.PropsWithChildren<BlockRendererProps<AsideBlock
   return (
     <div
       className={css`
-        padding: 0rem 0.8rem;
-        border-top: 0.4rem solid ${props.data.attributes.separatorColor};
-        border-bottom: 0.4rem solid ${props.data.attributes.separatorColor};
-        background: ${props.data.attributes.backgroundColor};
+        /* A plain aside is a bar beside the text; the author's background colour is not used. */
+        padding: 0.25rem 0 0.25rem 1.25rem;
+        border-left: 4px solid
+          ${props.data.attributes.separatorColor || baseTheme.colors.green[600]};
 
         ${respondToOrLarger.md} {
-          padding: 1rem 2rem;
-        }
-
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-          margin-top: 0;
+          padding-left: 1.5rem;
         }
 
         /* Contain floated children (e.g. left-floated images) so they don't overflow past

@@ -5,10 +5,10 @@ import styled from "@emotion/styled"
 import React, { useRef } from "react"
 
 import { useCornerTapFlip } from "@/hooks/course-material/useCornerTapFlip"
-import { respondToOrLarger } from "@/shared-module/common//styles/respond"
+import { useImageAspectRatio } from "@/hooks/course-material/useImageAspectRatio"
+import { BREAKPOINT_REMS, respondToOrLarger } from "@/shared-module/common//styles/respond"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
-import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/course-material/constants"
 import { escapeUrlForCss } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import {
@@ -29,6 +29,8 @@ const DEFAULT_MARGIN_MEDIUM_SCREEN = "0 0 0 45%"
 const DEFAULT_MARGIN_LARGE_SCREEN = "0 0 0 35%"
 
 const TITLE_CLASS = "hero-title"
+// About the height of a hero with a one-line title and the default padding.
+const DEFAULT_HERO_HEIGHT_REM = 31
 
 const TextBox = styled.div<TextBoxProps>`
   display: flex;
@@ -138,6 +140,28 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
     backgroundImageLarge,
     backgroundImageXLarge,
   })
+  // Only a centred image sizes the box, and only the image for the current screen width is shown.
+  const measuredImage = (url: string | undefined) => (direction === CENTER ? url : undefined)
+  const mediumImageRatio = useImageAspectRatio(
+    measuredImage(backgroundImages.medium),
+    `(min-width: ${BREAKPOINT_REMS.md}rem) and (max-width: ${BREAKPOINT_REMS.lg - 0.01}rem)`,
+  )
+  const largeImageRatio = useImageAspectRatio(
+    measuredImage(backgroundImages.large),
+    `(min-width: ${BREAKPOINT_REMS.lg}rem) and (max-width: ${BREAKPOINT_REMS.xl - 0.01}rem)`,
+  )
+  const xlargeImageRatio = useImageAspectRatio(
+    measuredImage(backgroundImages.xlarge),
+    `(min-width: ${BREAKPOINT_REMS.xl}rem)`,
+  )
+  // A centred image is scaled to fit the box, so a wide image in the default-height box leaves blank bands
+  // above and below it. The box shrinks to the image's height but never grows past the default height for a
+  // tall image, and the text still pushes it taller when it needs to.
+  const fitBoxToImage = (ratio: number | null) =>
+    direction === CENTER && ratio !== null
+      ? `display: flex; flex-direction: column; justify-content: center; box-sizing: border-box;
+         min-height: min(${100 / ratio}vw, ${DEFAULT_HERO_HEIGHT_REM}rem); padding-top: 3rem; padding-bottom: 3rem;`
+      : ""
 
   return (
     <div
@@ -150,11 +174,19 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         padding: 7.5em 1em;
         margin-bottom: 3rem;
-        /** There should not be empty space before the hero section, so we'll undo the default block margin **/
-        margin-top: -${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem;
         background-color: ${backgroundColor || baseTheme.colors.clear[100]};
         position: relative;
         touch-action: manipulation;
+
+        ${respondToOrLarger.md} {
+          ${fitBoxToImage(mediumImageRatio)}
+        }
+        ${respondToOrLarger.lg} {
+          ${fitBoxToImage(largeImageRatio)}
+        }
+        ${respondToOrLarger.xl} {
+          ${fitBoxToImage(xlargeImageRatio)}
+        }
 
         &::after {
           background-size: ${backgroundSizeRem ?? 26}rem;

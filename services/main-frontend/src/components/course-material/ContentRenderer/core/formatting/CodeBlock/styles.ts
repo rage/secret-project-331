@@ -2,38 +2,33 @@ import { css } from "@emotion/css"
 
 import { monospaceFont } from "@/shared-module/common/styles"
 
-export const containerStyles = css`
-  position: relative;
-  max-width: 1000px;
-  margin: 0 auto;
+/** The .hljs background in highlight.js/styles/atom-one-dark.css; the frame, fade and copy button match it. */
+export const CODE_BACKGROUND_COLOR = "#282c34"
+
+/** Long lines scroll sideways instead of wrapping, so a wrapped line can't read as a new statement. */
+export const scrollerStyles = css`
+  overflow-x: auto;
+  border-radius: 4px;
+  background-color: ${CODE_BACKGROUND_COLOR};
 `
 
-export const getPreStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
-  margin-top: 0;
+export const getPreStyles = (fontSizePx: number) => css`
+  margin: 0;
+  min-width: 100%;
+  width: max-content;
   font-size: ${fontSizePx}px;
   font-family: ${monospaceFont} !important;
   line-height: 1.75rem;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  padding: 16px;
-  ${
-    allowFullWidth
-      ? `
-    margin-top: -1.5rem;
-    margin-bottom: -1.5rem;
-  `
-      : ""
-  }
+  white-space: pre;
 `
 
 export const codeBlockStyles = css`
-  /* Must track the .hljs background in highlight.js/styles/atom-one-dark.css. Set here too so the
-     colour does not depend on whether emotion or the theme sheet is injected last. */
-  background-color: #282c34;
+  /* Set here too so the colour does not depend on whether emotion or the theme sheet is injected last. */
+  background-color: ${CODE_BACKGROUND_COLOR};
   border-radius: 4px;
   font-variant-ligatures: none;
   font-feature-settings: "liga" 0;
-  /* atom-one-dark comment (2.3:1) and subst (4.4:1) fall short of 4.5:1 on #282c34. */
+  /* atom-one-dark comment (2.3:1) and subst (4.4:1) fall short of 4.5:1 on the background. */
   .hljs-comment,
   .hljs-quote {
     color: #9ca3af;
@@ -44,10 +39,11 @@ export const codeBlockStyles = css`
   .code-line {
     display: block;
   }
+  /* Spans the code's padding on both sides, so the highlight reaches the block's edges. */
   .highlighted-line {
     background-color: rgba(255, 255, 100, 0.1);
-    margin: 0 -16px;
-    padding: 0 16px 0 13px;
+    margin: 0 -3rem 0 -1em;
+    padding: 0 3rem 0 calc(1em - 3px);
     border-left: 3px solid #ffd700;
   }
 `
@@ -98,4 +94,16 @@ export const tooltipStyles = css`
     visibility: visible;
     opacity: 1;
   }
+`
+
+/** Fades the right edge while more of the lines is hidden there, so cut-off code reads as scrollable. */
+export const scrollHintStyles = css`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 3rem;
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(to right, transparent, ${CODE_BACKGROUND_COLOR});
+  pointer-events: none;
 `

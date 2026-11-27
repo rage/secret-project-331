@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import type { GlossaryState } from "@/contexts/course-material/GlossaryContext"
 import { GlossaryContext } from "@/contexts/course-material/GlossaryContext"
 import useAiUsageNoticeAcknowledgement from "@/hooks/course-material/useAiUsageNoticeAcknowledgement"
+import useCourse from "@/hooks/course-material/useCourse"
 import useDefaultChatbotConfiguration from "@/hooks/course-material/useDefaultChatbotConfiguration"
 import useDialogStep, { DialogStep } from "@/hooks/course-material/useDialogStep"
 import useGlossary from "@/hooks/course-material/useGlossary"
@@ -20,6 +21,7 @@ import useResearchConsentFormAnswers from "@/hooks/course-material/useResearchCo
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
 import AudioSpeaker from "@/img/course-material/audio-player/audio-speaker.svg"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import { baseTheme } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -91,6 +93,8 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
   const courseId = courseMaterialState.page?.course_id
   const courseName = courseMaterialState.course?.name
+  // The page response has no course for anonymous users.
+  const contentLanguage = useCourse(courseId).data?.language_code
   const pageId = courseMaterialState.page?.id
   const pageTitle = courseMaterialState.page?.title
 
@@ -356,7 +360,13 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
         {hasCourseClosed && <ClosedCourseWarningDialog />}
         <div>
           {/* TODO: Better type for Page.content in bindings. */}
-          <div id="content" className={inlineColorStyles}>
+          {/* html lang and dir follow the interface language, which can differ from the course's. */}
+          <div
+            id="content"
+            className={inlineColorStyles}
+            lang={contentLanguage}
+            dir={contentLanguage && getDir(contentLanguage)}
+          >
             <ContentRenderer
               data={(courseMaterialState.page?.content as Block<unknown>[]) ?? []}
               isExam={courseMaterialState.examData !== null}

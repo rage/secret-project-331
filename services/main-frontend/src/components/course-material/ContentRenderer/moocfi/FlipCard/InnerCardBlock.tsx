@@ -81,7 +81,5 @@ const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCa
 }
 
 const exported = withErrorBoundary(InnerCardBlock)
-// @ts-expect-error: Custom property
-exported.dontUseDefaultBlockMargin = true
 
 export default exported

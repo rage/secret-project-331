@@ -15,6 +15,11 @@ import type { BlockRendererProps } from "../../.."
 import ListFontSizeContext from "./listFontSizeContext"
 
 const LIST_BLOCK_CLASS_NAME = "course-material-list-block"
+/** About one line of text on a phone. */
+const LONG_ITEM_CHARACTERS = 60
+
+const textLength = (html: string | undefined) =>
+  (html ?? "").replaceAll(/<[^>]*>/g, "").trim().length
 
 const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttributes>>> = (
   props,
@@ -32,12 +37,18 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
   } = props.data.attributes
 
   const parentFontSize = useContext(ListFontSizeContext)
+  const hasLongItems = props.data.innerBlocks?.some(
+    (item) =>
+      textLength((item.attributes as { content?: string } | undefined)?.content) >
+      LONG_ITEM_CHARACTERS,
+  )
 
   const listItemClass = cx(
     css`
       ${fontSize && `font-size: ${mobileFontSizeMapper(fontSize)};`}
 
       padding-inline-start: 2.5rem !important;
+      margin-block: 0;
       overflow-wrap: break-word;
 
       ${respondToOrLarger.md} {
@@ -47,6 +58,9 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
       li::marker {
         color: ${baseTheme.colors.gray[600]};
       }
+
+      /* Items that run over several lines need space between them to read as separate points. */
+      ${hasLongItems && `> li + li { margin-top: 0.5em; }`}
     `,
     LIST_BLOCK_CLASS_NAME,
   )
@@ -99,7 +113,5 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
 }
 
 const exported = withErrorBoundary(ListBlock)
-// @ts-expect-error: Custom property
-exported.dontUseDefaultBlockMargin = true
 
 export default exported

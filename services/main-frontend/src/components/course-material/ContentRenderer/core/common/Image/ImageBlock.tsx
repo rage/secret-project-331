@@ -145,7 +145,9 @@ const ImageBlock: React.FC<
           width: ${imageWidthCss};
           max-width: 100%;
           height: auto;
-          margin: 1rem 0;
+          margin: 0;
+          /* No baseline gap under the inline image. */
+          vertical-align: top;
           ${isRounded && `border-radius: 9999px;`}
           ${scale && `object-fit: ${scale};`}
           ${effectiveAspectRatio && `aspect-ratio: ${effectiveAspectRatio};`}
@@ -184,24 +186,20 @@ const ImageBlock: React.FC<
           align === "right" &&
           `
         float: right;
-        margin-left: 1rem;`
+        margin: 0 0 1rem 1rem;`
         }
         ${
           align === "left" &&
           `
         float: left;
-        margin-right: 1em;`
+        margin: 0 1em 1rem 0;`
         }
       `}
     >
       <Figure
         className={css`
           ${align === "center" && `text-align: center;display: table;  margin: 0 auto;`}
-          ${
-            align !== "center" &&
-            `margin-top: 3rem;
-        margin-bottom: 3rem;`
-          }
+          ${align !== "center" && `margin: 0;`}
         `}
       >
         <div
@@ -219,10 +217,10 @@ const ImageBlock: React.FC<
               className: css`
                 caption-side: bottom;
                 text-align: center;
-                font-size: 0.8125rem;
+                font-size: 0.875rem;
+                line-height: 1.4;
                 color: ${baseTheme.colors.gray[500]};
-                margin-top: 0.5rem;
-                margin-bottom: 0.8125rem;
+                margin: 0.5rem 0 0;
               `,
             }}
             useWrapperElement={false}

@@ -353,7 +353,7 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
         className={css`
           width: 100%;
           max-width: 1000px;
-          margin: 4rem auto;
+          margin: 0 auto;
         `}
       >
         {!hasValidVideo && (
@@ -363,7 +363,7 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
               justify-content: center;
               align-items: center;
               background-color: ${baseTheme.colors.gray[100]};
-              aspect-ratio: ${aspectRatioFromClassName(className) || "16/9"};
+              aspect-ratio: ${aspectRatioFromClassName(className)};
               color: ${baseTheme.colors.gray[600]};
               font-size: ${baseTheme.fontSizes[1]}px;
               padding: 1rem;
@@ -379,7 +379,7 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
             className={css`
               position: relative;
               width: 100%;
-              aspect-ratio: ${aspectRatioFromClassName(className) || "16/9"};
+              aspect-ratio: ${aspectRatioFromClassName(className)};
             `}
           >
             {!isPlayerReady && (

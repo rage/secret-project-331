@@ -59,16 +59,30 @@ const ExpandableContentInnerBlock: React.FC<
             text-align: left;
             background: transparent;
             ${open ? "padding-bottom: 1rem;" : ""}
+
+            &:focus-visible {
+              outline: var(--focus-ring-width) solid var(--focus-ring-color);
+              outline-offset: var(--focus-ring-offset);
+            }
           `}
           aria-expanded={open}
           aria-controls={panelId}
           onClick={() => setOpen((prev) => !prev)}
         >
-          {open ? (
-            <MinusCircle size={18} color="#4C5868" />
-          ) : (
-            <PlusCircle size={18} color="#4C5868" />
-          )}
+          {/* The icon's inline <style> text would otherwise end up in the button's accessible name. */}
+          <span
+            aria-hidden="true"
+            className={css`
+              display: inline-flex;
+              flex-shrink: 0;
+            `}
+          >
+            {open ? (
+              <MinusCircle size={18} color="#4C5868" />
+            ) : (
+              <PlusCircle size={18} color="#4C5868" />
+            )}
+          </span>
           {heading}
         </button>
       </h4>
@@ -96,7 +110,5 @@ const ExpandableContentInnerBlock: React.FC<
 }
 
 const exported = withErrorBoundary(ExpandableContentInnerBlock)
-// @ts-expect-error: Custom property
-exported.dontUseDefaultBlockMargin = true
 
 export default exported

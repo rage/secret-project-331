@@ -34,7 +34,6 @@ export type BaseParsedTextProps<T extends Tag> =
       render: (args: {
         ref: (node: HTMLElement | null) => void
         count: number
-        hasCitationsOrGlossary: boolean
       }) => React.ReactElement
       tag?: undefined
       options?: { glossary: boolean }

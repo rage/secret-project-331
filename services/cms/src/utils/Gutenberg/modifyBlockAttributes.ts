@@ -37,14 +37,21 @@ export function modifyEmbedBlockAttributes(settings: any, name: string): any {
 }
 
 /**
- * Adds a `language` attribute to core/code so the author can pick the syntax-highlighting language
- * instead of relying on highlight.js auto-detection. An empty/missing value means auto-detect.
+ * Adds author settings to core/code: `language` picks the syntax-highlighting language (missing means
+ * auto-detect), `codeWidth` is "column" (default) or "wide", and `codeFontSize` is "small", "normal"
+ * (default) or "large".
  */
 // oxlint-disable-next-line typescript/no-explicit-any
 export function modifyCodeBlockAttributes(settings: any, name: string): any {
   if (name === "core/code") {
     settings.attributes = assign(settings.attributes, {
       language: {
+        type: "string",
+      },
+      codeWidth: {
+        type: "string",
+      },
+      codeFontSize: {
         type: "string",
       },
     })

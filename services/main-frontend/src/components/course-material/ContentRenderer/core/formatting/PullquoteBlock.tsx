@@ -13,7 +13,7 @@ import type { BlockRendererProps } from "../.."
 const FONT_SIZES: Record<string, string> = {
   small: "18px",
   normal: "22px",
-  medium: "36px",
+  medium: "26px",
   large: "30px",
   huge: "34px",
 }

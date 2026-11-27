@@ -12,7 +12,10 @@ import { useTranslation } from "react-i18next"
 import CopyIcon from "@/img/course-material/copy.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
+import { CODE_BACKGROUND_COLOR } from "./styles"
 import { useCopyHtmlContentToClipboard } from "./utils"
+
+const HOVER_BACKGROUND_COLOR = "#3a3f4a"
 
 const COPY_STATUS = {
   DEFAULT: "default",
@@ -35,9 +38,12 @@ interface CopyButtonProps {
 
 const buttonStyles = css`
   position: absolute;
-  top: 26px;
-  right: 26px;
-  background: transparent;
+  /* Above the scroll fade. */
+  z-index: 1;
+  top: 10px;
+  right: 10px;
+  /* Opaque, because long lines scroll underneath it; matches the code background. */
+  background-color: ${CODE_BACKGROUND_COLOR};
   border: none;
   cursor: pointer;
   padding: 4px;
@@ -59,11 +65,11 @@ const buttonStyles = css`
     color: ${ICON_COLORS.ERROR};
   }
   &:hover:not([data-status="default"]) {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: ${HOVER_BACKGROUND_COLOR};
   }
   &:hover[data-status="default"] {
     transform: scale(1.1);
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: ${HOVER_BACKGROUND_COLOR};
   }
 `
 

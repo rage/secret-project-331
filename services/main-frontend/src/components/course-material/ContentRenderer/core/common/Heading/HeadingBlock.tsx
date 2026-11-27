@@ -14,7 +14,6 @@ import {
 } from "@/shared-module/common/utils/headingAnchors"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
-import { marginTopHeadingMapper } from "@/styles/course-material/headerMarginMapper"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import type { BlockRendererProps } from "../../.."
@@ -53,14 +52,20 @@ const HeadingBlock: React.FC<
       css`
         position: relative;
         line-height: ${level === 1 ? 1.1 : 1.2};
-        margin-bottom: 1rem;
-        margin-top: ${marginTopHeadingMapper(level)};
+        margin: 0;
         font-weight: 600;
         ${textAlign && `text-align: ${textAlign};`}
         ${
           fitText && `font-size: clamp(1rem, 4vw, ${fontSize ? fontSizeMapper(fontSize) : "3rem"});`
         }
         ${!fitText && fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
+        /* Levels 5 and 6 read as small labels, so they don't look like a bold paragraph. */
+        ${
+          level >= 5 &&
+          !fontSize &&
+          !fitText &&
+          `font-size: 0.9375rem; text-transform: uppercase; letter-spacing: 0.06em; color: color-mix(in srgb, currentColor 75%, transparent);`
+        }
 
         &:hover .${HEADING_ANCHOR_LINK_CLASS}, &:focus-within .${HEADING_ANCHOR_LINK_CLASS} {
           opacity: 1;
@@ -88,7 +93,5 @@ const HeadingBlock: React.FC<
 }
 
 const exported = withErrorBoundary(HeadingBlock)
-// @ts-expect-error: Custom property
-exported.dontUseDefaultBlockMargin = true
 
 export default exported

@@ -5,6 +5,7 @@ import { css } from "@emotion/css"
 import type { QuoteAttributes } from "@/../types/GutenbergBlockAttributes"
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import ParsedText from "@/components/course-material/ParsedText"
+import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 import type { BlockRendererProps } from "../../.."
@@ -17,21 +18,18 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes & ExtraAttributes>
   const { citation, value, align } = props.data.attributes
 
   const styleLeftDefault = css`
-    padding: 0.4rem 1rem;
-    margin: 2.5rem 0;
+    padding: 0.25rem 0 0.25rem 1.25rem;
     max-width: 100%;
-    border-left: 7px solid #bdc7d1;
-    background: #f6f8fa;
+    border-left: 3px solid ${baseTheme.colors.gray[200]};
   `
   const styleRightDefault = css`
-    padding: 0.5rem 2rem;
-    margin: 2.5rem 0;
+    padding: 0.25rem 1.25rem 0.25rem 0;
     max-width: 650px;
-    border-right: 7px solid #bfbfbf;
+    margin-left: auto;
+    border-right: 3px solid ${baseTheme.colors.gray[200]};
     text-align: right;
   `
   const styleCenterDefault = css`
-    margin-bottom: 1.75em;
     text-align: center;
   `
 
@@ -41,7 +39,7 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes & ExtraAttributes>
         ${((align && align === "left") || !align) && styleLeftDefault}
         ${align && align === "right" && styleRightDefault}
         ${align && align === "center" && styleCenterDefault}
-        margin-bottom: 1.75rem;
+        margin-block: 0;
       `}
       cite={citation}
     >
@@ -56,7 +54,9 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes & ExtraAttributes>
           tagProps={{
             className: css`
               font-style: normal;
-              font-size: 0.8125rem;
+              font-size: 0.875rem;
+              color: ${baseTheme.colors.gray[500]};
+              margin-top: 0.5rem;
             `,
           }}
           useWrapperElement={true}

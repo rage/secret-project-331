@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import { BreakFromCenteredDisabledContext } from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
 import { linkWithExtraIconClass } from "@/shared-module/common/styles/constants"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { Block } from "@/types/courseMaterialBlock"
@@ -81,6 +82,8 @@ import RevealableHiddenContentBlock from "./moocfi/RevealableContentBlock/Reveal
 import TableBox from "./moocfi/TableBox"
 import TerminologyBlock from "./moocfi/TerminologyBlock"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
+import { blockGapRem, FixedBlockGapContext } from "./util/blockGap"
+import { isEmptyBlock } from "./util/isEmptyBlock"
 
 /** The props that this component receives */
 export interface ContentRendererProps {
@@ -202,11 +205,16 @@ const highlightedBlockStyles = css`
   outline-offset: 10px;
 `
 
-// Adds a default margin between all blocks. If you would like to undo this margin in some cases, add a negative margin to the block implementation
-// or add dontUseDefaultBlockMargin to the block implementation. See the Heading block for an example.
-const defaultBlockMargin = css`
-  margin: ${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem 0;
+// Blocks own no outer margin: the gap above each one depends on it and the block before it (blockGapRem).
+const blockMarginStyles = (topRem: number, bottomRem: number) => css`
+  margin: ${topRem}rem 0 ${bottomRem}rem;
 `
+
+// Heroes open the page flush under the header.
+const HERO_BLOCKS = new Set(["moocfi/hero-section", "moocfi/landing-page-hero-section"])
+
+// True inside a block's own block list (hero, column, flip card...), which must not get the page's edge spacing.
+const NestedContentRendererContext = createContext(false)
 
 const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> = ({
   data,
@@ -220,6 +228,8 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
     .filter((id) => id !== "")
   const { t } = useTranslation()
   const blockRendererOverrides = useContext(BlockRendererOverridesContext)
+  const isNested = useContext(NestedContentRendererContext)
+  const fixedGapRem = useContext(FixedBlockGapContext)
   if (data.constructor !== Array) {
     return (
       <div>
@@ -266,17 +276,31 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
     }
   })
 
+  const visibleBlocks = data.filter((block) => !isEmptyBlock(block))
   const content = (
-    <>
-      {data.map((block) => {
+    <NestedContentRendererContext.Provider value={true}>
+      {visibleBlocks.map((block, index) => {
         const Component =
           blockRendererOverrides[block.name] ?? blockToRendererMap[block.name] ?? DefaultBlock
         const isHighlighted = highlightBlocks.includes(block.clientId)
-        const dontUseDefaultBlockMargin = Component.dontUseDefaultBlockMargin === true
+        // The page's own block list keeps room at its top and bottom edges.
+        const isOutermost = !isNested
+        const topRem =
+          isOutermost && index === 0
+            ? HERO_BLOCKS.has(block.name)
+              ? 0
+              : COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM
+            : index > 0 && fixedGapRem !== null
+              ? fixedGapRem
+              : blockGapRem(visibleBlocks[index - 1], block)
+        const bottomRem =
+          isOutermost && index === visibleBlocks.length - 1
+            ? COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM
+            : 0
         const wrapperClassName = cx(
           courseMaterialBlockClass,
           (isHighlighted && highlightedBlockStyles) ?? undefined,
-          dontUseDefaultBlockMargin ? undefined : defaultBlockMargin,
+          blockMarginStyles(topRem, bottomRem),
         )
 
         // In some cases we cannot use the wrapper div to get the correct HTML.
@@ -313,7 +337,7 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
           </div>
         )
       })}
-    </>
+    </NestedContentRendererContext.Provider>
   )
 
   if (dontAddWrapperDivMeantForMostOutermostContentRenderer) {
@@ -330,6 +354,34 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
           font-size: 20px;
           text-underline-offset: 4.6px;
           text-decoration-thickness: 1.6px;
+          /* Long Finnish compounds and URLs would otherwise run out of the column on phones. */
+          overflow-wrap: break-word;
+
+          /* Narrow columns only: there long words leave ragged gaps. Follows the content language set on
+          #content, and only splits words of 10+ letters. */
+          p {
+            hyphens: auto;
+            hyphenate-limit-chars: 10 4 4;
+          }
+          ${respondToOrLarger.sm} {
+            p {
+              hyphens: manual;
+            }
+          }
+          h1,
+          h2,
+          h3,
+          h4,
+          h5,
+          h6 {
+            text-wrap: balance;
+          }
+
+          a[data-button-variant] {
+            max-width: 100%;
+            white-space: normal;
+            overflow-wrap: anywhere;
+          }
           a:not([data-button-variant]) {
             color: #1072ea;
             &:hover {

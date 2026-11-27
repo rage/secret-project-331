@@ -24,6 +24,17 @@ jest.mock("../ParsedText", () => ({
   },
 }))
 
+// jsdom has no matchMedia; the hero measures its background images only on wide screens.
+beforeAll(() => {
+  window.matchMedia = (query: string) =>
+    ({
+      matches: false,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }) as unknown as MediaQueryList
+})
+
 const AUTHOR_BACKGROUND_IMAGE = "https://example.com/author-image.png"
 
 /** The readability shadow itself, so that the `text-shadow: none` of a plain hero does not match. */

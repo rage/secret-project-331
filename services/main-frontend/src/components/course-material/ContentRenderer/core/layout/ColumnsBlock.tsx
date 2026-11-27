@@ -3,59 +3,48 @@
 import { css } from "@emotion/css"
 
 import type { ColumnAttributes, ColumnsAttributes } from "@/../types/GutenbergBlockAttributes"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { Block } from "@/types/courseMaterialBlock"
 
 import type { BlockRendererProps } from "../.."
-import ColumnBlock from "./ColumnBlock"
+import ColumnBlock, { columnWidthPercent, FLEX_ALIGNMENT } from "./ColumnBlock"
 
-const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsAttributes>>> = ({
-  data,
-  isExam,
-}) => {
-  const innerBlocks = data.innerBlocks as Block<ColumnAttributes>[]
-  const {
-    isStackedOnMobile,
-    // align,
-    // className,
-
-    // style,
-
-    verticalAlignment,
-  } = data.attributes
+const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsAttributes>>> = (
+  props,
+) => {
+  const innerBlocks = props.data.innerBlocks as Block<ColumnAttributes>[]
+  const { isStackedOnMobile, verticalAlignment } = props.data.attributes
+  const alignItems = verticalAlignment ? FLEX_ALIGNMENT[verticalAlignment] : undefined
+  const percents = innerBlocks.map((block) => columnWidthPercent(block.attributes.width))
+  const percentTotal = percents.reduce<number>((total, percent) => total + (percent ?? 0), 0)
+  const unsetCount = innerBlocks.filter((block) => !block.attributes.width).length
+  // Columns without a width split what the others leave, as in the editor.
+  const unsetWidthShare =
+    percentTotal > 0 && unsetCount > 0 ? Math.max(100 - percentTotal, 0) / unsetCount : undefined
 
   return (
     <div
       className={css`
-        /* This respondToOrLarger should be kept on top,
-          as this has some stylelint parsing error in pre-commit hook, probably related to:
-          https://github.com/stylelint/stylelint/issues/4401
-        */
-        ${respondToOrLarger.md} {
-          div:not(:first-child) {
-            margin-left: 2rem;
-          }
-          flex-wrap: nowrap;
-        }
-        ${verticalAlignment && `align-items: ${verticalAlignment};`}
         display: flex;
         flex-wrap: wrap;
-
-        ${
-          isStackedOnMobile &&
-          respondToOrLarger.md &&
-          "> div { width: 100%; }" /* Ensure width 100% for child divs */
-        }
-        ${
-          !isStackedOnMobile &&
-          "div:not(:first-child) { margin-left: 2rem; }" /* Ensure that margin-left for div #2> is on mobile if not stacked enabled */
-        }
+        gap: 1.5rem 2rem;
+        ${alignItems && `align-items: ${alignItems};`}
       `}
     >
-      {innerBlocks.map((block) => {
-        return <ColumnBlock key={block.clientId} data={block} id={block.clientId} isExam={isExam} />
-      })}
+      {innerBlocks.map((block) => (
+        <ColumnBlock
+          key={block.clientId}
+          data={block}
+          id={block.clientId}
+          isExam={props.isExam}
+          dontAllowBlockToBeWiderThanContainerWidth={
+            props.dontAllowBlockToBeWiderThanContainerWidth === true
+          }
+          unsetWidthShare={unsetWidthShare}
+          isOnlyColumn={innerBlocks.length === 1}
+          isStackedOnMobile={isStackedOnMobile !== false}
+        />
+      ))}
     </div>
   )
 }

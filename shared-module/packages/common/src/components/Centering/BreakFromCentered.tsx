@@ -3,6 +3,8 @@
 import { css } from "@emotion/css"
 import React, { useContext } from "react"
 
+import { CenteredPaddingContext } from "./Centered"
+
 interface NoSidebar {
   sidebar: false
 }
@@ -70,7 +72,9 @@ const BreakFromCentered: React.FC<React.PropsWithChildren<BreakFromCenteredProps
             }
           `}
         >
-          {props.children}
+          <CenteredPaddingContext.Provider value={false}>
+            {props.children}
+          </CenteredPaddingContext.Provider>
         </div>
       )
     }
@@ -85,7 +89,9 @@ const BreakFromCentered: React.FC<React.PropsWithChildren<BreakFromCenteredProps
           width: calc(100vw - ${props.sidebarWidth} - ${scrollbarWidth}px);
         `}
       >
-        {props.children}
+        <CenteredPaddingContext.Provider value={false}>
+          {props.children}
+        </CenteredPaddingContext.Provider>
       </div>
     )
   }
@@ -100,7 +106,9 @@ const BreakFromCentered: React.FC<React.PropsWithChildren<BreakFromCenteredProps
         width: calc(100vw - ${scrollbarWidth}px);
       `}
     >
-      {props.children}
+      <CenteredPaddingContext.Provider value={false}>
+        {props.children}
+      </CenteredPaddingContext.Provider>
     </div>
   )
 }

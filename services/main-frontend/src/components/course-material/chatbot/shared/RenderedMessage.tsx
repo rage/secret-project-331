@@ -51,10 +51,10 @@ const messageStyle = css`
     background-color: ${baseTheme.colors.clear[200]};
   }
   pre {
-    /*the pre element corresponds to md raw text, this property
-    will force long strings in it to wrap and not overflow */
+    ${getPreStyles(14)}
     white-space: pre-wrap;
-    ${getPreStyles(14, false)}
+    width: auto;
+    margin-bottom: 1em;
     padding: 0;
     border-radius: 0.4rem;
   }

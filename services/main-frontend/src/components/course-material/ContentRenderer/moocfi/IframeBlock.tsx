@@ -27,7 +27,7 @@ export const IframeBlock: React.FC<BlockRendererProps<IframeAttributes>> = (prop
         className={css`
           width: 100%;
           max-width: ${widthPx ?? 1000}px;
-          margin: 4rem auto;
+          margin: 0 auto;
         `}
       >
         <iframe

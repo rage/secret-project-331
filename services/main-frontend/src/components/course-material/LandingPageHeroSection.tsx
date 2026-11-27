@@ -10,7 +10,6 @@ import DefaultSVG from "@/shared-module/common/img/hero-default-bg-image.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { Button, focusProgrammatically } from "@/shared-module/components"
-import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/course-material/constants"
 import { escapeUrlForCss } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import {
@@ -150,7 +149,6 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         border-radius: 1px;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         padding: 5em 1em;
-        margin-top: -${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem;
         background-color: ${backgroundColor};
         ${
           backgroundImages.mobile &&

@@ -13,8 +13,6 @@ import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCour
 
 const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
 const LATEX_CITE_REGEX = /\\cite(?:\[([^\]]*)\])?(?:\[([^\]]*)\])?{(.*?)}/g
-const HTML_ESCAPED_AMPERSAND = "&amp;"
-const AMPERSAND_CHAR = "&"
 const HTML_MIME_TYPE = "text/html"
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
 const REGEX_MODE = "gu"
@@ -169,8 +167,8 @@ export const replaceTextNodeWithGlossarySpans = (
 const convertToLatex = (data: string) => {
   let count = 0
   const converted = data.replaceAll(LATEX_REGEX, (_, latex) => {
-    // Convert ampersand back to special symbol. This is needed e.g. in matrices
-    const processed = latex.replaceAll(HTML_ESCAPED_AMPERSAND, AMPERSAND_CHAR)
+    // Rich text stores `&` (matrices) and `<` as character references, which KaTeX can't parse.
+    const processed = decodeHtmlEntities(latex)
     count++
     return renderToString(processed, {
       throwOnError: false,
@@ -319,11 +317,9 @@ const parseText = (
     glossaryEntries = Array.from(uniqueTerms.values())
   }
 
-  const hasCitationsOrGlossary = parsedLatex !== parsedText
-
   // Sanitation always needs to be the last step because otherwise we might accidentally introduce injection attacks with our custom parsing and modifications to the string
   parsedText = sanitizeCourseMaterialHtml(parsedText)
-  return { count, parsedText, hasCitationsOrGlossary, glossaryEntries }
+  return { count, parsedText, glossaryEntries }
 }
 
 export { parseText }

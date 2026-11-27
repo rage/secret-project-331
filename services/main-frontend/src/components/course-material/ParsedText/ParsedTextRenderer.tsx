@@ -48,7 +48,6 @@ const ParsedTextRenderer = <T extends Tag>(
     return props.render({
       ref: renderRefCallback,
       count: parsedTextResult.count,
-      hasCitationsOrGlossary: parsedTextResult.hasCitationsOrGlossary,
     })
   }
 
